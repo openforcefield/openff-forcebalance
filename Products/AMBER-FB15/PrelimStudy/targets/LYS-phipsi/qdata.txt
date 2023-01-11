@@ -1,1 +1,0 @@
-../../../Optimize/ScanData/LYS-phipsi/qdata.txt

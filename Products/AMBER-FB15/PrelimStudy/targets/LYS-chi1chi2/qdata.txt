@@ -1,1 +1,0 @@
-../../../Optimize/ScanData/LYS-chi1chi2/qdata.txt
