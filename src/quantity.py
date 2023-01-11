@@ -29,7 +29,7 @@ def energy_derivatives(engine, FF, mvals, h, pgrad, length, AGrad=True):
     Parameters
     ----------
     engine : Engine
-        Use this Engine (`GMX`,`TINKER`,`OPENMM` etc.) object to get the energy
+        Use this Engine (`GMX`,`OPENMM` etc.) object to get the energy
         snapshots.
     FF : FF
        Force field object.

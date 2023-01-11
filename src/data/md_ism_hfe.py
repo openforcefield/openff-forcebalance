@@ -57,7 +57,7 @@ parser.add_argument('-dt', '--timestep', dest='timestep', type=float,
 parser.add_argument('-sp', '--sample', dest='sample', type=float, 
                     help='Sampling interval in picoseconds (leave blank to use default from simulation.p)')
 parser.add_argument('-nt', '--threads', dest='threads', type=int, 
-                    help='Number of threads for running parallel simulations (GMX, TINKER)')
+                    help='Number of threads for running parallel simulations (GMX)')
 parser.add_argument('-min', '--minimize', dest='minimize', action='store_true',
                     help='Whether to minimize the energy before starting the simulation')
 parser.add_argument('-o', '-out', '--output', dest='output', type=str, nargs='+', 
@@ -105,11 +105,8 @@ if engname == "openmm":
 elif engname == "gromacs" or engname == "gmx":
     from forcebalance.gmxio import *
     EngineClass = GMX
-elif engname == "tinker":
-    from forcebalance.tinkerio import *
-    EngineClass = TINKER
 else:
-    raise Exception('OpenMM, GROMACS, and TINKER are supported at this time.')
+    raise Exception('OpenMM and GROMACS are supported at this time.')
 
 def main():
     

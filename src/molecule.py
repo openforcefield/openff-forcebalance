@@ -543,10 +543,7 @@ def format_xyz_coord(element,xyz,tinker=False):
     @param[in] xyz A 3-element array containing x, y, z coordinates of that atom
 
     """
-    if tinker:
-        return "%-3s % 13.8f % 13.8f % 13.8f" % (element,xyz[0],xyz[1],xyz[2])
-    else:
-        return "%-5s % 15.10f % 15.10f % 15.10f" % (element,xyz[0],xyz[1],xyz[2])
+    return "%-5s % 15.10f % 15.10f % 15.10f" % (element,xyz[0],xyz[1],xyz[2])
 
 def _format_83(f):
     """Format a single float into a string of width 8, with ideally 3 decimal
@@ -679,9 +676,6 @@ def diff(A, B, key):
     else:
         if type(A.Data[key]) is np.ndarray:
             return (A.Data[key] != B.Data[key]).any()
-        elif key == 'tinkersuf':
-            return [sorted([int(j) for j in i.split()]) for i in A.Data[key]] != \
-                [sorted([int(j) for j in i.split()]) for i in B.Data[key]]
         else:
             return A.Data[key] != B.Data[key]
 
@@ -1841,22 +1835,7 @@ class Molecule(object):
         for key in self.FrameKeys | self.MetaKeys:
             New.Data[key] = copy.deepcopy(self.Data[key])
         for key in self.AtomKeys:
-            if key == 'tinkersuf': # Tinker suffix is a bit tricky
-                Map = dict([(a+1, i+1) for i, a in enumerate(atomslice)])
-                CopySuf = list(np.array(self.Data[key])[atomslice])
-                NewSuf = []
-                for line in CopySuf:
-                    whites      = re.split('[^ ]+',line)
-                    s           = line.split()
-                    if len(s) > 1:
-                        for i in range(1,len(s)):
-                            s[i] = str(Map[int(s[i])])
-                    sn = [int(i) for i in s[1:]]
-                    s = [s[0]] + list(np.array(s[1:])[np.argsort(sn)])
-                    NewSuf.append(''.join([whites[j]+s[j] for j in range(len(s))]))
-                New.Data['tinkersuf'] = NewSuf[:]
-            else:
-                New.Data[key] = list(np.array(self.Data[key])[atomslice])
+            New.Data[key] = list(np.array(self.Data[key])[atomslice])
         for key in self.FrameKeys:
            if key in ['xyzs', 'qm_grads', 'qm_mulliken_charges', 'qm_mulliken_spins']:
                New.Data[key] = [self.Data[key][i][atomslice] for i in range(len(self))]
@@ -1889,16 +1868,8 @@ class Molecule(object):
             if key not in other.Data:
                 logger.error('Trying to stack two Molecule objects - the first object contains %s and the other does not\n' % key)
                 raise RuntimeError
-            if key == 'tinkersuf': # Tinker suffix is a bit tricky
-                NewSuf = []
-                for line in other.Data[key]:
-                    whites      = re.split('[^ ]+',line)
-                    s           = line.split()
-                    if len(s) > 1:
-                        for i in range(1,len(s)):
-                            s[i] = str(int(s[i]) + self.na)
-                    NewSuf.append(''.join([whites[j]+s[j] for j in range(len(s))]))
-                New.Data[key] = copy.deepcopy(self.Data[key]) + NewSuf
+            if False:
+                pass
             else:
                 if type(self.Data[key]) is np.ndarray:
                     New.Data[key] = np.concatenate((self.Data[key], other.Data[key]))
@@ -3221,86 +3192,6 @@ class Molecule(object):
                   'mult'   : mult}
         return Answer
 
-    def read_arc(self, fnm, **kwargs):
-        """ Read a TINKER .arc file.
-
-        @param[in] fnm  The input file name
-        @return xyzs    A list for the  XYZ coordinates.
-        @return boxes   A list of periodic boxes (newer .arc files have these)
-        @return resid   The residue ID numbers.  These are not easy to get!
-        @return elem    A list of chemical elements in the XYZ file
-        @return comms   A single-element list for the comment.
-        @return tinkersuf  The suffix that comes after lines in the XYZ coordinates; this is usually topology info
-
-        """
-        tinkersuf   = []
-        boxes = []
-        xyzs  = []
-        xyz   = []
-        resid = []
-        elem  = []
-        comms = []
-        thisres = set([])
-        forwardres = set([])
-        title = True
-        nframes = 0
-        thisresid   = 1
-        ln = 0
-        thisatom = 0
-        for line in open(fnm):
-            line = line.strip().expandtabs()
-            sline = line.split()
-            if len(sline) == 0: continue
-            # The first line always contains the number of atoms
-            # The words after the first line are comments
-            if title:
-                na = int(sline[0])
-                comms.append(' '.join(sline[1:]))
-                title = False
-            elif len(sline) >= 5:
-                if len(sline) == 6 and isfloat(sline[1]) and all([isfloat(i) for i in sline]): # Newer .arc files have a .box line.
-                    a, b, c, alpha, beta, gamma = (float(i) for i in sline[:6])
-                    boxes.append(BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma))
-                elif isint(sline[0]) and isfloat(sline[2]) and isfloat(sline[3]) and isfloat(sline[4]): # A line of data better look like this
-                    if nframes == 0:
-                        elem.append(elem_from_atomname(sline[1]))
-                        resid.append(thisresid)
-                        whites      = re.split('[^ ]+',line)
-                        if len(sline) > 5:
-                            s = sline[5:]
-                            if len(s) > 1:
-                                sn = [int(i) for i in s[1:]]
-                                s = [s[0]] + list(np.array(s[1:])[np.argsort(sn)])
-                            tinkersuf.append(''.join([whites[j]+s[j-5] for j in range(5,len(sline))]))
-                        else:
-                            tinkersuf.append('')
-                    # LPW Make sure ..
-                    thisatom += 1
-                    #thisatom = int(sline[0])
-                    thisres.add(thisatom)
-                    forwardres.add(thisatom)
-                    if len(sline) >= 6:
-                        forwardres.update([int(j) for j in sline[6:]])
-                    if thisres == forwardres:
-                        thisres = set([])
-                        forwardres = set([])
-                        thisresid += 1
-                    xyz.append([float(sline[2]),float(sline[3]),float(sline[4])])
-                    if thisatom == na:
-                        thisatom = 0
-                        nframes += 1
-                        title = True
-                        xyzs.append(np.array(xyz))
-                        xyz = []
-            ln += 1
-        Answer = {'xyzs'   : xyzs,
-                  'resid'  : resid,
-                  'elem'   : elem,
-                  'comms'  : comms,
-                  'tinkersuf' : tinkersuf}
-        if len(boxes) > 0: Answer['boxes'] = boxes
-        return Answer
-
     def read_gro(self, fnm, **kwargs):
         """ Read a GROMACS .gro file.
 
@@ -4530,8 +4421,6 @@ class Molecule(object):
     def write_arc(self, selection, **kwargs):
         self.require('elem','xyzs')
         out = []
-        if 'tinkersuf' not in self.Data:
-            sys.stderr.write("Beware, this .arc file contains no atom type or topology info\n")
         for I in selection:
             xyz = self.xyzs[I]
             out.append("%6i  %s" % (self.na, self.comms[I]))

@@ -1675,65 +1675,6 @@ class AMBER(Engine):
         raise NotImplementedError
 
         """ Return the multipole moments of the 1st snapshot in Debye and Buckingham units. """
-        #=================
-        # Below is copied from tinkerio.py
-        #=================
-        # This line actually runs TINKER
-        # if optimize:
-        #     self.optimize(shot, crit=1e-6)
-        #     o = self.calltinker("analyze %s.xyz_2 M" % (self.name))
-        # else:
-        #     self.mol[shot].write('%s.xyz' % self.name, ftype="tinker")
-        #     o = self.calltinker("analyze %s.xyz M" % (self.name))
-        # # Read the TINKER output.
-        # qn = -1
-        # ln = 0
-        # for line in o:
-        #     s = line.split()
-        #     if "Dipole X,Y,Z-Components" in line:
-        #         dipole_dict = OrderedDict(zip(['x','y','z'], [float(i) for i in s[-3:]]))
-        #     elif "Quadrupole Moment Tensor" in line:
-        #         qn = ln
-        #         quadrupole_dict = OrderedDict([('xx',float(s[-3]))])
-        #     elif qn > 0 and ln == qn + 1:
-        #         quadrupole_dict['xy'] = float(s[-3])
-        #         quadrupole_dict['yy'] = float(s[-2])
-        #     elif qn > 0 and ln == qn + 2:
-        #         quadrupole_dict['xz'] = float(s[-3])
-        #         quadrupole_dict['yz'] = float(s[-2])
-        #         quadrupole_dict['zz'] = float(s[-1])
-        #     ln += 1
-        # calc_moments = OrderedDict([('dipole', dipole_dict), ('quadrupole', quadrupole_dict)])
-        # if polarizability:
-        #     if optimize:
-        #         o = self.calltinker("polarize %s.xyz_2" % (self.name))
-        #     else:
-        #         o = self.calltinker("polarize %s.xyz" % (self.name))
-        #     # Read the TINKER output.
-        #     pn = -1
-        #     ln = 0
-        #     polarizability_dict = OrderedDict()
-        #     for line in o:
-        #         s = line.split()
-        #         if "Total Polarizability Tensor" in line:
-        #             pn = ln
-        #         elif pn > 0 and ln == pn + 2:
-        #             polarizability_dict['xx'] = float(s[-3])
-        #             polarizability_dict['yx'] = float(s[-2])
-        #             polarizability_dict['zx'] = float(s[-1])
-        #         elif pn > 0 and ln == pn + 3:
-        #             polarizability_dict['xy'] = float(s[-3])
-        #             polarizability_dict['yy'] = float(s[-2])
-        #             polarizability_dict['zy'] = float(s[-1])
-        #         elif pn > 0 and ln == pn + 4:
-        #             polarizability_dict['xz'] = float(s[-3])
-        #             polarizability_dict['yz'] = float(s[-2])
-        #             polarizability_dict['zz'] = float(s[-1])
-        #         ln += 1
-        #     calc_moments['polarizability'] = polarizability_dict
-        # os.system("rm -rf *.xyz_* *.[0-9][0-9][0-9]")
-        # return calc_moments
-
     def optimize(self, shot=0, method="newton", crit=1e-4):
 
         """ Optimize the geometry and align the optimized geometry to the starting geometry. """
@@ -1741,41 +1682,6 @@ class AMBER(Engine):
         logger.error('Geometry optimizations are not yet implemented in AMBER interface')
         raise NotImplementedError
     
-        # # Code from tinkerio.py, reference for later implementation.
-        # if os.path.exists('%s.xyz_2' % self.name):
-        #     os.unlink('%s.xyz_2' % self.name)
-        # self.mol[shot].write('%s.xyz' % self.name, ftype="tinker")
-        # if method == "newton":
-        #     if self.rigid: optprog = "optrigid"
-        #     else: optprog = "optimize"
-        # elif method == "bfgs":
-        #     if self.rigid: optprog = "minrigid"
-        #     else: optprog = "minimize"
-        # o = self.calltinker("%s %s.xyz %f" % (optprog, self.name, crit))
-        # # Silently align the optimized geometry.
-        # M12 = Molecule("%s.xyz" % self.name, ftype="tinker") + Molecule("%s.xyz_2" % self.name, ftype="tinker")
-        # if not self.pbc:
-        #     M12.align(center=False)
-        # M12[1].write("%s.xyz_2" % self.name, ftype="tinker")
-        # rmsd = M12.ref_rmsd(0)[1]
-        # cnvgd = 0
-        # mode = 0
-        # for line in o:
-        #     s = line.split()
-        #     if len(s) == 0: continue
-        #     if "Optimally Conditioned Variable Metric Optimization" in line: mode = 1
-        #     if "Limited Memory BFGS Quasi-Newton Optimization" in line: mode = 1
-        #     if mode == 1 and isint(s[0]): mode = 2
-        #     if mode == 2:
-        #         if isint(s[0]): E = float(s[1])
-        #         else: mode = 0
-        #     if "Normal Termination" in line:
-        #         cnvgd = 1
-        # if not cnvgd:
-        #     for line in o:
-        #         logger.info(str(line) + '\n')
-        #     logger.info("The minimization did not converge in the geometry optimization - printout is above.\n")
-        # return E, rmsd
         
     def energy_rmsd(self, shot=0, optimize=True):
 
@@ -1783,41 +1689,6 @@ class AMBER(Engine):
 
         logger.error('Geometry optimization is not yet implemented in AMBER interface')
         raise NotImplementedError
-
-        # # Below is TINKER code as reference for later implementation.
-        # rmsd = 0.0
-        # # This line actually runs TINKER
-        # # xyzfnm = sysname+".xyz"
-        # if optimize:
-        #     E_, rmsd = self.optimize(shot)
-        #     o = self.calltinker("analyze %s.xyz_2 E" % self.name)
-        #     #----
-        #     # Two equivalent ways to get the RMSD, here for reference.
-        #     #----
-        #     # M1 = Molecule("%s.xyz" % self.name, ftype="tinker")
-        #     # M2 = Molecule("%s.xyz_2" % self.name, ftype="tinker")
-        #     # M1 += M2
-        #     # rmsd = M1.ref_rmsd(0)[1]
-        #     #----
-        #     # oo = self.calltinker("superpose %s.xyz %s.xyz_2 1 y u n 0" % (self.name, self.name))
-        #     # for line in oo:
-        #     #     if "Root Mean Square Distance" in line:
-        #     #         rmsd = float(line.split()[-1])
-        #     #----
-        #     os.system("rm %s.xyz_2" % self.name)
-        # else:
-        #     o = self.calltinker("analyze %s.xyz E" % self.name)
-        # # Read the TINKER output. 
-        # E = None
-        # for line in o:
-        #     if "Total Potential Energy" in line:
-        #         E = float(line.split()[-2].replace('D','e'))
-        # if E is None:
-        #     logger.error("Total potential energy wasn't encountered when calling analyze!\n")
-        #     raise RuntimeError
-        # if optimize and abs(E-E_) > 0.1:
-        #     warn_press_key("Energy from optimize and analyze aren't the same (%.3f vs. %.3f)" % (E, E_))
-        # return E, rmsd
 
 class AbInitio_AMBER(AbInitio):
 

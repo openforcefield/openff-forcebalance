@@ -39,7 +39,7 @@ logger = getLogger(__name__)
 #========================================================#
 
 parser = argparse.ArgumentParser()
-parser.add_argument('engine', help='MD program that we are using; choose "openmm", "tinker" or "gromacs"')
+parser.add_argument('engine', help='MD program that we are using; choose "openmm", or "gromacs"')
 parser.add_argument('temperature',type=float, help='Temperature (K)')
 parser.add_argument('pressure',type=float, help='Pressure (Atm)')
 
@@ -69,11 +69,8 @@ if engname == "openmm":
 elif engname == "gromacs" or engname == "gmx":
     from forcebalance.gmxio import *
     Engine = GMX
-elif engname == "tinker":
-    from forcebalance.tinkerio import *
-    Engine = TINKER
 else:
-    raise Exception('OpenMM, GROMACS, and TINKER are supported at this time.')
+    raise Exception('OpenMM, and GROMACS are supported at this time.')
 
 #==================#
 #|   Subroutines  |#
@@ -231,7 +228,7 @@ def property_derivatives(engine, FF, mvals, h, pgrad, kT, property_driver, prope
 def main():
 
     """
-    Usage: (runcuda.sh) npt.py <openmm|gromacs|tinker> <lipid_nsteps> <lipid_timestep (fs)> <lipid_intvl (ps> <temperature> <pressure>
+    Usage: (runcuda.sh) npt.py <openmm|gromacs> <lipid_nsteps> <lipid_timestep (fs)> <lipid_intvl (ps> <temperature> <pressure>
 
     This program is meant to be called automatically by ForceBalance on
     a GPU cluster (specifically, subroutines in openmmio.py).  It is
@@ -333,12 +330,6 @@ def main():
         if force_cuda: logger.warn("force_cuda option has no effect on Gromacs engine.")
         if mts: logger.warn("Gromacs not configured for multiple timestep integrator.")
         if anisotropic: logger.warn("Gromacs not configured for anisotropic box scaling.")
-    elif engname == "tinker":
-        # Tinker-specific options
-        GenOpts["tinkerpath"] = TgtOptions["tinkerpath"]
-        EngOpts["lipid"]["tinker_key"] = os.path.splitext(lipid_fnm)[0] + ".key"
-        if force_cuda: logger.warn("force_cuda option has no effect on Tinker engine.")
-        if mts: logger.warn("Tinker not configured for multiple timestep integrator.")
     EngOpts["lipid"].update(GenOpts)
     for i in EngOpts:
         printcool_dictionary(EngOpts[i], "Engine options for %s" % i)

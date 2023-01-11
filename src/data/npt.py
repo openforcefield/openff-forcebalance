@@ -39,7 +39,7 @@ logger = getLogger(__name__)
 #========================================================#
 
 parser = argparse.ArgumentParser()
-parser.add_argument('engine', help='MD program that we are using; choose "openmm", "tinker", "amber" or "gromacs"')
+parser.add_argument('engine', help='MD program that we are using; choose "openmm", "amber" or "gromacs"')
 parser.add_argument('temperature',type=float, help='Temperature (K)')
 parser.add_argument('pressure',type=float, help='Pressure (Atm)')
 
@@ -69,9 +69,6 @@ if engname == "openmm":
 elif engname == "gromacs" or engname == "gmx":
     from forcebalance.gmxio import *
     Engine = GMX
-elif engname == "tinker":
-    from forcebalance.tinkerio import *
-    Engine = TINKER
 elif engname == "amber":
     from forcebalance.amberio import *
     Engine = AMBER
@@ -79,7 +76,7 @@ elif engname == "smirnoff":
     from forcebalance.smirnoffio import *
     Engine = SMIRNOFF
 else:
-    raise Exception('OpenMM, SMIRNOFF/OpenMM, GROMACS, TINKER, and AMBER are supported at this time.')
+    raise Exception('OpenMM, SMIRNOFF/OpenMM, GROMACS, and AMBER are supported at this time.')
 
 #==================#
 #|   Subroutines  |#
@@ -236,7 +233,7 @@ def property_derivatives(engine, FF, mvals, h, pgrad, kT, property_driver, prope
 def main():
 
     """
-    Usage: (runcuda.sh) npt.py <openmm|gromacs|tinker|amber> <liquid_nsteps> <liquid_timestep (fs)> <liquid_intvl (ps> <temperature> <pressure>
+    Usage: (runcuda.sh) npt.py <openmm|gromacs|amber> <liquid_nsteps> <liquid_timestep (fs)> <liquid_intvl (ps> <temperature> <pressure>
 
     This program is meant to be called automatically by ForceBalance on
     a GPU cluster (specifically, subroutines in openmmio.py).  It is
@@ -369,14 +366,6 @@ def main():
         if rpmd_beads > 0: raise RuntimeError("Gromacs cannot handle RPMD.")
         if mts: logger.warn("Gromacs not configured for multiple timestep integrator.")
         if anisotropic: logger.warn("Gromacs not configured for anisotropic box scaling.")
-    elif engname == "tinker":
-        # Tinker-specific options
-        GenOpts["tinkerpath"] = TgtOptions["tinkerpath"]
-        EngOpts["liquid"]["tinker_key"] = os.path.splitext(liquid_fnm)[0] + ".key"
-        EngOpts["gas"]["tinker_key"] = os.path.splitext(gas_fnm)[0] + ".key"
-        if force_cuda: logger.warn("force_cuda option has no effect on Tinker engine.")
-        if rpmd_beads > 0: raise RuntimeError("TINKER cannot handle RPMD.")
-        if mts: logger.warn("Tinker not configured for multiple timestep integrator.")
     elif engname == "amber":
         # AMBER-specific options
         GenOpts["amberhome"] = TgtOptions["amberhome"]
