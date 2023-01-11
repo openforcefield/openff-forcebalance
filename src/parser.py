@@ -66,7 +66,6 @@ logger = getLogger(__name__)
 gen_opts_types = {
     'strings' : {"gmxpath"      : (which('mdrun'), 60, 'Path for GROMACS executables (if not the default)', 'All targets that use GROMACS', ['GMX']),
                  "gmxsuffix"    : ('', 60, 'The suffix of GROMACS executables', 'All targets that use GROMACS', ['GMX']),
-                 "tinkerpath"   : (which('testgrad'), 60, 'Path for TINKER executables (if not the default)', 'All targets that use TINKER', ['TINKER']),
                  "penalty_type" : ("L2", 100, 'Type of the penalty: L2, L1 or Box', 'All optimizations'),
                  "scan_vals"    : (None, -100, 'Values to scan in the parameter space, given like this: -0.1:0.1:11', 'Job types scan_mvals and scan_pvals'),
                  "readchk"      : (None, -50, 'Name of the restart file we read from', 'Restart jobtype "newton" with "writechk" set'),
@@ -159,7 +158,6 @@ tgt_opts_types = {
                  "gmx_top"               : (None, -10, 'Gromacs .top files.  If not provided, will search for default.', 'Targets that use GROMACS', 'GMX'),
                  "gmx_ndx"               : (None, -10, 'Gromacs .ndx files.  If not provided, will search for default.', 'Targets that use GROMACS', 'GMX'),
                  "amber_leapcmd"         : (None, -10, 'File containing commands for "tleap" when setting up AMBER simulations.', 'Targets that use AMBER', 'AMBER'),
-                 "tinker_key"            : (None, -10, 'TINKER .key files.  If not provided, will search for default.', 'Targets that use TINKER', 'TINKER'),
                  "expdata_txt"           : ('expset.txt', 0, 'Text file containing experimental data.', 'Thermodynamic properties target', 'thermo'),
                  "hfedata_txt"           : ('hfedata.txt', 0, 'Text file containing experimental data.', 'Hydration free energy target', 'hydration'),
                  "hfemode"               : ('single', 0, 'Method for calculating hydration energies (single point, FEP, TI).', 'Hydration free energy target', 'hydration'),
@@ -175,7 +173,7 @@ tgt_opts_types = {
                                             '"absolute": Use absolute energies in fitting, do not subtract out any energy gap.', 'Energy + Force Matching', 'AbInitio')
                  },
     'allcaps' : {"type"   : (None, 200, 'The type of fitting target, for instance AbInitio_GMX ; this must correspond to the name of a Target subclass.', 'All targets (important)' ,''),
-                 "engine" : (None, 180, 'The external code used to execute the simulations (GMX, TINKER, AMBER, OpenMM)', 'All targets (important)', '')
+                 "engine" : (None, 180, 'The external code used to execute the simulations (GMX, AMBER, OpenMM)', 'All targets (important)', '')
                  },
     'lists'   : {"name"      : ([], 200, 'The name of the target, corresponding to the directory targets/name ; may provide a list if multiple targets have the same settings', 'All targets (important)'),
                  "fd_ptypes" : ([], -100, 'The parameter types that are differentiated using finite difference', 'In conjunction with fdgrad, fdhess, fdhessdiag; usually not needed'),
@@ -194,7 +192,7 @@ tgt_opts_types = {
                  "nvt_md_steps"       : (100000, 0, 'Number of time steps for the liquid NVT production run.', 'Condensed phase property targets', 'liquid'),
                  "nvt_eq_steps"       : (10000, 0, 'Number of time steps for the liquid NVT equilibration run.', 'Condensed phase property targets', 'liquid'),
                  "writelevel"         : (0, 0, 'Affects the amount of data being printed to the temp directory.', 'Energy + Force Matching', 'AbInitio'),
-                 "md_threads"         : (1, 0, 'Set the number of threads used by Gromacs or TINKER processes in MD simulations', 'Condensed phase properties in GROMACS and TINKER', 'Liquid_GMX, Lipid_GMX, Liquid_TINKER'),
+                 "md_threads"         : (1, 0, 'Set the number of threads used by Gromacs processes in MD simulations', 'Condensed phase properties in GROMACS and TINKER', 'Liquid_GMX, Lipid_GMX, Liquid_TINKER'),
                  "save_traj"          : (0, -10, 'Whether to save trajectories.  0 = Never save; 1 = Delete if optimization step is good; 2 = Always save', 'Condensed phase properties', 'Liquid, Lipid'),
                  "eq_steps"           : (20000, 0, 'Number of time steps for the equilibration run.', 'Thermodynamic property targets', 'thermo'),
                  "md_steps"           : (50000, 0, 'Number of time steps for the production run.', 'Thermodynamic property targets', 'thermo'),

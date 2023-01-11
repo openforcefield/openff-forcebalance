@@ -93,9 +93,6 @@ if engname == "openmm":
 #elif engname == "gromacs" or engname == "gmx":
 #    from forcebalance.gmxio import *
 #    Engine = GMX
-#elif engname == "tinker":
-#    from forcebalance.tinkerio import *
-#    Engine = TINKER
 else:
     raise Exception('Only OpenMM is supported at this time.')
 
@@ -256,7 +253,7 @@ def property_derivatives(engine, FF, mvals, h, pgrad, kT, property_driver, prope
 def main():
 
     """
-    Usage: (runcuda.sh) nvt.py <openmm|gromacs|tinker> <liquid_nsteps> <liquid_timestep (fs)> <liquid_intvl (ps> <temperature>
+    Usage: (runcuda.sh) nvt.py <openmm|gromacs> <liquid_nsteps> <liquid_timestep (fs)> <liquid_intvl (ps> <temperature>
 
     This program is meant to be called automatically by ForceBalance on
     a GPU cluster (specifically, subroutines in openmmio.py).  It is

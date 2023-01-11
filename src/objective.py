@@ -25,12 +25,6 @@ except:
     logger.warning("Gromacs module import failed\n")
 
 try:
-    from forcebalance.tinkerio import AbInitio_TINKER, Vibration_TINKER, BindingEnergy_TINKER, Moments_TINKER, Interaction_TINKER, Liquid_TINKER
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("Tinker module import failed\n")
-
-try:
     from forcebalance.openmmio import AbInitio_OpenMM, Liquid_OpenMM, Interaction_OpenMM, BindingEnergy_OpenMM, Moments_OpenMM, Hydration_OpenMM, Vibration_OpenMM, OptGeoTarget_OpenMM, TorsionProfileTarget_OpenMM
 except:
     logger.warning(traceback.format_exc())
@@ -87,12 +81,10 @@ except:
 ## The table of implemented Targets
 Implemented_Targets = {
     'ABINITIO_GMX':AbInitio_GMX,
-    'ABINITIO_TINKER':AbInitio_TINKER,
     'ABINITIO_OPENMM':AbInitio_OpenMM,
     'ABINITIO_SMIRNOFF':AbInitio_SMIRNOFF,
     'ABINITIO_AMBER':AbInitio_AMBER,
     'ABINITIO_INTERNAL':AbInitio_Internal,
-    'VIBRATION_TINKER':Vibration_TINKER,
     'VIBRATION_GMX':Vibration_GMX,
     'VIBRATION_AMBER':Vibration_AMBER,
     'VIBRATION_OPENMM':Vibration_OpenMM,
@@ -101,7 +93,6 @@ Implemented_Targets = {
     'THERMO_GMX':Thermo_GMX,
     'LIQUID_OPENMM':Liquid_OpenMM,
     'LIQUID_SMIRNOFF':Liquid_SMIRNOFF,
-    'LIQUID_TINKER':Liquid_TINKER,
     'LIQUID_GMX':Liquid_GMX,
     'LIQUID_AMBER':Liquid_AMBER,
     'LIPID_GMX':Lipid_GMX,
@@ -110,12 +101,9 @@ Implemented_Targets = {
     'RDVR3_PSI4':RDVR3_Psi4,
     'INTERACTION_AMBER':Interaction_AMBER,
     'INTERACTION_GMX':Interaction_GMX,
-    'INTERACTION_TINKER':Interaction_TINKER,
     'INTERACTION_OPENMM':Interaction_OpenMM,
-    'BINDINGENERGY_TINKER':BindingEnergy_TINKER,
     'BINDINGENERGY_GMX':BindingEnergy_GMX,
     'BINDINGENERGY_OPENMM':BindingEnergy_OpenMM,
-    'MOMENTS_TINKER':Moments_TINKER,
     'MOMENTS_GMX':Moments_GMX,
     'MOMENTS_OPENMM':Moments_OpenMM,
     'HYDRATION_OPENMM':Hydration_OpenMM,

@@ -137,7 +137,6 @@ FF_Extensions = {"itp" : "gmx",
 """ Recognized force field formats. """
 FF_IOModules = {"gmx": gmxio.ITP_Reader ,
                 "qchem": qchemio.QCIn_Reader ,
-                "tinker": tinkerio.Tinker_Reader ,
                 "custom": custom_io.Gen_Reader ,
                 "openmm" : openmmio.OpenMM_Reader,
                 "smirnoff" : smirnoffio.SMIRNOFF_Reader,
@@ -374,7 +373,7 @@ class FF(forcebalance.BaseClass):
         differently; for XML we use the parsers in libxml (via the
         python lxml module), and for text files we have our own
         in-house parsing class.  Within text files, there is also a
-        specialized GROMACS and TINKER parser as well as a generic
+        specialized GROMACS parser as well as a generic
         text parser.
 
         The job of the parser is to determine the following things:
@@ -403,9 +402,9 @@ class FF(forcebalance.BaseClass):
 
         In this example, the parameter identifier would look like <tt> Vdw/74/epsilon </tt>.
 
-        --- If GROMACS (.itp) or TINKER (.prm) : ---
+        --- If GROMACS (.itp) ---
 
-        Follow the rules in the ITP_Reader or Tinker_Reader derived
+        Follow the rules in the ITP_Reader derived
         class.  Read the documentation in the class documentation or
         the 'feed' method to learn more.  In all cases the parameter
         is tagged using <tt> # PRM 3 </tt> (where # denotes a comment,
@@ -435,13 +434,6 @@ class FF(forcebalance.BaseClass):
         """
         fftype = determine_fftype(ffname)
         ffname = ffname.split(':')[0]
-
-        # Set the Tinker PRM file, which will help for running programs like "analyze".
-        if fftype == "tinker":
-            if hasattr(self, "tinkerprm"):
-                warn_press_key("There should only be one TINKER parameter file")
-            else:
-                self.tinkerprm = ffname
 
         # Set the OpenMM XML file, which will help for running OpenMM.
         if fftype == "openmm":
