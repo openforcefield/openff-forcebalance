@@ -10,5 +10,5 @@ include doc/*.py
 recursive-include ext *
 recursive-include tools *
 recursive-include bin *
-recursive-include src *
+recursive-include openff/forcebalance *
 recursive-include studies *
