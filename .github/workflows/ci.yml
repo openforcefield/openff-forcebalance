@@ -26,7 +26,8 @@ jobs:
           - "3.9"
 
     env:
-      PYTEST_ARGS: -r fE --tb=short -nauto --cov=openff --cov-config=setup.cfg --cov-append --cov-report=xml
+      PYTEST_ARGS: -r fE --tb=short
+      COV: --cov=openff/forcebalance --cov-report=xml --cov-config=setup.cfg --cov-append
 
     steps:
     - name: Checkout
@@ -47,7 +48,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest $PYTEST_ARGS openff/forcebalance/tests/unit_tests/test_importable.py
+        pytest $COV $PYTEST_ARGS openff/forcebalance/tests/unit_tests/test_importable.py
 
     - name: Codecov
       uses: codecov/codecov-action@v3
