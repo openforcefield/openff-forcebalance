@@ -48,7 +48,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest $COV $PYTEST_ARGS openff/forcebalance/tests/unit_tests/test_importable.py
+        pytest $COV $PYTEST_ARGS openff/forcebalance/tests/unit_tests
 
     - name: Codecov
       uses: codecov/codecov-action@v3
