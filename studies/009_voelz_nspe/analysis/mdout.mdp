@@ -8,9 +8,9 @@
 ; VARIOUS PREPROCESSING OPTIONS
 ; Preprocessor information: use cpp syntax.
 ; e.g.: -I/home/joe/doe -I/home/mary/roe
-include                  = 
+include                  =
 ; e.g.: -DPOSRES -DFLEXIBLE (note these variable names are case sensitive)
-define                   = 
+define                   =
 
 ; RUN CONTROL PARAMETERS
 integrator               = md
@@ -27,7 +27,7 @@ comm_mode                = angular
 ; number of steps for center of mass motion removal
 nstcomm                  = 10
 ; group(s) for center of mass motion removal
-comm-grps                = 
+comm-grps                =
 
 ; LANGEVIN DYNAMICS OPTIONS
 ; Friction coefficient (amu/ps) and random seed
@@ -63,9 +63,9 @@ nstxtcout                = 0
 xtc-precision            = 1000
 ; This selects the subset of atoms for the .xtc file. You can
 ; select multiple groups. By default all atoms will be written.
-xtc-grps                 = 
+xtc-grps                 =
 ; Selection of energy groups
-energygrps               = 
+energygrps               =
 
 ; NEIGHBORSEARCHING PARAMETERS
 ; nblist update frequency
@@ -75,7 +75,7 @@ ns_type                  = simple
 ; Periodic boundary conditions: xyz, no, xy
 pbc                      = no
 periodic_molecules       = no
-; nblist cut-off        
+; nblist cut-off
 rlist                    = 0
 ; long-range cut-off for switched potentials
 rlistlong                = -1
@@ -90,7 +90,7 @@ epsilon_r                = 1
 epsilon_rf               = 1
 ; Method for doing Van der Waals
 vdw-type                 = Cut-off
-; cut-off lengths       
+; cut-off lengths
 rvdw-switch              = 0
 rvdw                     = 0
 ; Apply long range dispersion corrections for Energy and Pressure
@@ -98,7 +98,7 @@ DispCorr                 = No
 ; Extension of the potential lookup tables beyond the cut-off
 table-extension          = 1
 ; Seperate tables between energy group pairs
-energygrp_table          = 
+energygrp_table          =
 ; Spacing for the PME/PPPM FFT grid
 fourierspacing           = 0.12
 ; FFT grid size, when a value is 0 fourierspacing will be used
@@ -138,23 +138,23 @@ sa_algorithm             = Ace-approximation
 sa_surface_tension       = -1
 
 ; OPTIONS FOR WEAK COUPLING ALGORITHMS
-; Temperature coupling  
+; Temperature coupling
 Tcoupl                   = no
 nsttcouple               = -1
 nh-chain-length          = 10
 ; Groups to couple separately
-tc-grps                  = 
+tc-grps                  =
 ; Time constant (ps) and reference temperature (K)
-tau-t                    = 
-ref-t                    = 
-; Pressure coupling     
+tau-t                    =
+ref-t                    =
+; Pressure coupling
 Pcoupl                   = no
 Pcoupltype               = Isotropic
 nstpcouple               = -1
 ; Time constant (ps), compressibility (1/bar) and reference P (bar)
 tau-p                    = 1
-compressibility          = 
-ref-p                    = 
+compressibility          =
+ref-p                    =
 ; Scaling of reference coordinates, No, All or COM
 refcoord_scaling         = No
 ; Random seed for Andersen thermostat
@@ -163,47 +163,47 @@ andersen_seed            = 815131
 ; OPTIONS FOR QMMM calculations
 QMMM                     = no
 ; Groups treated Quantum Mechanically
-QMMM-grps                = 
-; QM method             
-QMmethod                 = 
-; QMMM scheme           
+QMMM-grps                =
+; QM method
+QMmethod                 =
+; QMMM scheme
 QMMMscheme               = normal
-; QM basisset           
-QMbasis                  = 
-; QM charge             
-QMcharge                 = 
-; QM multiplicity       
-QMmult                   = 
-; Surface Hopping       
-SH                       = 
-; CAS space options     
-CASorbitals              = 
-CASelectrons             = 
-SAon                     = 
-SAoff                    = 
-SAsteps                  = 
+; QM basisset
+QMbasis                  =
+; QM charge
+QMcharge                 =
+; QM multiplicity
+QMmult                   =
+; Surface Hopping
+SH                       =
+; CAS space options
+CASorbitals              =
+CASelectrons             =
+SAon                     =
+SAoff                    =
+SAsteps                  =
 ; Scale factor for MM charges
 MMChargeScaleFactor      = 1
 ; Optimization of QM subsystem
-bOPT                     = 
-bTS                      = 
+bOPT                     =
+bTS                      =
 
-; SIMULATED ANNEALING  
+; SIMULATED ANNEALING
 ; Type of annealing for each temperature group (no/single/periodic)
-annealing                = 
+annealing                =
 ; Number of time points to use for specifying annealing in each group
-annealing_npoints        = 
+annealing_npoints        =
 ; List of times at the annealing points for each group
-annealing_time           = 
+annealing_time           =
 ; Temp. at each annealing point, for each group.
-annealing_temp           = 
+annealing_temp           =
 
 ; GENERATE VELOCITIES FOR STARTUP RUN
 gen_vel                  = no
 gen-temp                 = 300
 gen-seed                 = 173529
 
-; OPTIONS FOR BONDS    
+; OPTIONS FOR BONDS
 constraints              = none
 ; Type of constraint algorithm
 constraint-algorithm     = Lincs
@@ -227,22 +227,22 @@ morse                    = no
 
 ; ENERGY GROUP EXCLUSIONS
 ; Pairs of energy groups for which all non-bonded interactions are excluded
-energygrp_excl           = 
+energygrp_excl           =
 
-; WALLS                
+; WALLS
 ; Number of walls, type, atom types, densities and box-z scale factor for Ewald
 nwall                    = 0
 wall_type                = 9-3
 wall_r_linpot            = -1
-wall_atomtype            = 
-wall_density             = 
+wall_atomtype            =
+wall_density             =
 wall_ewald_zfac          = 3
 
-; COM PULLING          
+; COM PULLING
 ; Pull type: no, umbrella, constraint or constant_force
 pull                     = no
 
-; NMR refinement stuff 
+; NMR refinement stuff
 ; Distance restraints type: No, Simple or Ensemble
 disre                    = No
 ; Force weighting of pairs in one distance restraint: Conservative or Equal
@@ -258,7 +258,7 @@ orire                    = no
 ; Orientation restraints force constant and tau for time averaging
 orire-fc                 = 0
 orire-tau                = 0
-orire-fitgrp             = 
+orire-fitgrp             =
 ; Output frequency for trace(SD) and S to energy file
 nstorireout              = 100
 ; Dihedral angle restraints: No or Yes
@@ -269,7 +269,7 @@ dihre-fc                 = 1000
 free-energy              = no
 init-lambda              = 0
 delta-lambda             = 0
-foreign_lambda           = 
+foreign_lambda           =
 sc-alpha                 = 0
 sc-power                 = 0
 sc-sigma                 = 0.3
@@ -278,32 +278,32 @@ separate-dhdl-file       = yes
 dhdl-derivatives         = yes
 dh_hist_size             = 0
 dh_hist_spacing          = 0.1
-couple-moltype           = 
+couple-moltype           =
 couple-lambda0           = vdw-q
 couple-lambda1           = vdw-q
 couple-intramol          = no
 
 ; Non-equilibrium MD stuff
-acc-grps                 = 
-accelerate               = 
-freezegrps               = 
-freezedim                = 
+acc-grps                 =
+accelerate               =
+freezegrps               =
+freezedim                =
 cos-acceleration         = 0
-deform                   = 
+deform                   =
 
-; Electric fields      
+; Electric fields
 ; Format is number of terms (int) and for all terms an amplitude (real)
 ; and a phase angle (real)
-E-x                      = 
-E-xt                     = 
-E-y                      = 
-E-yt                     = 
-E-z                      = 
-E-zt                     = 
+E-x                      =
+E-xt                     =
+E-y                      =
+E-yt                     =
+E-z                      =
+E-zt                     =
 
 ; User defined thingies
-user1-grps               = 
-user2-grps               = 
+user1-grps               =
+user2-grps               =
 userint1                 = 0
 userint2                 = 0
 userint3                 = 0

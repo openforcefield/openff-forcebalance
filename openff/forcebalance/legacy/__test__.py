@@ -1,7 +1,8 @@
-from __future__ import absolute_import
-from __init__ import ForceBalanceTestCase
 import unittest
+
 import numpy
+from __init__ import ForceBalanceTestCase
+
 
 class TestTest(ForceBalanceTestCase):
     def testFail(self):
@@ -18,12 +19,16 @@ class TestTest(ForceBalanceTestCase):
 
     def testNumpyArrayEqual(self):
         """These are two equal numpy arrays"""
-        self.assertEqual(numpy.array((1,2,3,4.)),numpy.array((1,2,3,4.0001)))
+        self.assertEqual(numpy.array((1, 2, 3, 4.0)), numpy.array((1, 2, 3, 4.0001)))
 
     def testNumpyArrayUnequal(self):
         """These are two unequal numpy arrays"""
-        self.assertEqual(numpy.array([(1,2,3,4),(5,6,7,8)]),numpy.array([(1,2,3,6),(5,6,7,8)]), msg="These arrays should not be equal")
+        self.assertEqual(
+            numpy.array([(1, 2, 3, 4), (5, 6, 7, 8)]),
+            numpy.array([(1, 2, 3, 6), (5, 6, 7, 8)]),
+            msg="These arrays should not be equal",
+        )
 
 
-if __name__ == '__main__':           
+if __name__ == "__main__":
     unittest.main()

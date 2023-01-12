@@ -7,7 +7,7 @@ cd Setup
 
 1) First concatenate all of the structure files into a single one for convenience.
 
-#./collect.sh 
+#./collect.sh
 # VAV 12/12
 python collect.py
 
@@ -24,7 +24,7 @@ antechamber -i molecule.pdb -fi pdb -o molecule.mol2 -fo mol2 -c bcc -pf y
 
 2b) Run Leap to generate an inpcrd and prmtop file.
 
-tleap -f stage.leap 
+tleap -f stage.leap
 # NOTE: to assign over forcefields (like MFTOID) this is where we do this
 
 3) Run acpype to get a Gromacs itp file from the AMBER force field.

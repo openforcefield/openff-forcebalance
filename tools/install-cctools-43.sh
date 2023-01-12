@@ -23,13 +23,13 @@ sed -i s/"config_perl_path=auto"/"config_perl_path=no"/g configure
 # Disable globus
 sed -i s/"config_globus_path=auto"/"config_globus_path=no"/g configure
 
-#---- 
-# Provide install prefix for cctools as well as 
+#----
+# Provide install prefix for cctools as well as
 # locations of Swig and Python packages (i.e. the
 # executable itself is inside the bin subdirectory).
 #
-# This is to ensure that we can call the correct 
-# versions of Python and Swig since the version 
+# This is to ensure that we can call the correct
+# versions of Python and Swig since the version
 # installed for the OS might be too old.
 #----
 prefix=$HOME/opt
@@ -72,7 +72,7 @@ cd $prefix/
 rm -f cctools
 ln -s $cctools cctools
 cd cctools/bin
-for i in wq_submit_workers.common sge_submit_workers torque_submit_workers slurm_submit_workers ; do 
+for i in wq_submit_workers.common sge_submit_workers torque_submit_workers slurm_submit_workers ; do
     if [ -f $HOME/etc/work_queue/$i ] ; then
         echo "Replacing $i with LP's custom version"
         mv $i $i.bak

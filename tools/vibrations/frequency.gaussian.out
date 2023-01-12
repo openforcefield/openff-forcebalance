@@ -4,10 +4,10 @@
  Initial command:
  /home/leeping/opt/g03/l1.exe /home/leeping/projects/VSP27-Protein/Dihedrals/ACE-X-NME-1/Optimize/AMBER99SB/mp2frq/GLY-phipsi/hf-321g/Gau-23832.inp -scrdir=/home/leeping/projects/VSP27-Protein/Dihedrals/ACE-X-NME-1/Optimize/AMBER99SB/mp2frq/GLY-phipsi/hf-321g/
  Entering Link 1 = /home/leeping/opt/g03/l1.exe PID=     23833.
-  
+
  Copyright (c) 1988,1990,1992,1993,1995,1998,2003, Gaussian, Inc.
                   All Rights Reserved.
-  
+
  This is the Gaussian(R) 03 program.  It is based on the
  the Gaussian(R) 98 system (copyright 1998, Gaussian, Inc.),
  the Gaussian(R) 94 system (copyright 1995, Gaussian, Inc.),
@@ -18,41 +18,41 @@
  University), and the Gaussian 82(TM) system (copyright 1983,
  Carnegie Mellon University). Gaussian is a federally registered
  trademark of Gaussian, Inc.
-  
+
  This software contains proprietary and confidential information,
  including trade secrets, belonging to Gaussian, Inc.
-  
+
  This software is provided under written license and may be
  used, copied, transmitted, or stored only in accord with that
  written license.
-  
+
  The following legend is applicable only to US Government
  contracts under DFARS:
-  
+
                     RESTRICTED RIGHTS LEGEND
-  
+
  Use, duplication or disclosure by the US Government is subject
  to restrictions as set forth in subparagraph (c)(1)(ii) of the
  Rights in Technical Data and Computer Software clause at DFARS
  252.227-7013.
-  
+
  Gaussian, Inc.
  Carnegie Office Park, Building 6, Pittsburgh, PA 15106 USA
-  
+
  The following legend is applicable only to US Government
  contracts under FAR:
-  
+
                     RESTRICTED RIGHTS LEGEND
-  
+
  Use, reproduction and disclosure by the US Government is subject
  to restrictions as set forth in subparagraph (c) of the
  Commercial Computer Software - Restricted Rights clause at FAR
  52.227-19.
-  
+
  Gaussian, Inc.
  Carnegie Office Park, Building 6, Pittsburgh, PA 15106 USA
-  
-  
+
+
  ---------------------------------------------------------------
  Warning -- This program may not be used in any manner that
  competes with the business of Gaussian, Inc. or will provide
@@ -65,32 +65,32 @@
  licensee that it is not a competitor of Gaussian, Inc. and that
  it will not use this program in any manner prohibited above.
  ---------------------------------------------------------------
-  
+
 
  Cite this work as:
  Gaussian 03, Revision B.05,
- M. J. Frisch, G. W. Trucks, H. B. Schlegel, G. E. Scuseria, 
- M. A. Robb, J. R. Cheeseman, J. A. Montgomery, Jr., T. Vreven, 
- K. N. Kudin, J. C. Burant, J. M. Millam, S. S. Iyengar, J. Tomasi, 
- V. Barone, B. Mennucci, M. Cossi, G. Scalmani, N. Rega, 
- G. A. Petersson, H. Nakatsuji, M. Hada, M. Ehara, K. Toyota, 
- R. Fukuda, J. Hasegawa, M. Ishida, T. Nakajima, Y. Honda, O. Kitao, 
- H. Nakai, M. Klene, X. Li, J. E. Knox, H. P. Hratchian, J. B. Cross, 
- C. Adamo, J. Jaramillo, R. Gomperts, R. E. Stratmann, O. Yazyev, 
- A. J. Austin, R. Cammi, C. Pomelli, J. W. Ochterski, P. Y. Ayala, 
- K. Morokuma, G. A. Voth, P. Salvador, J. J. Dannenberg, 
- V. G. Zakrzewski, S. Dapprich, A. D. Daniels, M. C. Strain, 
- O. Farkas, D. K. Malick, A. D. Rabuck, K. Raghavachari, 
- J. B. Foresman, J. V. Ortiz, Q. Cui, A. G. Baboul, S. Clifford, 
- J. Cioslowski, B. B. Stefanov, G. Liu, A. Liashenko, P. Piskorz, 
- I. Komaromi, R. L. Martin, D. J. Fox, T. Keith, M. A. Al-Laham, 
- C. Y. Peng, A. Nanayakkara, M. Challacombe, P. M. W. Gill, 
- B. Johnson, W. Chen, M. W. Wong, C. Gonzalez, and J. A. Pople, 
+ M. J. Frisch, G. W. Trucks, H. B. Schlegel, G. E. Scuseria,
+ M. A. Robb, J. R. Cheeseman, J. A. Montgomery, Jr., T. Vreven,
+ K. N. Kudin, J. C. Burant, J. M. Millam, S. S. Iyengar, J. Tomasi,
+ V. Barone, B. Mennucci, M. Cossi, G. Scalmani, N. Rega,
+ G. A. Petersson, H. Nakatsuji, M. Hada, M. Ehara, K. Toyota,
+ R. Fukuda, J. Hasegawa, M. Ishida, T. Nakajima, Y. Honda, O. Kitao,
+ H. Nakai, M. Klene, X. Li, J. E. Knox, H. P. Hratchian, J. B. Cross,
+ C. Adamo, J. Jaramillo, R. Gomperts, R. E. Stratmann, O. Yazyev,
+ A. J. Austin, R. Cammi, C. Pomelli, J. W. Ochterski, P. Y. Ayala,
+ K. Morokuma, G. A. Voth, P. Salvador, J. J. Dannenberg,
+ V. G. Zakrzewski, S. Dapprich, A. D. Daniels, M. C. Strain,
+ O. Farkas, D. K. Malick, A. D. Rabuck, K. Raghavachari,
+ J. B. Foresman, J. V. Ortiz, Q. Cui, A. G. Baboul, S. Clifford,
+ J. Cioslowski, B. B. Stefanov, G. Liu, A. Liashenko, P. Piskorz,
+ I. Komaromi, R. L. Martin, D. J. Fox, T. Keith, M. A. Al-Laham,
+ C. Y. Peng, A. Nanayakkara, M. Challacombe, P. M. W. Gill,
+ B. Johnson, W. Chen, M. W. Wong, C. Gonzalez, and J. A. Pople,
  Gaussian, Inc., Pittsburgh PA, 2003.
- 
+
  **********************************************
  Gaussian 03:  x86-Linux-G03RevB.05 24-Oct-2003
-                  19-Apr-2014 
+                  19-Apr-2014
  **********************************************
  Default route:  MaxDisk=100GB
  ----------------------------------------
@@ -116,26 +116,26 @@
  -------------------
  Symbolic Z-matrix:
  Charge =  0 Multiplicity = 1
- H                     3.22975  -0.72153  -1.92813 
- C                     3.00025  -0.72715  -0.87457 
- H                     3.81748  -0.27941  -0.32134 
- H                     2.87577  -1.75037  -0.53784 
- C                     1.72359   0.05387  -0.65064 
- O                     1.08917   0.57361  -1.56214 
- N                     1.32354   0.13892   0.6368 
- H                     1.81958  -0.34936   1.34975 
- C                     0.15337   0.92889   1.02818 
- H                     0.12504   1.81993   0.41736 
- H                     0.24288   1.196     2.06801 
- C                    -1.15419   0.15481   0.8624 
- O                    -1.85059  -0.1537    1.81614 
- N                    -1.46167  -0.13914  -0.41258 
- H                    -0.84053   0.14967  -1.14167 
- C                    -2.6765   -0.88661  -0.72371 
- H                    -2.73784  -1.0125   -1.79508 
- H                    -3.55408  -0.3565   -0.37654 
- H                    -2.66439  -1.86055  -0.25059 
- 
+ H                     3.22975  -0.72153  -1.92813
+ C                     3.00025  -0.72715  -0.87457
+ H                     3.81748  -0.27941  -0.32134
+ H                     2.87577  -1.75037  -0.53784
+ C                     1.72359   0.05387  -0.65064
+ O                     1.08917   0.57361  -1.56214
+ N                     1.32354   0.13892   0.6368
+ H                     1.81958  -0.34936   1.34975
+ C                     0.15337   0.92889   1.02818
+ H                     0.12504   1.81993   0.41736
+ H                     0.24288   1.196     2.06801
+ C                    -1.15419   0.15481   0.8624
+ O                    -1.85059  -0.1537    1.81614
+ N                    -1.46167  -0.13914  -0.41258
+ H                    -0.84053   0.14967  -1.14167
+ C                    -2.6765   -0.88661  -0.72371
+ H                    -2.73784  -1.0125   -1.79508
+ H                    -3.55408  -0.3565   -0.37654
+ H                    -2.66439  -1.86055  -0.25059
+
                     Isotopes and Nuclear Properties:
 
   Atom         1           2           3           4           5           6           7           8           9          10
@@ -165,7 +165,7 @@
 
  Leave Link  103 at Sat Apr 19 10:02:10 2014, MaxMem=    6291456 cpu:       0.0
  (Enter /home/leeping/opt/g03/l202.exe)
-                          Input orientation:                          
+                          Input orientation:
  ---------------------------------------------------------------------
  Center     Atomic     Atomic              Coordinates (Angstroms)
  Number     Number      Type              X           Y           Z
@@ -276,7 +276,7 @@
  ExpMin= 1.83D-01 ExpMax= 3.22D+02 ExpMxC= 3.22D+02 IAcc=1 IRadAn=         1 AccDes= 1.00D-06
  HarFok:  IExCor= 205 AccDes= 1.00D-06 IRadAn=         1 IDoV=1
  ScaDFX=  1.000000  1.000000  1.000000  1.000000
- Harris En= -451.914575738450    
+ Harris En= -451.914575738450
  Leave Link  401 at Sat Apr 19 10:02:11 2014, MaxMem=    6291456 cpu:       0.7
  (Enter /home/leeping/opt/g03/l502.exe)
  Closed shell SCF:
@@ -295,7 +295,7 @@
  Symmetry not used in FoFDir.
  MinBra= 0 MaxBra= 1 Meth= 1.
  IRaf=       0 NMat=   1 IRICut=       1 DoRegI=T DoRafI=F ISym2E= 0 JSym2E=0.
- E= -450.952222693702    
+ E= -450.952222693702
  DIIS: error= 4.91D-02 at cycle   1 NSaved=   1.
  NSaved= 1 IEnMin= 1 EnMin= -450.952222693702     IErMin= 1 ErrMin= 4.91D-02
  ErrMax= 4.91D-02 EMaxC= 1.00D-01 BMatC= 5.12D-01 BMatP= 5.12D-01
@@ -1381,7 +1381,7 @@
                              2729.67  4615.40  4623.03  4687.35  4694.18
                              4702.51  4732.73  4788.52  4795.71  5415.61
                              5511.56
- 
+
  Zero-point correction=                           0.170864 (Hartree/Particle)
  Thermal correction to Energy=                    0.180864
  Thermal correction to Enthalpy=                  0.181808
@@ -1390,7 +1390,7 @@
  Sum of electronic and thermal Energies=              -451.113205
  Sum of electronic and thermal Enthalpies=            -451.112261
  Sum of electronic and thermal Free Energies=         -451.159930
- 
+
                      E (Thermal)             CV                S
                       KCal/Mol        Cal/Mol-Kelvin    Cal/Mol-Kelvin
  Total                  113.494             33.436            100.330
@@ -1439,66 +1439,66 @@
  Electronic      0.100000D+01          0.000000          0.000000
  Translational   0.583099D+08          7.765742         17.881282
  Rotational      0.559325D+06          5.747664         13.234486
- 
+
                                                          Title Card Required
                                                              IR Spectrum
- 
-     3  3          33333333                                           1111111111 11  111 11 111 11                                   
-     8  7          33222222                                           8876666666 55  443 32 211 00   998 8   6666   4  4  322 111    
-     3  6          32866510                                           9529765311 61  407 17 097 96   507 4   9742   9  0  294 940873 
-     1  4          38983838                                           7481966697 02  660 34 146 30   255 0   6561   9  0  624 020343 
- 
-     X  X          XXXXXXXX                                           XXXXXXXXXX XX  XXX XX XXX XX   XXX X   XXXX   X  X  XXX XXXXXX 
-     X  X            X  X X                                           XXX X   X  X   XXX               X X   X XX   X                
-     X  X                                                             XXX X   X       XX               X X   X XX                    
-     X  X                                                             XXX X   X       XX               X X      X                    
-        X                                                             XXX X   X       X                X X      X                    
-        X                                                             XXX X   X       X                  X                           
-        X                                                             XXX X           X                  X                           
-        X                                                             XXX X           X                  X                           
-        X                                                             XXX X           X                                              
-        X                                                             X X X           X                                              
-        X                                                             X X             X                                              
-        X                                                             X X             X                                              
-                                                                      X X                                                            
-                                                                      X X                                                            
-                                                                      X X                                                            
-                                                                      X X                                                            
-                                                                      X X                                                            
-                                                                      X X                                                            
-                                                                      X X                                                            
-                                                                        X                                                            
- 
- 
+
+     3  3          33333333                                           1111111111 11  111 11 111 11
+     8  7          33222222                                           8876666666 55  443 32 211 00   998 8   6666   4  4  322 111
+     3  6          32866510                                           9529765311 61  407 17 097 96   507 4   9742   9  0  294 940873
+     1  4          38983838                                           7481966697 02  660 34 146 30   255 0   6561   9  0  624 020343
+
+     X  X          XXXXXXXX                                           XXXXXXXXXX XX  XXX XX XXX XX   XXX X   XXXX   X  X  XXX XXXXXX
+     X  X            X  X X                                           XXX X   X  X   XXX               X X   X XX   X
+     X  X                                                             XXX X   X       XX               X X   X XX
+     X  X                                                             XXX X   X       XX               X X      X
+        X                                                             XXX X   X       X                X X      X
+        X                                                             XXX X   X       X                  X
+        X                                                             XXX X           X                  X
+        X                                                             XXX X           X                  X
+        X                                                             XXX X           X
+        X                                                             X X X           X
+        X                                                             X X             X
+        X                                                             X X             X
+                                                                      X X
+                                                                      X X
+                                                                      X X
+                                                                      X X
+                                                                      X X
+                                                                      X X
+                                                                      X X
+                                                                        X
+
+
                                                          Title Card Required
                                                             Raman Spectrum
- 
-     3  3          33333333                                           1111111111 11  111 11 111 11                                   
-     8  7          33222222                                           8876666666 55  443 32 211 00   998 8   6666   4  4  322 111    
-     3  6          32866510                                           9529765311 61  407 17 097 96   507 4   9742   9  0  294 940873 
-     1  4          38983838                                           7481966697 02  660 34 146 30   255 0   6561   9  0  624 020343 
- 
-     X  X          XXXXXXXX                                           XXXXXXXXXX XX  XXX XX XXX XX   XXX X   XXXX   X  X  XXX XXXXXX 
-     X  X          XXXXXXXX                                             XXXXXXXX                      X                              
-     X  X          XXXXXXXX                                              XXXX XX                      X                              
-     X  X          XXXXXXXX                                                XX                                                        
-     X  X          XXXXXXXX                                                X                                                         
-     X  X          XXXXXXXX                                                                                                          
-     X  X          XXXXXXXX                                                                                                          
-     X  X          XXXXXXXX                                                                                                          
-     X  X          XXXXXXXX                                                                                                          
-     X             XXXXXXXX                                                                                                          
-                   XXXXXXXX                                                                                                          
-                   XXXXXXXX                                                                                                          
-                    XX   XX                                                                                                          
-                         XX                                                                                                          
-                         XX                                                                                                          
-                         XX                                                                                                          
-                         XX                                                                                                          
-                         XX                                                                                                          
-                         XX                                                                                                          
-                         XX                                                                                                          
- 
+
+     3  3          33333333                                           1111111111 11  111 11 111 11
+     8  7          33222222                                           8876666666 55  443 32 211 00   998 8   6666   4  4  322 111
+     3  6          32866510                                           9529765311 61  407 17 097 96   507 4   9742   9  0  294 940873
+     1  4          38983838                                           7481966697 02  660 34 146 30   255 0   6561   9  0  624 020343
+
+     X  X          XXXXXXXX                                           XXXXXXXXXX XX  XXX XX XXX XX   XXX X   XXXX   X  X  XXX XXXXXX
+     X  X          XXXXXXXX                                             XXXXXXXX                      X
+     X  X          XXXXXXXX                                              XXXX XX                      X
+     X  X          XXXXXXXX                                                XX
+     X  X          XXXXXXXX                                                X
+     X  X          XXXXXXXX
+     X  X          XXXXXXXX
+     X  X          XXXXXXXX
+     X  X          XXXXXXXX
+     X             XXXXXXXX
+                   XXXXXXXX
+                   XXXXXXXX
+                    XX   XX
+                         XX
+                         XX
+                         XX
+                         XX
+                         XX
+                         XX
+                         XX
+
  -------------------------------------------------------------------
  Center     Atomic                   Forces (Hartrees/Bohr)
  Number     Number              X              Y              Z
@@ -1634,8 +1634,8 @@
          Item               Value     Threshold  Converged?
  Maximum Force            0.000028     0.000450     YES
  RMS     Force            0.000007     0.000300     YES
- Maximum Displacement     0.135128     0.001800     NO 
- RMS     Displacement     0.035717     0.001200     NO 
+ Maximum Displacement     0.135128     0.001800     NO
+ RMS     Displacement     0.035717     0.001200     NO
  Predicted change in Energy=-1.688487D-06
  GradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGradGrad
 

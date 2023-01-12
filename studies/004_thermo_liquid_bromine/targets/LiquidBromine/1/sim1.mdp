@@ -37,4 +37,3 @@ pcoupltype      = isotropic
 compressibility = 4.5e-5
 ref_p           = 1.0
 tau_p           = 1.5
-

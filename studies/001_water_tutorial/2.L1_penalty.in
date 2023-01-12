@@ -17,97 +17,96 @@ $end
 
 $target
 type abinitio_gmx
-name cluster-03     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-03
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-04     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-04
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-05     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-05
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-06     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-06
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-07     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-07
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-08     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-08
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-09     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-09
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-10     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-10
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-11     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-11
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-12     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-12
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-13     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-13
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
 
 $target
 type abinitio_gmx
-name cluster-14     
-w_energy 1.0        
-w_force 1.0         
-shots -1            
+name cluster-14
+w_energy 1.0
+w_force 1.0
+shots -1
 $end
-

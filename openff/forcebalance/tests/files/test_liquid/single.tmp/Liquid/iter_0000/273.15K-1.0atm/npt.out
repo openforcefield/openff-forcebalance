@@ -25,7 +25,7 @@ SLURM_TOPOLOGY_ADDR_PATTERN=node
 SSH_CLIENT=169.237.39.165 59998 22
 SLURM_ARRAY_JOB_ID=1169015
 CONDA_SHLVL=2
-CONDA_PROMPT_MODIFIER=(forcebalance) 
+CONDA_PROMPT_MODIFIER=(forcebalance)
 PYTHONUNBUFFERED=y
 QTDIR=/usr/lib64/qt-3.3
 QTINC=/usr/lib64/qt-3.3/include
@@ -127,9 +127,9 @@ _=/usr/bin/env
 #   GPU CONFIGURATION   #
 #=======================#
 
-I'm using GPU number 
+I'm using GPU number
 nvidia-smi output:
-Mon Apr 23 11:55:38 2018       
+Mon Apr 23 11:55:38 2018
 +-----------------------------------------------------------------------------+
 | NVIDIA-SMI 387.26                 Driver Version: 387.26                    |
 |-------------------------------+----------------------+----------------------+
@@ -160,7 +160,7 @@ Mon Apr 23 11:55:38 2018
 |   7  GeForce GTX 980 Ti  Off  | 00000000:89:00.0 Off |                  N/A |
 | 22%   39C    P0    66W / 250W |      0MiB /  6078MiB |      0%      Default |
 +-------------------------------+----------------------+----------------------+
-                                                                               
+
 +-----------------------------------------------------------------------------+
 | Processes:                                                       GPU Memory |
 |  GPU       PID   Type   Process name                             Usage      |
@@ -354,71 +354,71 @@ python npt.py openmm 273.150 1.000
 #========================================================#
 #| [92m             Options from ForceBalance              [0m |#
 #========================================================#
-force_cuda                0 
-mts_integrator            0 
-rpmd_beads                0 
-precision                 mixed 
-platname                  CUDA 
-liquid_coords             liquid.pdb 
-gas_coords                mono.pdb 
-nvt_coords                surf.pdb 
-root                      /home2/qyd/projects/5_surface_tension/8_lower_surften_weight/validations/single_point/bug_fix 
-name                      Liquid 
-type                      LIQUID_OPENMM 
-weight                    1.0 
-fdgrad                    0 
-fdhess                    0 
-fdhessdiag                0 
-sleepy                    0 
-fd1_pids                  [] 
-fd2_pids                  [] 
-h                         0.001 
-backup                    1 
-zerograd                  -1 
-epsgrad                   0.0 
-pgrad                     [] 
-tgtdir                    targets/Liquid 
-w_rho                     1.0 
-w_hvap                    0.0 
-w_alpha                   1.0 
-w_kappa                   1.0 
-w_cp                      0.0 
-w_eps0                    1.0 
-w_normalize               0 
-manual                    0 
-hvap_subaverage           0 
-liquid_eq_steps           10000 
-liquid_md_steps           80000 
-gas_eq_steps              10000 
-gas_md_steps              100000 
-liquid_timestep           1.0 
-liquid_interval           0.1 
-gas_timestep              0.5 
-gas_interval              0.1 
-adapt_errors              0 
-minimize_energy           1 
-self_pol_mu0              1.855 
-self_pol_alpha            1.47 
-anisotropic_box           0 
-save_traj                 0 
-n_molecules               216 
-w_surf_ten                1.0 
-nvt_eq_steps              10000 
-nvt_md_steps              30000 
-nvt_timestep              1.0 
-nvt_interval              0.1 
-pure_num_grad             True 
-liquid_fdiff_h            0.01 
-rho_denom                 2.0 
-hvap_denom                5.0 
-alpha_denom               1.0 
-kappa_denom               10.0 
-cp_denom                  2.0 
-eps0_denom                10.0 
-use_cvib_intra            True 
-use_cvib_inter            True 
-use_cni                   True 
-surf_ten_denom            8.0 
+force_cuda                0
+mts_integrator            0
+rpmd_beads                0
+precision                 mixed
+platname                  CUDA
+liquid_coords             liquid.pdb
+gas_coords                mono.pdb
+nvt_coords                surf.pdb
+root                      /home2/qyd/projects/5_surface_tension/8_lower_surften_weight/validations/single_point/bug_fix
+name                      Liquid
+type                      LIQUID_OPENMM
+weight                    1.0
+fdgrad                    0
+fdhess                    0
+fdhessdiag                0
+sleepy                    0
+fd1_pids                  []
+fd2_pids                  []
+h                         0.001
+backup                    1
+zerograd                  -1
+epsgrad                   0.0
+pgrad                     []
+tgtdir                    targets/Liquid
+w_rho                     1.0
+w_hvap                    0.0
+w_alpha                   1.0
+w_kappa                   1.0
+w_cp                      0.0
+w_eps0                    1.0
+w_normalize               0
+manual                    0
+hvap_subaverage           0
+liquid_eq_steps           10000
+liquid_md_steps           80000
+gas_eq_steps              10000
+gas_md_steps              100000
+liquid_timestep           1.0
+liquid_interval           0.1
+gas_timestep              0.5
+gas_interval              0.1
+adapt_errors              0
+minimize_energy           1
+self_pol_mu0              1.855
+self_pol_alpha            1.47
+anisotropic_box           0
+save_traj                 0
+n_molecules               216
+w_surf_ten                1.0
+nvt_eq_steps              10000
+nvt_md_steps              30000
+nvt_timestep              1.0
+nvt_interval              0.1
+pure_num_grad             True
+liquid_fdiff_h            0.01
+rho_denom                 2.0
+hvap_denom                5.0
+alpha_denom               1.0
+kappa_denom               10.0
+cp_denom                  2.0
+eps0_denom                10.0
+use_cvib_intra            True
+use_cvib_inter            True
+use_cni                   True
+surf_ten_denom            8.0
 ----------------------------------------------------------
 For the condensed phase system, I will collect 800 snapshots spaced apart by 100 x 1.000 fs time steps
 For the gas phase system, I will collect 500 snapshots spaced apart by 200 x 0.500 fs time steps
@@ -426,20 +426,20 @@ There are 216 molecules in the liquid
 #========================================================#
 #| [92m             Engine options for liquid              [0m |#
 #========================================================#
-coords                    liquid.pdb 
-mol                       <forcebalance.molecule.Molecule object at 0x2aefa0d51dd0> 
-pbc                       True 
-platname                  CUDA 
-FF                        <forcebalance.forcefield.FF object at 0x2aefa0f69b10> 
+coords                    liquid.pdb
+mol                       <forcebalance.molecule.Molecule object at 0x2aefa0d51dd0>
+pbc                       True
+platname                  CUDA
+FF                        <forcebalance.forcefield.FF object at 0x2aefa0f69b10>
 ----------------------------------------------------------
 #========================================================#
 #| [92m               Engine options for gas               [0m |#
 #========================================================#
-coords                    mono.pdb 
-mol                       <forcebalance.molecule.Molecule object at 0x2aefa0f69a90> 
-pbc                       False 
-platname                  Reference 
-FF                        <forcebalance.forcefield.FF object at 0x2aefa0f69b10> 
+coords                    mono.pdb
+mol                       <forcebalance.molecule.Molecule object at 0x2aefa0f69a90>
+pbc                       False
+platname                  Reference
+FF                        <forcebalance.forcefield.FF object at 0x2aefa0f69b10>
 ----------------------------------------------------------
 #========================================================#
 #| [1;94m         Condensed phase molecular dynamics         [0m |#
@@ -1355,11 +1355,11 @@ Liquid phase MD simulation took 45.949 seconds
 #=======================================================================#
 #| [92m Energy Component Analysis, Mean +- Stderr [Per Molecule] (kJ/mol) [0m |#
 #=======================================================================#
-NonbondedForce             -11710.9189 +-    31.0313 [  -54.2172 +-  0.1437 ] 
-Potential Energy           -11710.9189 +-    31.0313 [  -54.2172 +-  0.1437 ] 
-Kinetic Energy               1468.9620 +-     4.8614 [    6.8008 +-  0.0225 ] 
-Temperature                   273.2797 +-     0.9044 [    1.2652 +-  0.0042 ] 
-Total Energy               -10241.9568 +-    37.4577 [  -47.4165 +-  0.1734 ] 
+NonbondedForce             -11710.9189 +-    31.0313 [  -54.2172 +-  0.1437 ]
+Potential Energy           -11710.9189 +-    31.0313 [  -54.2172 +-  0.1437 ]
+Kinetic Energy               1468.9620 +-     4.8614 [    6.8008 +-  0.0225 ]
+Temperature                   273.2797 +-     0.9044 [    1.2652 +-  0.0042 ]
+Total Energy               -10241.9568 +-    37.4577 [  -47.4165 +-  0.1734 ]
 -------------------------------------------------------------------------
 #========================================================#
 #| [1;94m            Gas phase molecular dynamics            [0m |#
@@ -1368,9 +1368,9 @@ Gas phase MD simulation took 0.360 seconds
 #=======================================================================#
 #| [92m Energy Component Analysis, Mean +- Stderr [Per Molecule] (kJ/mol) [0m |#
 #=======================================================================#
-Kinetic Energy                  6.0275 +-     0.3652 [    6.0275 +-  0.3652 ] 
-Temperature                   241.6475 +-    14.6392 [  241.6475 +- 14.6392 ] 
-Total Energy                    6.0275 +-     0.3652 [    6.0275 +-  0.3652 ] 
+Kinetic Energy                  6.0275 +-     0.3652 [    6.0275 +-  0.3652 ]
+Temperature                   241.6475 +-    14.6392 [  241.6475 +- 14.6392 ]
+Total Energy                    6.0275 +-     0.3652 [    6.0275 +-  0.3652 ]
 -------------------------------------------------------------------------
 Calculating potential energy derivatives with finite difference step size: 0.001000
 #========================================================#

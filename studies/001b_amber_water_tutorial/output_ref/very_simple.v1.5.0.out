@@ -8,18 +8,18 @@
 #| [1m           Arthur Vigil, Erik G. Brandt, Johnny Israeli           [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -38,19 +38,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: very_simple.in
 #========================================================#
@@ -100,7 +100,7 @@ Parameter 1 occurs 2 times in molecule SOL in locations [1, 2] (COUL:SOL-2 COUL:
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['sol.mol2', 'sol.frcmod'] 
+fnms                      ['sol.mol2', 'sol.frcmod']
 ----------------------------------------------------------
 The 'amberhome' option was not specified; using default.
 pmemd.cuda is available, using CUDA to accelerate calculations.
@@ -111,11 +111,11 @@ Fitting the forces on all atoms
 #========================================================#
 #| [92m           Setup for target cluster-06 :            [0m |#
 #========================================================#
-name                      cluster-06 
-type                      ABINITIO_AMBER 
-backup                    False 
-tgtdir                    targets/cluster-06 
-shots                     1208 
+name                      cluster-06
+type                      ABINITIO_AMBER
+backup                    False
+tgtdir                    targets/cluster-06
+shots                     1208
 ----------------------------------------------------------
 pmemd.cuda is available, using CUDA to accelerate calculations.
 [91mWriting amber-all.crd file with no periodic box information[0m
@@ -123,25 +123,25 @@ Fitting the forces on all atoms
 #========================================================#
 #| [92m           Setup for target cluster-12 :            [0m |#
 #========================================================#
-name                      cluster-12 
-type                      ABINITIO_AMBER 
-backup                    False 
-tgtdir                    targets/cluster-12 
-shots                     1201 
+name                      cluster-12
+type                      ABINITIO_AMBER
+backup                    False
+tgtdir                    targets/cluster-12
+shots                     1201
 ----------------------------------------------------------
 Using parabolic regularization (Gaussian prior) with strength 1.0e-02 (+), 0.0e+00 (x)
 #========================================================#
 #| [92m           Setup for objective function :           [0m |#
 #========================================================#
-penalty_additive          0.01 
+penalty_additive          0.01
 ----------------------------------------------------------
 #========================================================#
 #| [92m                Setup for optimizer                 [0m |#
 #========================================================#
-jobtype                   NEWTON 
-trust0                    1.0 
-backup                    False 
-input_file                very_simple.in 
+jobtype                   NEWTON
+trust0                    1.0
+backup                    False
+input_file                very_simple.in
 ----------------------------------------------------------
 #========================================================#
 #| [1m                  Main Optimizer                    [0m |#
@@ -170,8 +170,8 @@ Trying to write to a symbolic link setup.leap_, removing it first
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          10.9522       27.3135     40.0981%     0.1608    1.000     0.1608 
-    Gradient (kJ/mol/A)      47.9222      139.5348     34.3442%     0.1180    1.000     0.1180 
+    Energy (kJ/mol)          10.9522       27.3135     40.0981%     0.1608    1.000     0.1608
+    Gradient (kJ/mol/A)      47.9222      139.5348     34.3442%     0.1180    1.000     0.1180
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 4 (H), frame 1207,  33.5001 kJ/mol/A
 Trying to write to a symbolic link setup.leap_, removing it first
@@ -181,18 +181,18 @@ Trying to write to a symbolic link setup.leap_, removing it first
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          17.5679       47.3455     37.1057%     0.1377    1.000     0.1377 
-    Gradient (kJ/mol/A)      48.9224      138.1028     35.4246%     0.1255    1.000     0.1255 
+    Energy (kJ/mol)          17.5679       47.3455     37.1057%     0.1377    1.000     0.1377
+    Gradient (kJ/mol/A)      48.9224      138.1028     35.4246%     0.1255    1.000     0.1255
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 1 (H), frame 1200,  49.3408 kJ/mol/A
 #====================================================================#
 #| [94m                  Objective Function Breakdown                  [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution [0m |#
 #====================================================================#
-cluster-06                     0.27874      0.500 [94m     1.39369e-01[0m 
-cluster-12                     0.26317      0.500 [94m     1.31587e-01[0m 
-Regularization                 0.00000      1.000 [94m     0.00000e+00[0m 
-Total                                             [94m     2.70956e-01[0m 
+cluster-06                     0.27874      0.500 [94m     1.39369e-01[0m
+cluster-12                     0.26317      0.500 [94m     1.31587e-01[0m
+Regularization                 0.00000      1.000 [94m     0.00000e+00[0m
+Total                                             [94m     2.70956e-01[0m
 ----------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual
@@ -249,8 +249,8 @@ Trying to write to a symbolic link setup.leap_, removing it first
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          10.8245       27.3135     39.6307%     0.1571    1.000     0.1571 
-    Gradient (kJ/mol/A)      45.8372      139.5348     32.8500%     0.1079    1.000     0.1079 
+    Energy (kJ/mol)          10.8245       27.3135     39.6307%     0.1571    1.000     0.1571
+    Gradient (kJ/mol/A)      45.8372      139.5348     32.8500%     0.1079    1.000     0.1079
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 0 (O), frame 1207,  33.3103 kJ/mol/A
 Trying to write to a symbolic link setup.leap_, removing it first
@@ -260,18 +260,18 @@ Trying to write to a symbolic link setup.leap_, removing it first
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          17.6785       47.3455     37.3393%     0.1394    1.000     0.1394 
-    Gradient (kJ/mol/A)      47.3948      138.1028     34.3185%     0.1178    1.000     0.1178 
+    Energy (kJ/mol)          17.6785       47.3455     37.3393%     0.1394    1.000     0.1394
+    Gradient (kJ/mol/A)      47.3948      138.1028     34.3185%     0.1178    1.000     0.1178
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 15 (O), frame 1200,  49.2507 kJ/mol/A
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-cluster-06                     0.26497      0.500 [92m     1.32486e-01[0m ( -6.884e-03 ) 
-cluster-12                     0.25720      0.500 [92m     1.28599e-01[0m ( -2.988e-03 ) 
-Regularization                 0.00003      1.000 [91m     3.13610e-05[0m ( +3.136e-05 ) 
-Total                                             [92m     2.61116e-01[0m ( -9.840e-03 ) 
+cluster-06                     0.26497      0.500 [92m     1.32486e-01[0m ( -6.884e-03 )
+cluster-12                     0.25720      0.500 [92m     1.28599e-01[0m ( -2.988e-03 )
+Regularization                 0.00003      1.000 [91m     3.13610e-05[0m ( +3.136e-05 )
+Total                                             [92m     2.61116e-01[0m ( -9.840e-03 )
 -------------------------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual
@@ -327,8 +327,8 @@ Trying to write to a symbolic link setup.leap_, removing it first
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          10.8251       27.3135     39.6327%     0.1571    1.000     0.1571 
-    Gradient (kJ/mol/A)      45.8209      139.5348     32.8383%     0.1078    1.000     0.1078 
+    Energy (kJ/mol)          10.8251       27.3135     39.6327%     0.1571    1.000     0.1571
+    Gradient (kJ/mol/A)      45.8209      139.5348     32.8383%     0.1078    1.000     0.1078
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 0 (O), frame 1207,  33.1488 kJ/mol/A
 Trying to write to a symbolic link setup.leap_, removing it first
@@ -338,18 +338,18 @@ Trying to write to a symbolic link setup.leap_, removing it first
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          17.6879       47.3455     37.3591%     0.1396    1.000     0.1396 
-    Gradient (kJ/mol/A)      47.3763      138.1028     34.3051%     0.1177    1.000     0.1177 
+    Energy (kJ/mol)          17.6879       47.3455     37.3591%     0.1396    1.000     0.1396
+    Gradient (kJ/mol/A)      47.3763      138.1028     34.3051%     0.1177    1.000     0.1177
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 15 (O), frame 1200,  49.0744 kJ/mol/A
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-cluster-06                     0.26491      0.500 [92m     1.32455e-01[0m ( -3.024e-05 ) 
-cluster-12                     0.25725      0.500 [91m     1.28627e-01[0m ( +2.780e-05 ) 
-Regularization                 0.00003      1.000 [91m     3.16129e-05[0m ( +2.519e-07 ) 
-Total                                             [92m     2.61114e-01[0m ( -2.197e-06 ) 
+cluster-06                     0.26491      0.500 [92m     1.32455e-01[0m ( -3.024e-05 )
+cluster-12                     0.25725      0.500 [91m     1.28627e-01[0m ( +2.780e-05 )
+Regularization                 0.00003      1.000 [91m     3.16129e-05[0m ( +2.519e-07 )
+Total                                             [92m     2.61114e-01[0m ( -2.197e-06 )
 -------------------------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual

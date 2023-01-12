@@ -24,7 +24,7 @@ duplicate_pnames
 #   PDIHMULS1K:cacac3h1			4.6024e+00
 #   PDIHMULS2K:cacac3h1			4.6024e+00
 #/priors
- 
+
 $end
 
 $simulation
@@ -34,4 +34,3 @@ weight 1
 w_energy 1.0
 shots -1
 $end
-

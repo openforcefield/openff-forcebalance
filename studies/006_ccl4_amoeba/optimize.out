@@ -4,18 +4,18 @@
 #| [1m               Author: Lee-Ping Wang, Arthur Vigil                [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -34,19 +34,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: optimize.in
 #========================================================#
@@ -72,10 +72,10 @@ Reading force field from file: cl4.prm
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['cl4.prm'] 
-priors                    OrderedDict([('VDWS', 5.0), ('VDWT', 0.5), ('VDWD', 1.0)]) 
-amoeba_pol                mutual 
-amoeba_eps                1e-05 
+fnms                      ['cl4.prm']
+priors                    OrderedDict([('VDWS', 5.0), ('VDWT', 0.5), ('VDWD', 1.0)])
+amoeba_pol                mutual
+amoeba_eps                1e-05
 ----------------------------------------------------------
 Found 0 .prm files in /home/leeping/src/forcebalance/studies/006_ccl4_amoeba/targets/ccl4-h2o-ix
 The energy denominator is: 1.0 kcal/mol
@@ -83,50 +83,50 @@ Interactions more repulsive than 20.0 will not be fitted
 #========================================================#
 #| [92m           Setup for target ccl4-h2o-ix :           [0m |#
 #========================================================#
-name                      ccl4-h2o-ix 
-type                      INTERACTION_TINKER 
-h                         0.0001 
-tgtdir                    targets/ccl4-h2o-ix 
-attenuate                 True 
-fragment1                 1-5 
-fragment2                 6-8 
-energy_upper              20.0 
+name                      ccl4-h2o-ix
+type                      INTERACTION_TINKER
+h                         0.0001
+tgtdir                    targets/ccl4-h2o-ix
+attenuate                 True
+fragment1                 1-5
+fragment2                 6-8
+energy_upper              20.0
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target ccl4-liquid :           [0m |#
 #========================================================#
-md_threads                4 
-liquid_coords             liquid.xyz 
-gas_coords                gas.xyz 
-name                      ccl4-liquid 
-type                      LIQUID_TINKER 
-h                         0.0001 
-tgtdir                    targets/ccl4-liquid 
-w_rho                     1.0 
-w_hvap                    1.0 
-w_alpha                   1.0 
-w_kappa                   1.0 
-w_cp                      1.0 
-w_eps0                    1.0 
-liquid_equ_steps          10000 
-liquid_prod_steps         100000 
-gas_equ_steps             500000 
-gas_prod_steps            1000000 
-liquid_timestep           1.0 
-liquid_interval           0.1 
-gas_timestep              1.0 
-gas_interval              0.1 
-minimize_energy           1 
-self_pol_mu0              0.0 
-self_pol_alpha            0.0 
-anisotropic_box           0 
-rho_denom                 10.0 
-hvap_denom                5.0 
-alpha_denom               1.0 
-kappa_denom               10.0 
-cp_denom                  2.0 
-eps0_denom                10.0 
-use_cvib_intra            False 
-use_cvib_inter            False 
-use_cni                   False 
+md_threads                4
+liquid_coords             liquid.xyz
+gas_coords                gas.xyz
+name                      ccl4-liquid
+type                      LIQUID_TINKER
+h                         0.0001
+tgtdir                    targets/ccl4-liquid
+w_rho                     1.0
+w_hvap                    1.0
+w_alpha                   1.0
+w_kappa                   1.0
+w_cp                      1.0
+w_eps0                    1.0
+liquid_equ_steps          10000
+liquid_prod_steps         100000
+gas_equ_steps             500000
+gas_prod_steps            1000000
+liquid_timestep           1.0
+liquid_interval           0.1
+gas_timestep              1.0
+gas_interval              0.1
+minimize_energy           1
+self_pol_mu0              0.0
+self_pol_alpha            0.0
+anisotropic_box           0
+rho_denom                 10.0
+hvap_denom                5.0
+alpha_denom               1.0
+kappa_denom               10.0
+cp_denom                  2.0
+eps0_denom                10.0
+use_cvib_intra            False
+use_cvib_inter            False
+use_cni                   False
 --------

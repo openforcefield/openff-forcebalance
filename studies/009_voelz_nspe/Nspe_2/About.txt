@@ -7,7 +7,7 @@ cd Setup
 
 1) First concatenate all of the structure files into a single one for convenience.
 
-./collect.sh 
+./collect.sh
 
 2) Now create a force field using GAFF.
 
@@ -19,14 +19,14 @@ antechamber -i molecule.pdb -fi pdb -o molecule.mol2 -fo mol2 -c bcc -pf y
 
 2b) Run Leap to generate an inpcrd and prmtop file.
 
-tleap -f stage.leap 
+tleap -f stage.leap
 
 3) Run acpype to get a Gromacs itp file from the AMBER force field.
 
 # ~/src/acpype/acpype.py -p molecule.prmtop -x molecule.inpcrd -r
 ~/scripts/acpype/acpype.py -p molecule.prmtop -x molecule.inpcrd -r
 
-### VAV: 
+### VAV:
 
 4) Condense parameters into the top of the file, grouped by atom types rather than individual atoms.
    (I verified that the physical interactions are not modified
@@ -66,10 +66,9 @@ cp Setup/shot.mdp !$
 cp Setup/topol.top !$
 
 9) Edit simulations/2dscan/settings/topol.top to have the first line be:
- 
+
 #include "molecule.itp"
 
 10) Run ForceBalance.
 
 ForceBalance.py options.in
-

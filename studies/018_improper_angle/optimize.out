@@ -8,18 +8,18 @@
 #| [1m           Arthur Vigil, Erik G. Brandt, Johnny Israeli           [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -38,19 +38,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: optimize.in
 #========================================================#
@@ -86,45 +86,45 @@ Reading force field from file: smirnoff99Frosst.offxml
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['smirnoff99Frosst.offxml'] 
-priors                    OrderedDict([('HarmonicBondForce/Bond/length', 1.0), ('HarmonicBondForce/Bond/k', 1000.0), ('HarmonicAngleForce/Angle/angle', 100.0), ('HarmonicAngleForce/Angle/k', 100.0)]) 
+fnms                      ['smirnoff99Frosst.offxml']
+priors                    OrderedDict([('HarmonicBondForce/Bond/length', 1.0), ('HarmonicBondForce/Bond/k', 1000.0), ('HarmonicAngleForce/Angle/angle', 100.0), ('HarmonicAngleForce/Angle/k', 100.0)])
 ----------------------------------------------------------
 /home/leeping/src/forcebalance/studies/018_improper_angle/targets/dimethylamine.2D-scan/mol1.mol2 -> /home/leeping/src/forcebalance/studies/018_improper_angle/optimize.tmp/dimethylamine.2D-scan/mol1.mol2
 QM forces are not present, only fitting energies.
 #========================================================#
 #| [92m      Setup for target dimethylamine.2D-scan :      [0m |#
 #========================================================#
-pdb                       mol1.pdb 
-mol2                      ['mol1.mol2'] 
-coords                    all.xyz 
-precision                 double 
-platname                  CUDA 
-name                      dimethylamine.2D-scan 
-type                      ABINITIO_SMIRNOFF 
-backup                    False 
-tgtdir                    targets/dimethylamine.2D-scan 
-writelevel                2 
-shots                     88 
+pdb                       mol1.pdb
+mol2                      ['mol1.mol2']
+coords                    all.xyz
+precision                 double
+platname                  CUDA
+name                      dimethylamine.2D-scan
+type                      ABINITIO_SMIRNOFF
+backup                    False
+tgtdir                    targets/dimethylamine.2D-scan
+writelevel                2
+shots                     88
 ----------------------------------------------------------
 Using parabolic regularization (Gaussian prior) with strength 1.0e+00 (+), 0.0e+00 (x)
 #========================================================#
 #| [92m           Setup for objective function :           [0m |#
 #========================================================#
-penalty_additive          1.0 
-normalize_weights         False 
+penalty_additive          1.0
+normalize_weights         False
 ----------------------------------------------------------
 #========================================================#
 #| [92m                Setup for optimizer                 [0m |#
 #========================================================#
-jobtype                   OPTIMIZE 
-trust0                    -1.0 
-mintrust                  0.05 
-convergence_objective     0.01 
-convergence_step          0.01 
-convergence_gradient      0.01 
-maxstep                   1000 
-backup                    False 
-input_file                optimize.in 
+jobtype                   OPTIMIZE
+trust0                    -1.0
+mintrust                  0.05
+convergence_objective     0.01
+convergence_step          0.01
+convergence_gradient      0.01
+maxstep                   1000
+backup                    False
+input_file                optimize.in
 ----------------------------------------------------------
 #========================================================#
 #| [1m                  Main Optimizer                    [0m |#
@@ -152,15 +152,15 @@ input_file                optimize.in
 #|                    Difference   Denominator     Percent                                  |#
 #|  Observable        (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #============================================================================================#
-    Energy (kJ/mol)      22.0091       60.0606     36.6448%     0.1343    1.000     0.1343 
+    Energy (kJ/mol)      22.0091       60.0606     36.6448%     0.1343    1.000     0.1343
 ----------------------------------------------------------------------------------------------
 #====================================================================#
 #| [94m                  Objective Function Breakdown                  [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution [0m |#
 #====================================================================#
-dimethylamine.2D-scan          0.13428      1.000 [94m     1.34284e-01[0m 
-Regularization                 0.00000      1.000 [94m     0.00000e+00[0m 
-Total                                             [94m     1.34284e-01[0m 
+dimethylamine.2D-scan          0.13428      1.000 [94m     1.34284e-01[0m
+Regularization                 0.00000      1.000 [94m     0.00000e+00[0m
+Total                                             [94m     1.34284e-01[0m
 ----------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual
@@ -225,15 +225,15 @@ Input file with saved parameters: optimize.sav
 #|                    Difference   Denominator     Percent                                  |#
 #|  Observable        (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #============================================================================================#
-    Energy (kJ/mol)      12.0029       60.0606     19.9846%     0.0399    1.000     0.0399 
+    Energy (kJ/mol)      12.0029       60.0606     19.9846%     0.0399    1.000     0.0399
 ----------------------------------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-dimethylamine.2D-scan          0.03994      1.000 [92m     3.99383e-02[0m ( -9.435e-02 ) 
-Regularization                 0.00490      1.000 [91m     4.90351e-03[0m ( +4.904e-03 ) 
-Total                                             [92m     4.48418e-02[0m ( -8.944e-02 ) 
+dimethylamine.2D-scan          0.03994      1.000 [92m     3.99383e-02[0m ( -9.435e-02 )
+Regularization                 0.00490      1.000 [91m     4.90351e-03[0m ( +4.904e-03 )
+Total                                             [92m     4.48418e-02[0m ( -8.944e-02 )
 -------------------------------------------------------------------------------------
 #========================================================================#
 #|  The force field has been written to the result/optimize directory.  |#
@@ -303,15 +303,15 @@ Setting finite difference step to 2.0179e-04
 #|                    Difference   Denominator     Percent                                  |#
 #|  Observable        (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #============================================================================================#
-    Energy (kJ/mol)      11.9873       60.0606     19.9587%     0.0398    1.000     0.0398 
+    Energy (kJ/mol)      11.9873       60.0606     19.9587%     0.0398    1.000     0.0398
 ----------------------------------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-dimethylamine.2D-scan          0.03983      1.000 [92m     3.98348e-02[0m ( -1.035e-04 ) 
-Regularization                 0.00497      1.000 [91m     4.96539e-03[0m ( +6.188e-05 ) 
-Total                                             [92m     4.48002e-02[0m ( -4.163e-05 ) 
+dimethylamine.2D-scan          0.03983      1.000 [92m     3.98348e-02[0m ( -1.035e-04 )
+Regularization                 0.00497      1.000 [91m     4.96539e-03[0m ( +6.188e-05 )
+Total                                             [92m     4.48002e-02[0m ( -4.163e-05 )
 -------------------------------------------------------------------------------------
 #========================================================================#
 #|  The force field has been written to the result/optimize directory.  |#

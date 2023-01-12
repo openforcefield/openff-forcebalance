@@ -9,17 +9,17 @@ nstvout = 1000
 nstxtcout = 0
 
 ns_type	= grid
-nstlist	= 5	
+nstlist	= 5
 rlist = .75
 rcoulomb = .75
 rvdw = .6
-coulombtype = PME		
-pme_order = 4		   
+coulombtype = PME
+pme_order = 4
 fourierspacing = 0.16
 
 tcoupl = Nose-Hoover
 tc-grps	= Water non-Water
-tau_t = 0.5	0.5	
+tau_t = 0.5	0.5
 ref_t = 323 323
 
 pcoupl = Parrinello-Rahman
@@ -37,9 +37,9 @@ DispCorr = EnerPres
 gen_vel = no
 
 constraint_algorithm = lincs
-constraints = all-bonds	   
-lincs_iter = 1		     
-lincs_order = 4		    
+constraints = all-bonds
+lincs_iter = 1
+lincs_order = 4
 
 vdwtype = switch
 rvdw_switch  = 0.55

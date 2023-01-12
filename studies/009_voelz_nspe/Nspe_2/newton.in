@@ -20,7 +20,7 @@ priors
    PDIHMULS3K                           : 9.64853e+01
    PDIHMULS4K                           : 9.64853e+01
    PIMPDIHS2K                           : 9.64853e+01
-/priors 
+/priors
 
 $end
 
@@ -31,4 +31,3 @@ weight 1
 w_energy 1.0
 shots -1
 $end
-

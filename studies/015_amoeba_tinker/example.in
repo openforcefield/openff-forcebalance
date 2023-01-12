@@ -138,13 +138,13 @@ $end
 # $target
 # # (string) The name of the target, which corresponds to the directory targets/dir_name
 # name Interactions_CCSDT
-# 
+#
 # # (allcap) The type of target, for instance AbInitio_GMXX2
 # type BindingEnergy_TINKER
-# 
+#
 # # (float) Weight of the current target (with respect to other targets)
 # weight 5.0
-# 
+#
 # # (float) The energy denominator in kcal/mol used to normalize the objective function.
 # energy_denom 10.0
 # rmsd_denom 2.0
@@ -153,13 +153,13 @@ $end
 # $target
 # # (string) The name of the target, which corresponds to the directory targets/dir_name
 # name Interactions_MP2
-# 
+#
 # # (allcap) The type of target, for instance AbInitio_GMXX2
 # type BindingEnergy_TINKER
-# 
+#
 # # (float) Weight of the current target (with respect to other targets)
 # weight 5.0
-# 
+#
 # # (float) The energy denominator in kcal/mol used to normalize the objective function.
 # energy_denom 100.0
 # rmsd_denom 2.0

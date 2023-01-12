@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-from builtins import zip
-from builtins import input
-import os, sys, re
-import numpy as np
+
+import os
+import re
 import shutil
-from forcebalance.molecule import Molecule
-from forcebalance.readfrq import read_frq_gen, scale_freqs
+import sys
+
+import numpy as np
+
+from openff.forcebalance.molecule import Molecule
+from openff.forcebalance.readfrq import read_frq_gen, scale_freqs
 
 commblk = """#==========================================#
 #| File containing vibrational modes from |#
@@ -51,7 +53,7 @@ if list(frqs1) != sorted(list(frqs1)):
     print("Warning, sorted freqs are out of order.")
     input()
 
-with open('vdata.txt', 'w') as f:
+with open("vdata.txt", "w") as f:
     print(commblk, file=f)
     print(len(elem), file=f)
     print("Coordinates and vibrations calculated from %s" % fout, file=f)
@@ -60,6 +62,5 @@ with open('vdata.txt', 'w') as f:
     for frq, mode in zip(frqs1, modes):
         print(file=f)
         print("%.4f" % frq, file=f)
-        for i in mode.reshape(-1,3):
-            print("% 8.3f % 8.3f % 8.3f" % (i[0], i[1], i[2]), file=f)
-
+        for i in mode.reshape(-1, 3):
+            print(f"{i[0]: 8.3f} {i[1]: 8.3f} {i[2]: 8.3f}", file=f)

@@ -4,41 +4,41 @@ This is a multi-thread run using 1 threads
                   Welcome to Q-Chem
      A Quantum Leap Into The Future Of Chemistry
 
- Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
- A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
- R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
- J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
- V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
- J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
- A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
- G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
- I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
- J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
- H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
- F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown,
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill,
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley,
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele,
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin,
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz,
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu,
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang,
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee,
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik,
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman,
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong,
  A. I. Krylov, P. M. W. Gill, M. Head-Gordon
 
- Additional authors for Version 3.1: 
+ Additional authors for Version 3.1:
  Z. Gan, Y. Zhao, N. E. Schultz, D. Truhlar, E. Epifanovsky, M. Oana
 
- Additional authors for Version 3.2: 
- R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
- D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
- W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
- D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ Additional authors for Version 3.2:
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer,
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley,
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich,
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom,
  V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
 
- Additional authors for Version 4.0: 
- A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
- R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
- M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
- D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
- J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
- N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ Additional authors for Version 4.0:
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen,
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson,
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt,
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu,
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt,
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson,
  M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
 
- Additional authors for Version 4.1: 
- X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ Additional authors for Version 4.1:
+ X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati,
  N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
 
  Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
@@ -48,9 +48,9 @@ This is a multi-thread run using 1 threads
 
  Intel X86 EM64T Linux Version 4.1.2
 
- Q-chem begins on Sat Apr 19 09:22:26 2014  
+ Q-chem begins on Sat Apr 19 09:22:26 2014
 
-Host: 
+Host:
 0
 
      Scratch files written to ./qchem27545//
@@ -146,7 +146,7 @@ Total number of integrals generated =           88901
  Multipole matrices computed through 2nd order
  Guess from superposition of atomic densities
  Warning:  Energy on first SCF cycle will be non-variational
-scfman initvdwdat 
+scfman initvdwdat
  A restricted Hartree-Fock SCF calculation will be
  performed using Pulay DIIS extrapolation
  SCF converges when DIIS error is below 1.0E-08
@@ -380,11 +380,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2920993557
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.435 -20.404 -15.530 -15.482 -11.321 -11.282 -11.221 -11.194
@@ -403,7 +403,7 @@ Symmetry turned off temporarily
   2.068   2.082   2.134   2.187   2.197   2.459   2.973   3.070
   3.701   3.758
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -510,14 +510,14 @@ Finding J and K together
  Job number = 222, Threshold = 1.00E-11
 Integral type ranges set in mkLRange.C for JobNum: 22  <1-6|1-6>
 Total number of integrals generated =        10384158
- 
+
  Direct stationary perturbation theory relativistic correction:
- 
+
  rels  =       0.148422346412
  relv  =      -0.632961530775
  rel2e =       0.259672548326
  E_rel =      -0.224866636037
- 
+
  Hessian of the SCF Energy
             1           2           3           4           5           6
     1   0.1942979   0.1110408  -0.1060808  -0.1784541  -0.1007523   0.0912286
@@ -1123,7 +1123,7 @@ Total number of integrals generated =        10384158
  **                  INFRARED INTENSITIES (KM/MOL)                   **
  **                                                                  **
  **********************************************************************
- 
+
 
  Mode:                 1                      2                      3
  Frequency:        75.28                  91.02                 150.40
@@ -1664,7 +1664,7 @@ Total number of integrals generated =        10384158
 Archival summary:
 1\1\leeping\FREQ\HF\3-21G\22510\leeping\SatApr1909:23:212014SatApr1909:23:212014\0\\#,FREQ,HF,3-21G,\\0,1\N\H,1,1.00295\C,1,1.34838,2,119.019\O,3,1.22983,1,121.847,2,-175.361,0\C,1,1.44688,2,118.81,3,-177.037,0\H,5,1.08407,1,108.846,2,-24.3333,0\H,5,1.08816,1,107.915,2,-143.231,0\C,3,1.49935,1,116.267,2,4.61133,0\H,8,1.08564,3,113.192,1,0.37009,0\H,8,1.08578,3,108.513,1,-121.273,0\H,8,1.08581,3,108.401,1,121.857,0\C,5,1.5196,1,113.136,2,94.9746,0\O,12,1.22548,5,121.991,1,-116.439,0\N,12,1.34252,5,114.119,1,63.6322,0\H,14,1.01008,12,117.517,5,-1.14773,0\C,14,1.44218,12,120.754,5,-178.399,0\H,16,1.08416,14,108.56,12,-178.994,0\H,16,1.0866,14,110.554,12,-59.0954,0\H,16,1.08723,14,110.982,12,60.7743,0\\HF=-451.292099\\@
 
- Total job time:  55.00s(wall), 54.70s(cpu) 
+ Total job time:  55.00s(wall), 54.70s(cpu)
  Sat Apr 19 09:23:21 2014
 
         *************************************************************
@@ -1676,48 +1676,48 @@ Archival summary:
 
 *** MISSION COMPLETED -- STARFLEET OUT ***
 
- 
-User input: 2 of 3 
- 
+
+User input: 2 of 3
+
 /home/leeping/opt/qchem-4.2/exe/qcprog.exe .frequency.qcin.27545.qcin.2 ./qchem27545/
                   Welcome to Q-Chem
      A Quantum Leap Into The Future Of Chemistry
 
- Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
- A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
- R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
- J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
- V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
- J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
- A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
- G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
- I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
- J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
- H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
- F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown,
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill,
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley,
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele,
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin,
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz,
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu,
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang,
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee,
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik,
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman,
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong,
  A. I. Krylov, P. M. W. Gill, M. Head-Gordon
 
- Additional authors for Version 3.1: 
+ Additional authors for Version 3.1:
  Z. Gan, Y. Zhao, N. E. Schultz, D. Truhlar, E. Epifanovsky, M. Oana
 
- Additional authors for Version 3.2: 
- R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
- D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
- W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
- D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ Additional authors for Version 3.2:
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer,
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley,
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich,
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom,
  V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
 
- Additional authors for Version 4.0: 
- A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
- R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
- M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
- D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
- J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
- N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ Additional authors for Version 4.0:
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen,
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson,
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt,
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu,
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt,
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson,
  M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
 
- Additional authors for Version 4.1: 
- X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ Additional authors for Version 4.1:
+ X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati,
  N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
 
  Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
@@ -1727,9 +1727,9 @@ User input: 2 of 3
 
  Intel X86 EM64T Linux Version 4.1.2
 
- Q-chem begins on Sat Apr 19 09:23:22 2014  
+ Q-chem begins on Sat Apr 19 09:23:22 2014
 
-Host: 
+Host:
 0
 
      Scratch files written to ./qchem27545//
@@ -1813,7 +1813,7 @@ Total number of integrals generated =           88901
  Nucleus-field energy     =     0.0000000019 hartrees
  Guess from superposition of atomic densities
  Warning:  Energy on first SCF cycle will be non-variational
-scfman initvdwdat 
+scfman initvdwdat
  A restricted Hartree-Fock SCF calculation will be
  performed using Pulay DIIS extrapolation
  SCF converges when DIIS error is below 1.0E-08
@@ -2047,11 +2047,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2920993554
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.435 -20.404 -15.530 -15.482 -11.321 -11.282 -11.221 -11.194
@@ -2070,7 +2070,7 @@ Symmetry turned off temporarily
   2.068   2.082   2.134   2.187   2.197   2.459   2.973   3.070
   3.701   3.758
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -2497,11 +2497,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2933069138
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.433 -20.405 -15.528 -15.483 -11.320 -11.283 -11.222 -11.192
@@ -2520,7 +2520,7 @@ Symmetry turned off temporarily
   2.070   2.077   2.136   2.181   2.193   2.456   2.963   3.061
   3.698   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -2924,11 +2924,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2933211734
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.433 -20.405 -15.528 -15.483 -11.320 -11.283 -11.222 -11.192
@@ -2947,7 +2947,7 @@ Symmetry turned off temporarily
   2.069   2.077   2.136   2.179   2.194   2.455   2.963   3.062
   3.698   3.756
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -3323,11 +3323,11 @@ NextCycle: DoReset = 1
  Total energy in the final basis set = -451.2933252760
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.433 -20.405 -15.527 -15.483 -11.320 -11.283 -11.221 -11.192
@@ -3346,7 +3346,7 @@ Symmetry turned off temporarily
   2.069   2.077   2.136   2.179   2.194   2.455   2.963   3.062
   3.698   3.756
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -3764,11 +3764,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2933499063
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.433 -20.406 -15.527 -15.484 -11.319 -11.284 -11.221 -11.191
@@ -3787,7 +3787,7 @@ Symmetry turned off temporarily
   2.070   2.079   2.134   2.176   2.197   2.454   2.963   3.062
   3.698   3.756
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -4209,11 +4209,11 @@ NextCycle: DoReset = 1
  Total energy in the final basis set = -451.2925563589
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.437 -20.404 -15.529 -15.479 -11.322 -11.282 -11.221 -11.193
@@ -4232,7 +4232,7 @@ Symmetry turned off temporarily
   2.065   2.081   2.134   2.194   2.197   2.458   2.961   3.064
   3.695   3.761
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -4664,11 +4664,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2934108913
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.433 -20.405 -15.527 -15.483 -11.320 -11.283 -11.221 -11.192
@@ -4687,7 +4687,7 @@ Symmetry turned off temporarily
   2.070   2.080   2.134   2.179   2.197   2.456   2.962   3.062
   3.697   3.756
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -5106,11 +5106,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2935029836
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.434 -20.405 -15.527 -15.483 -11.320 -11.283 -11.221 -11.191
@@ -5129,7 +5129,7 @@ Symmetry turned off temporarily
   2.070   2.082   2.132   2.178   2.202   2.456   2.962   3.062
   3.694   3.758
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -5551,11 +5551,11 @@ NextCycle: DoReset = 1
  Total energy in the final basis set = -451.2926710598
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.436 -20.405 -15.526 -15.485 -11.320 -11.284 -11.223 -11.192
@@ -5574,7 +5574,7 @@ Symmetry turned off temporarily
   2.072   2.079   2.114   2.168   2.203   2.454   2.951   3.050
   3.699   3.744
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -5992,11 +5992,11 @@ NextCycle: DoReset = 1
  Total energy in the final basis set = -451.2936311785
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.434 -20.406 -15.526 -15.484 -11.319 -11.284 -11.222 -11.191
@@ -6015,7 +6015,7 @@ Symmetry turned off temporarily
   2.071   2.083   2.125   2.174   2.207   2.456   2.958   3.059
   3.693   3.754
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -6450,11 +6450,11 @@ NextCycle: DoReset = 1
  Total energy in the final basis set = -451.2937533914
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.435 -20.406 -15.526 -15.484 -11.319 -11.284 -11.221 -11.191
@@ -6473,7 +6473,7 @@ Symmetry turned off temporarily
   2.072   2.086   2.121   2.173   2.213   2.456   2.957   3.059
   3.691   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -6892,11 +6892,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2938667170
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.435 -20.406 -15.525 -15.484 -11.319 -11.284 -11.221 -11.191
@@ -6915,7 +6915,7 @@ Symmetry turned off temporarily
   2.072   2.088   2.118   2.173   2.219   2.457   2.956   3.059
   3.689   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -7334,11 +7334,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2939612937
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.436 -20.406 -15.525 -15.484 -11.319 -11.284 -11.221 -11.191
@@ -7357,7 +7357,7 @@ Symmetry turned off temporarily
   2.072   2.090   2.116   2.173   2.224   2.459   2.955   3.059
   3.688   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -7776,11 +7776,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2940342149
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.436 -20.405 -15.525 -15.484 -11.319 -11.283 -11.221 -11.191
@@ -7799,7 +7799,7 @@ Symmetry turned off temporarily
   2.072   2.090   2.115   2.173   2.227   2.461   2.954   3.058
   3.687   3.756
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -8217,11 +8217,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2940664317
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.437 -20.405 -15.525 -15.483 -11.319 -11.283 -11.221 -11.191
@@ -8240,7 +8240,7 @@ Symmetry turned off temporarily
   2.072   2.090   2.116   2.174   2.227   2.462   2.953   3.058
   3.687   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -8630,11 +8630,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2940689003
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.437 -20.405 -15.525 -15.483 -11.319 -11.283 -11.221 -11.191
@@ -8653,7 +8653,7 @@ Symmetry turned off temporarily
   2.072   2.089   2.116   2.174   2.226   2.463   2.953   3.057
   3.687   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -9015,11 +9015,11 @@ NextCycle: DoReset = 1
  Total energy in the final basis set = -451.2940691414
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.437 -20.405 -15.525 -15.483 -11.319 -11.283 -11.221 -11.191
@@ -9038,7 +9038,7 @@ Symmetry turned off temporarily
   2.072   2.089   2.116   2.174   2.226   2.463   2.953   3.057
   3.687   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -9206,7 +9206,7 @@ Total number of integrals generated =         8436842
          Displacement       0.012870      0.001200      NO
          Energy change     -0.000000      0.000001     YES
 
- Final energy is   -451.294069141385     
+ Final energy is   -451.294069141385
 
 
  ******************************
@@ -9216,7 +9216,7 @@ Total number of integrals generated =         8436842
 Z-matrix Print:
 $molecule
 0 1
-N 
+N
 H  1 0.996380
 C  1 1.350843 2 120.243064
 O  3 1.226156 1 121.908877 2 -175.416391 0
@@ -9239,11 +9239,11 @@ $end
 
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.437 -20.405 -15.525 -15.483 -11.319 -11.283 -11.221 -11.191
@@ -9262,7 +9262,7 @@ Symmetry turned off temporarily
   2.072   2.089   2.116   2.174   2.226   2.463   2.953   3.057
   3.687   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -9316,7 +9316,7 @@ Symmetry turned off temporarily
 Archival summary:
 1\1\leeping\OPT\HF\3-21G\22510\leeping\SatApr1909:24:502014SatApr1909:24:502014\0\\#,OPT,HF,3-21G,\\0,1\N\H,1,0.99638\C,1,1.35084,2,120.243\O,3,1.22616,1,121.909,2,-175.416,0\C,1,1.46511,2,118.08,3,-179.36,0\H,5,1.07732,1,108.976,2,-23.7696,0\H,5,1.08067,1,108.332,2,-143.53,0\C,3,1.51327,1,115.047,2,4.46558,0\H,8,1.07829,3,108.75,1,179.383,0\H,8,1.0837,3,110.33,1,59.0964,0\H,8,1.08436,3,110.134,1,-60.6996,0\C,5,1.52853,1,112.408,2,95.3373,0\O,12,1.22056,5,122.096,1,-114.566,0\N,12,1.34407,5,114.163,1,65.8834,0\H,14,1.0004,12,119.089,5,-0.325166,0\C,14,1.4599,12,120.298,5,-179.449,0\H,16,1.08048,14,108.555,12,-179.793,0\H,16,1.08245,14,110.827,12,-59.8562,0\H,16,1.08284,14,110.983,12,60.173,0\\HF=-451.294069\\@
 
- Total job time:  88.61s(wall), 88.19s(cpu) 
+ Total job time:  88.61s(wall), 88.19s(cpu)
  Sat Apr 19 09:24:50 2014
 
         *************************************************************
@@ -9328,48 +9328,48 @@ Archival summary:
 
 *** MISSION COMPLETED -- STARFLEET OUT ***
 
- 
-User input: 3 of 3 
- 
+
+User input: 3 of 3
+
 /home/leeping/opt/qchem-4.2/exe/qcprog.exe .frequency.qcin.27545.qcin.3 ./qchem27545/
                   Welcome to Q-Chem
      A Quantum Leap Into The Future Of Chemistry
 
- Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
- A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
- R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
- J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
- V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
- J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
- A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
- G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
- I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
- J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
- H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
- F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown,
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill,
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley,
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele,
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin,
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz,
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu,
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang,
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee,
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik,
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman,
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong,
  A. I. Krylov, P. M. W. Gill, M. Head-Gordon
 
- Additional authors for Version 3.1: 
+ Additional authors for Version 3.1:
  Z. Gan, Y. Zhao, N. E. Schultz, D. Truhlar, E. Epifanovsky, M. Oana
 
- Additional authors for Version 3.2: 
- R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
- D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
- W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
- D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ Additional authors for Version 3.2:
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer,
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley,
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich,
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom,
  V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
 
- Additional authors for Version 4.0: 
- A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
- R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
- M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
- D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
- J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
- N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ Additional authors for Version 4.0:
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen,
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson,
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt,
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu,
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt,
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson,
  M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
 
- Additional authors for Version 4.1: 
- X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ Additional authors for Version 4.1:
+ X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati,
  N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
 
  Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
@@ -9379,9 +9379,9 @@ User input: 3 of 3
 
  Intel X86 EM64T Linux Version 4.1.2
 
- Q-chem begins on Sat Apr 19 09:24:51 2014  
+ Q-chem begins on Sat Apr 19 09:24:51 2014
 
-Host: 
+Host:
 0
 
      Scratch files written to ./qchem27545//
@@ -9458,7 +9458,7 @@ Total number of integrals generated =           88654
  Multipole matrices computed through 2nd order
  Guess from superposition of atomic densities
  Warning:  Energy on first SCF cycle will be non-variational
-scfman initvdwdat 
+scfman initvdwdat
  A restricted Hartree-Fock SCF calculation will be
  performed using Pulay DIIS extrapolation
  SCF converges when DIIS error is below 1.0E-08
@@ -9692,11 +9692,11 @@ REM_GRID_RESTART_DIIS = 0
  Total energy in the final basis set = -451.2940691414
 Symmetry turned off temporarily
  Analysis of SCF Wavefunction
- 
+
  --------------------------------------------------------------
                     Orbital Energies (a.u.)
  --------------------------------------------------------------
- 
+
  Alpha MOs
  -- Occupied --
 -20.437 -20.405 -15.525 -15.483 -11.319 -11.283 -11.221 -11.191
@@ -9715,7 +9715,7 @@ Symmetry turned off temporarily
   2.072   2.089   2.116   2.174   2.226   2.463   2.953   3.057
   3.687   3.755
  --------------------------------------------------------------
- 
+
           Ground-State Mulliken Net Atomic Charges
 
      Atom                 Charge (a.u.)
@@ -9822,14 +9822,14 @@ Finding J and K together
  Job number = 222, Threshold = 1.00E-11
 Integral type ranges set in mkLRange.C for JobNum: 22  <1-6|1-6>
 Total number of integrals generated =        10327786
- 
+
  Direct stationary perturbation theory relativistic correction:
- 
+
  rels  =       0.148417062449
  relv  =      -0.632271248316
  rel2e =       0.259000861823
  E_rel =      -0.224853324044
- 
+
  Hessian of the SCF Energy
             1           2           3           4           5           6
     1   0.0762975  -0.0024651  -0.0685317  -0.0713469   0.0005907   0.0540501
@@ -10435,7 +10435,7 @@ Total number of integrals generated =        10327786
  **                  INFRARED INTENSITIES (KM/MOL)                   **
  **                                                                  **
  **********************************************************************
- 
+
 
  Mode:                 1                      2                      3
  Frequency:        33.31                  74.21                  82.66
@@ -10976,7 +10976,7 @@ Total number of integrals generated =        10327786
 Archival summary:
 1\1\leeping\FREQ\HF\3-21G\22510\leeping\SatApr1909:25:412014SatApr1909:25:412014\0\\#,FREQ,HF,3-21G,\\0,1\N\H,1,0.99638\C,1,1.35084,2,120.243\O,3,1.22616,1,121.909,2,-175.416,0\C,1,1.46511,2,118.08,3,-179.36,0\H,5,1.07732,1,108.976,2,-23.7696,0\H,5,1.08067,1,108.332,2,-143.53,0\C,3,1.51327,1,115.047,2,4.46558,0\H,8,1.07829,3,108.75,1,179.383,0\H,8,1.0837,3,110.33,1,59.0964,0\H,8,1.08436,3,110.134,1,-60.6996,0\C,5,1.52853,1,112.408,2,95.3373,0\O,12,1.22056,5,122.096,1,-114.566,0\N,12,1.34407,5,114.163,1,65.8834,0\H,14,1.0004,12,119.089,5,-0.325166,0\C,14,1.4599,12,120.298,5,-179.449,0\H,16,1.08048,14,108.555,12,-179.793,0\H,16,1.08245,14,110.827,12,-59.8562,0\H,16,1.08284,14,110.983,12,60.173,0\\HF=-451.294069\\@
 
- Total job time:  50.62s(wall), 50.51s(cpu) 
+ Total job time:  50.62s(wall), 50.51s(cpu)
  Sat Apr 19 09:25:41 2014
 
         *************************************************************
@@ -10987,4 +10987,3 @@ Archival summary:
 
 
 *** MISSION COMPLETED -- STARFLEET OUT ***
-

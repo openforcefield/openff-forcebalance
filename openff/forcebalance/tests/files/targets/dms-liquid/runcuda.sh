@@ -63,7 +63,7 @@ elif [[ $HOSTNAME =~ "cn" ]] ; then
     # export BAK=/hsgs/projects/pande/leeping/scratch/runcuda-backups
 elif [[ $ARCHIVER == "ranch.tacc.utexas.edu" ]] ; then
     # Currently this is the only way I can be sure I'm on Stampede...
-    # This is a wild shot. Kamelasa! It's difficult to tell the cluster name 
+    # This is a wild shot. Kamelasa! It's difficult to tell the cluster name
     # from the environment variables on a Stampede compute node.
     module load cuda/5.0
     export CUDA_CACHE_PATH=$SCRATCH/.nv/ComputeCache

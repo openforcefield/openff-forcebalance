@@ -9,7 +9,7 @@ Instructions for setting up target:
    These need to be given to "forcefield" in FB input file.
    The files need to be placed in the "forcefield" folder.
    These files are basically created by hand.
-   
+
 2) In each target, all.gro is converted to all.mdcrd and conf.pdb.
    The virtual site is deleted because the sander API doesn't
    support virtual site calculations with igb>0.
@@ -33,5 +33,3 @@ Instructions for setting up target:
      the Natoms/Nbonds record numbers are changed as well.
      Otherwise leap will fail to read the mol2 file and there
      will be a "residue not recognized" error.
-
-

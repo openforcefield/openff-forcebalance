@@ -35,27 +35,27 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from builtins import object
 __author__ = "Christopher M. Bruns"
 __version__ = "0.6"
 
 
-class BaseDimension(object):
-    '''
+class BaseDimension:
+    """
     A physical dimension such as length, mass, or temperature.
 
     It is unlikely the user will need to create new ones.
-    '''
+    """
+
     # Keep deterministic order of dimensions
     _index_by_name = {
-        'mass': 1,
-        'length': 2,
-        'time': 3,
-        'temperature': 4,
-        'amount': 5,
-        'charge': 6,
-        'luminous intensity': 7,
-        'angle': 8,
+        "mass": 1,
+        "length": 2,
+        "time": 3,
+        "temperature": 4,
+        "amount": 5,
+        "charge": 6,
+        "luminous intensity": 7,
+        "angle": 8,
     }
     _next_unused_index = 9
 
@@ -93,8 +93,9 @@ class BaseDimension(object):
 
 
 # run module directly for testing
-if __name__=='__main__':
+if __name__ == "__main__":
     # Test the examples in the docstrings
-    import doctest, sys
-    doctest.testmod(sys.modules[__name__])
+    import doctest
+    import sys
 
+    doctest.testmod(sys.modules[__name__])

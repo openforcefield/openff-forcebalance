@@ -4,18 +4,18 @@
 #| [1m               Author: Lee-Ping Wang, Arthur Vigil                [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -34,19 +34,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: single.in
 #========================================================#
@@ -116,290 +116,290 @@ Reading force field from file: water.prm
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['amoebawater.xml', 'water.prm'] 
-priors                    OrderedDict([('Bond/length', 0.01), ('Bond/k', 20000.0), ('Angle/angle1', 5.0), ('Angle/k', 0.05), ('UreyBradley/k', 10000.0), ('Vdw/sigma', 0.03), ('Vdw/epsilon/73', 0.3), ('Multipole/c', 0.4), ('Multipole/d', 0.005), ('Multipole/q', 0.0002), ('Polarize/thole', 0.2), ('GPol/glob', 0.1), ('GPol/oext', 0.2)]) 
-amoeba_pol                direct 
-rigid_water               0 
+fnms                      ['amoebawater.xml', 'water.prm']
+priors                    OrderedDict([('Bond/length', 0.01), ('Bond/k', 20000.0), ('Angle/angle1', 5.0), ('Angle/k', 0.05), ('UreyBradley/k', 10000.0), ('Vdw/sigma', 0.03), ('Vdw/epsilon/73', 0.3), ('Multipole/c', 0.4), ('Multipole/d', 0.005), ('Multipole/q', 0.0002), ('Polarize/thole', 0.2), ('GPol/glob', 0.1), ('GPol/oext', 0.2)])
+amoeba_pol                direct
+rigid_water               0
 ----------------------------------------------------------
 #========================================================#
 #| [92m             Setup for target Liquid :              [0m |#
 #========================================================#
-force_cuda                0 
-mts_integrator            0 
-liquid_coords             liquid.pdb 
-gas_coords                mono.pdb 
-name                      Liquid 
-type                      LIQUID_OPENMM 
-weight                    5.0 
-tgtdir                    targets/Liquid 
-w_rho                     1.0 
-w_hvap                    1.0 
-w_alpha                   1.0 
-w_kappa                   1.0 
-w_cp                      1.0 
-w_eps0                    1.0 
-liquid_equ_steps          1000000 
-liquid_prod_steps         8000000 
-gas_equ_steps             1000000 
-gas_prod_steps            8000000 
-liquid_timestep           0.5 
-liquid_interval           0.1 
-gas_timestep              0.5 
-gas_interval              0.1 
-minimize_energy           1 
-self_pol_mu0              0.0 
-self_pol_alpha            0.0 
-anisotropic_box           0 
-rho_denom                 2.0 
-hvap_denom                5.0 
-alpha_denom               1.0 
-kappa_denom               10.0 
-cp_denom                  2.0 
-eps0_denom                10.0 
-use_cvib_intra            True 
-use_cvib_inter            True 
-use_cni                   True 
+force_cuda                0
+mts_integrator            0
+liquid_coords             liquid.pdb
+gas_coords                mono.pdb
+name                      Liquid
+type                      LIQUID_OPENMM
+weight                    5.0
+tgtdir                    targets/Liquid
+w_rho                     1.0
+w_hvap                    1.0
+w_alpha                   1.0
+w_kappa                   1.0
+w_cp                      1.0
+w_eps0                    1.0
+liquid_equ_steps          1000000
+liquid_prod_steps         8000000
+gas_equ_steps             1000000
+gas_prod_steps            8000000
+liquid_timestep           0.5
+liquid_interval           0.1
+gas_timestep              0.5
+gas_interval              0.1
+minimize_energy           1
+self_pol_mu0              0.0
+self_pol_alpha            0.0
+anisotropic_box           0
+rho_denom                 2.0
+hvap_denom                5.0
+alpha_denom               1.0
+kappa_denom               10.0
+cp_denom                  2.0
+eps0_denom                10.0
+use_cvib_intra            True
+use_cvib_inter            True
+use_cni                   True
 ----------------------------------------------------------
 Found 0 .prm files in /home/leeping/src/forcebalance/studies/005_iamoeba/targets/Monomer_Moments
 Deleting PBC options from the .key file.
 #========================================================#
 #| [92m         Setup for target Monomer_Moments :         [0m |#
 #========================================================#
-name                      Monomer_Moments 
-type                      MOMENTS_TINKER 
-tgtdir                    targets/Monomer_Moments 
-dipole_denom              0.2 
+name                      Monomer_Moments
+type                      MOMENTS_TINKER
+tgtdir                    targets/Monomer_Moments
+dipole_denom              0.2
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-02 :            [0m |#
 #========================================================#
-name                      cluster-02 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-02 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-02
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-02
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-03 :            [0m |#
 #========================================================#
-name                      cluster-03 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-03 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-03
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-03
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-04 :            [0m |#
 #========================================================#
-name                      cluster-04 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-04 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-04
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-04
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-05 :            [0m |#
 #========================================================#
-name                      cluster-05 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-05 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-05
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-05
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-06 :            [0m |#
 #========================================================#
-name                      cluster-06 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-06 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2408 
+name                      cluster-06
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-06
+w_netforce                1.0
+w_torque                  1.0
+shots                     2408
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-07 :            [0m |#
 #========================================================#
-name                      cluster-07 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-07 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-07
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-07
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-08 :            [0m |#
 #========================================================#
-name                      cluster-08 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-08 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2402 
+name                      cluster-08
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-08
+w_netforce                1.0
+w_torque                  1.0
+shots                     2402
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-09 :            [0m |#
 #========================================================#
-name                      cluster-09 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-09 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-09
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-09
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-10 :            [0m |#
 #========================================================#
-name                      cluster-10 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-10 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-10
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-10
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-11 :            [0m |#
 #========================================================#
-name                      cluster-11 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-11 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2405 
+name                      cluster-11
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-11
+w_netforce                1.0
+w_torque                  1.0
+shots                     2405
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-12 :            [0m |#
 #========================================================#
-name                      cluster-12 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-12 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-12
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-12
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-13 :            [0m |#
 #========================================================#
-name                      cluster-13 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-13 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-13
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-13
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-14 :            [0m |#
 #========================================================#
-name                      cluster-14 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-14 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     2401 
+name                      cluster-14
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-14
+w_netforce                1.0
+w_torque                  1.0
+shots                     2401
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-15 :            [0m |#
 #========================================================#
-name                      cluster-15 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-15 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     1801 
+name                      cluster-15
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-15
+w_netforce                1.0
+w_torque                  1.0
+shots                     1801
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-16 :            [0m |#
 #========================================================#
-name                      cluster-16 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-16 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     1805 
+name                      cluster-16
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-16
+w_netforce                1.0
+w_torque                  1.0
+shots                     1805
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-17 :            [0m |#
 #========================================================#
-name                      cluster-17 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-17 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     1797 
+name                      cluster-17
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-17
+w_netforce                1.0
+w_torque                  1.0
+shots                     1797
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-18 :            [0m |#
 #========================================================#
-name                      cluster-18 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-18 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     1748 
+name                      cluster-18
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-18
+w_netforce                1.0
+w_torque                  1.0
+shots                     1748
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-19 :            [0m |#
 #========================================================#
-name                      cluster-19 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-19 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     1800 
+name                      cluster-19
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-19
+w_netforce                1.0
+w_torque                  1.0
+shots                     1800
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-20 :            [0m |#
 #========================================================#
-name                      cluster-20 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-20 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     604 
+name                      cluster-20
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-20
+w_netforce                1.0
+w_torque                  1.0
+shots                     604
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-21 :            [0m |#
 #========================================================#
-name                      cluster-21 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-21 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     601 
+name                      cluster-21
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-21
+w_netforce                1.0
+w_torque                  1.0
+shots                     601
 ----------------------------------------------------------
 #========================================================#
 #| [92m           Setup for target cluster-22 :            [0m |#
 #========================================================#
-name                      cluster-22 
-type                      ABINITIO_OPENMM 
-weight                    0.5 
-tgtdir                    targets/cluster-22 
-w_netforce                1.0 
-w_torque                  1.0 
-shots                     600 
+name                      cluster-22
+type                      ABINITIO_OPENMM
+weight                    0.5
+tgtdir                    targets/cluster-22
+w_netforce                1.0
+w_torque                  1.0
+shots                     600
 ----------------------------------------------------------
 Reading interactions from file: targets/DimerMin/interactions.txt
 Optimizing system monomer_opt
@@ -409,12 +409,12 @@ The RMSD denominator is: 0.1
 #========================================================#
 #| [92m            Setup for target DimerMin :             [0m |#
 #========================================================#
-name                      DimerMin 
-type                      BINDINGENERGY_TINKER 
-tgtdir                    targets/DimerMin 
-inter_txt                 targets/DimerMin/interactions.txt 
-energy_denom              1.0 
-rmsd_denom                0.1 
+name                      DimerMin
+type                      BINDINGENERGY_TINKER
+tgtdir                    targets/DimerMin
+inter_txt                 targets/DimerMin/interactions.txt
+energy_denom              1.0
+rmsd_denom                0.1
 ----------------------------------------------------------
 Reading interactions from file: targets/Interactions_CCSDT/interactions.txt
 Optimizing system monomer_opt
@@ -434,12 +434,12 @@ The RMSD denominator is: 2.0
 #========================================================#
 #| [92m       Setup for target Interactions_CCSDT :        [0m |#
 #========================================================#
-name                      Interactions_CCSDT 
-type                      BINDINGENERGY_TINKER 
-tgtdir                    targets/Interactions_CCSDT 
-inter_txt                 targets/Interactions_CCSDT/interactions.txt 
-energy_denom              10.0 
-rmsd_denom                2.0 
+name                      Interactions_CCSDT
+type                      BINDINGENERGY_TINKER
+tgtdir                    targets/Interactions_CCSDT
+inter_txt                 targets/Interactions_CCSDT/interactions.txt
+energy_denom              10.0
+rmsd_denom                2.0
 ----------------------------------------------------------
 Reading interactions from file: targets/Interactions_MP2/interactions.txt
 Optimizing ALL systems by default
@@ -448,42 +448,42 @@ The RMSD denominator is: 2.0
 #========================================================#
 #| [92m        Setup for target Interactions_MP2 :         [0m |#
 #========================================================#
-name                      Interactions_MP2 
-type                      BINDINGENERGY_TINKER 
-tgtdir                    targets/Interactions_MP2 
-inter_txt                 targets/Interactions_MP2/interactions.txt 
-energy_denom              100.0 
-rmsd_denom                2.0 
+name                      Interactions_MP2
+type                      BINDINGENERGY_TINKER
+tgtdir                    targets/Interactions_MP2
+inter_txt                 targets/Interactions_MP2/interactions.txt
+energy_denom              100.0
+rmsd_denom                2.0
 ----------------------------------------------------------
 #========================================================#
 #| [92m        Setup for target Monomer_Vibration :        [0m |#
 #========================================================#
-name                      Monomer_Vibration 
-type                      VIBRATION_TINKER 
-tgtdir                    targets/Monomer_Vibration 
-denom                     30.0 
+name                      Monomer_Vibration
+type                      VIBRATION_TINKER
+tgtdir                    targets/Monomer_Vibration
+denom                     30.0
 ----------------------------------------------------------
 Using parabolic regularization (Gaussian prior) with strength 1.0e-03 (+), 0.0e+00 (x)
 Work Queue is listening on 9236
 #========================================================#
 #| [92m           Setup for objective function :           [0m |#
 #========================================================#
-penalty_additive          0.001 
-normalize_weights         False 
-wq_port                   9236 
-asynchronous              True 
+penalty_additive          0.001
+normalize_weights         False
+wq_port                   9236
+asynchronous              True
 ----------------------------------------------------------
 #========================================================#
 #| [92m                Setup for optimizer                 [0m |#
 #========================================================#
-jobtype                   SINGLE 
-trust0                    0.15 
-mintrust                  0.05 
-adapt_fac                 0.2 
-adapt_damp                1.0 
-print_hess                True 
-err_tol                   0.5 
-read_mvals                [0.016314, 0.012047, -0.40348, 0.030494, 1.2108, 0.80099, -0.18591, -0.57482, -0.71453, 0.44643, -0.58543, -0.71359, 1.0467, 0.60266, -0.16016, -0.76918, -0.11331, 3.4605, -0.28589] 
+jobtype                   SINGLE
+trust0                    0.15
+mintrust                  0.05
+adapt_fac                 0.2
+adapt_damp                1.0
+print_hess                True
+err_tol                   0.5
+read_mvals                [0.016314, 0.012047, -0.40348, 0.030494, 1.2108, 0.80099, -0.18591, -0.57482, -0.71453, 0.44643, -0.58543, -0.71359, 1.0467, 0.60266, -0.16016, -0.76918, -0.11331, 3.4605, -0.28589]
 ----------------------------------------------------------
 Submitting command 'bash runcuda.sh python npt.py openmm 249.150 1.000 &> npt.out' to the Work Queue, taskid 1
 Submitting command 'bash runcuda.sh python npt.py openmm 253.150 1.000 &> npt.out' to the Work Queue, taskid 2
@@ -532,160 +532,160 @@ Target: Monomer_Moments
 #| [92m    Moments and/or Polarizabilities, Objective =  1.84009e-01    [0m |#
 #| [92m  Component                Calc.      Ref.     Delta        Term [0m |#
 #=====================================================================#
-dipole-z                      1.861     1.855     0.006      0.00091 
-quadrupole-xx                 2.587     2.630    -0.043      0.00188 
-quadrupole-yy                -2.178    -2.500     0.322      0.10363 
-quadrupole-zz                -0.409    -0.130    -0.279      0.07759 
+dipole-z                      1.861     1.855     0.006      0.00091
+quadrupole-xx                 2.587     2.630    -0.043      0.00188
+quadrupole-yy                -2.178    -2.500     0.322      0.10363
+quadrupole-zz                -0.409    -0.130    -0.279      0.07759
 -----------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-02  Type: AbInitio_OpenMM  Objective = 8.27353e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            1.8348        9.0149     20.3534% 
-    Gradient (kJ/mol/A)       24.7206       76.0022     32.5261% 
-    Net Force (kJ/mol/A)       7.3099       21.2729     34.3627% 
-    Torque (kJ/mol/rad)        3.7172       12.2231     30.4113% 
+    Energy (kJ/mol)            1.8348        9.0149     20.3534%
+    Gradient (kJ/mol/A)       24.7206       76.0022     32.5261%
+    Net Force (kJ/mol/A)       7.3099       21.2729     34.3627%
+    Torque (kJ/mol/rad)        3.7172       12.2231     30.4113%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-03  Type: AbInitio_OpenMM  Objective = 7.76322e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            2.4239       13.5359     17.9073% 
-    Gradient (kJ/mol/A)       22.9184       78.3111     29.2658% 
-    Net Force (kJ/mol/A)       8.3802       24.9484     33.5901% 
-    Torque (kJ/mol/rad)        4.6784       15.0699     31.0450% 
+    Energy (kJ/mol)            2.4239       13.5359     17.9073%
+    Gradient (kJ/mol/A)       22.9184       78.3111     29.2658%
+    Net Force (kJ/mol/A)       8.3802       24.9484     33.5901%
+    Torque (kJ/mol/rad)        4.6784       15.0699     31.0450%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-04  Type: AbInitio_OpenMM  Objective = 7.49174e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            3.0173       17.7761     16.9737% 
-    Gradient (kJ/mol/A)       22.4149       80.8905     27.7102% 
-    Net Force (kJ/mol/A)       8.7231       26.4979     32.9201% 
-    Torque (kJ/mol/rad)        5.2386       16.8063     31.1708% 
+    Energy (kJ/mol)            3.0173       17.7761     16.9737%
+    Gradient (kJ/mol/A)       22.4149       80.8905     27.7102%
+    Net Force (kJ/mol/A)       8.7231       26.4979     32.9201%
+    Torque (kJ/mol/rad)        5.2386       16.8063     31.1708%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-05  Type: AbInitio_OpenMM  Objective = 7.47353e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            3.5660       21.3964     16.6663% 
-    Gradient (kJ/mol/A)       21.9114       81.6120     26.8482% 
-    Net Force (kJ/mol/A)       9.1024       27.6920     32.8702% 
-    Torque (kJ/mol/rad)        5.7844       18.3808     31.4700% 
+    Energy (kJ/mol)            3.5660       21.3964     16.6663%
+    Gradient (kJ/mol/A)       21.9114       81.6120     26.8482%
+    Net Force (kJ/mol/A)       9.1024       27.6920     32.8702%
+    Torque (kJ/mol/rad)        5.7844       18.3808     31.4700%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-06  Type: AbInitio_OpenMM  Objective = 7.31322e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            4.1863       27.0253     15.4903% 
-    Gradient (kJ/mol/A)       21.7828       82.2815     26.4736% 
-    Net Force (kJ/mol/A)       9.2769       28.4514     32.6061% 
-    Torque (kJ/mol/rad)        6.1114       19.2686     31.7170% 
+    Energy (kJ/mol)            4.1863       27.0253     15.4903%
+    Gradient (kJ/mol/A)       21.7828       82.2815     26.4736%
+    Net Force (kJ/mol/A)       9.2769       28.4514     32.6061%
+    Torque (kJ/mol/rad)        6.1114       19.2686     31.7170%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-07  Type: AbInitio_OpenMM  Objective = 7.37878e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            4.5803       29.1568     15.7091% 
-    Gradient (kJ/mol/A)       21.9012       83.3373     26.2802% 
-    Net Force (kJ/mol/A)       9.4128       29.0609     32.3900% 
-    Torque (kJ/mol/rad)        6.3629       20.0056     31.8056% 
+    Energy (kJ/mol)            4.5803       29.1568     15.7091%
+    Gradient (kJ/mol/A)       21.9012       83.3373     26.2802%
+    Net Force (kJ/mol/A)       9.4128       29.0609     32.3900%
+    Torque (kJ/mol/rad)        6.3629       20.0056     31.8056%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-08  Type: AbInitio_OpenMM  Objective = 7.27013e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            5.0737       35.0308     14.4834% 
-    Gradient (kJ/mol/A)       21.7303       83.8407     25.9186% 
-    Net Force (kJ/mol/A)       9.6236       29.7999     32.2941% 
-    Torque (kJ/mol/rad)        6.6352       20.7019     32.0513% 
+    Energy (kJ/mol)            5.0737       35.0308     14.4834%
+    Gradient (kJ/mol/A)       21.7303       83.8407     25.9186%
+    Net Force (kJ/mol/A)       9.6236       29.7999     32.2941%
+    Torque (kJ/mol/rad)        6.6352       20.7019     32.0513%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-09  Type: AbInitio_OpenMM  Objective = 7.18589e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            5.5677       38.6786     14.3947% 
-    Gradient (kJ/mol/A)       21.8897       85.1564     25.7053% 
-    Net Force (kJ/mol/A)       9.5672       29.8301     32.0724% 
-    Torque (kJ/mol/rad)        6.8069       21.3821     31.8346% 
+    Energy (kJ/mol)            5.5677       38.6786     14.3947%
+    Gradient (kJ/mol/A)       21.8897       85.1564     25.7053%
+    Net Force (kJ/mol/A)       9.5672       29.8301     32.0724%
+    Torque (kJ/mol/rad)        6.8069       21.3821     31.8346%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-10  Type: AbInitio_OpenMM  Objective = 7.23350e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            5.9797       41.8575     14.2859% 
-    Gradient (kJ/mol/A)       21.8991       85.3973     25.6438% 
-    Net Force (kJ/mol/A)       9.7813       30.4655     32.1063% 
-    Torque (kJ/mol/rad)        6.9900       21.7563     32.1286% 
+    Energy (kJ/mol)            5.9797       41.8575     14.2859%
+    Gradient (kJ/mol/A)       21.8991       85.3973     25.6438%
+    Net Force (kJ/mol/A)       9.7813       30.4655     32.1063%
+    Torque (kJ/mol/rad)        6.9900       21.7563     32.1286%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-11  Type: AbInitio_OpenMM  Objective = 7.17267e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            6.5400       46.9517     13.9293% 
-    Gradient (kJ/mol/A)       21.8485       85.8294     25.4558% 
-    Net Force (kJ/mol/A)       9.8831       30.8369     32.0497% 
-    Torque (kJ/mol/rad)        7.1963       22.4081     32.1145% 
+    Energy (kJ/mol)            6.5400       46.9517     13.9293%
+    Gradient (kJ/mol/A)       21.8485       85.8294     25.4558%
+    Net Force (kJ/mol/A)       9.8831       30.8369     32.0497%
+    Torque (kJ/mol/rad)        7.1963       22.4081     32.1145%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-12  Type: AbInitio_OpenMM  Objective = 7.17614e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            6.6893       49.9641     13.3883% 
-    Gradient (kJ/mol/A)       21.9556       85.9897     25.5328% 
-    Net Force (kJ/mol/A)       9.9035       31.0234     31.9227% 
-    Torque (kJ/mol/rad)        7.2925       22.6596     32.1828% 
+    Energy (kJ/mol)            6.6893       49.9641     13.3883%
+    Gradient (kJ/mol/A)       21.9556       85.9897     25.5328%
+    Net Force (kJ/mol/A)       9.9035       31.0234     31.9227%
+    Torque (kJ/mol/rad)        7.2925       22.6596     32.1828%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-13  Type: AbInitio_OpenMM  Objective = 7.15599e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            7.0595       53.2030     13.2690% 
-    Gradient (kJ/mol/A)       22.1765       87.0132     25.4864% 
-    Net Force (kJ/mol/A)      10.0347       31.6190     31.7364% 
-    Torque (kJ/mol/rad)        7.4260       22.9480     32.3599% 
+    Energy (kJ/mol)            7.0595       53.2030     13.2690%
+    Gradient (kJ/mol/A)       22.1765       87.0132     25.4864%
+    Net Force (kJ/mol/A)      10.0347       31.6190     31.7364%
+    Torque (kJ/mol/rad)        7.4260       22.9480     32.3599%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-14  Type: AbInitio_OpenMM  Objective = 7.14392e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            7.3256       56.4511     12.9770% 
-    Gradient (kJ/mol/A)       22.0774       87.1822     25.3233% 
-    Net Force (kJ/mol/A)      10.0414       31.3637     32.0161% 
-    Torque (kJ/mol/rad)        7.4485       23.0828     32.2686% 
+    Energy (kJ/mol)            7.3256       56.4511     12.9770%
+    Gradient (kJ/mol/A)       22.0774       87.1822     25.3233%
+    Net Force (kJ/mol/A)      10.0414       31.3637     32.0161%
+    Torque (kJ/mol/rad)        7.4485       23.0828     32.2686%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-15  Type: AbInitio_OpenMM  Objective = 6.96070e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            7.6586       61.8297     12.3865% 
-    Gradient (kJ/mol/A)       21.0926       77.9718     27.0516% 
-    Net Force (kJ/mol/A)       9.7895       32.0021     30.5903% 
-    Torque (kJ/mol/rad)        7.5228       23.6797     31.7691% 
+    Energy (kJ/mol)            7.6586       61.8297     12.3865%
+    Gradient (kJ/mol/A)       21.0926       77.9718     27.0516%
+    Net Force (kJ/mol/A)       9.7895       32.0021     30.5903%
+    Torque (kJ/mol/rad)        7.5228       23.6797     31.7691%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-16  Type: AbInitio_OpenMM  Objective = 6.93716e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            8.3151       70.4713     11.7993% 
-    Gradient (kJ/mol/A)       21.2545       78.3008     27.1447% 
-    Net Force (kJ/mol/A)       9.7423       32.1778     30.2764% 
-    Torque (kJ/mol/rad)        7.6281       23.8284     32.0128% 
+    Energy (kJ/mol)            8.3151       70.4713     11.7993%
+    Gradient (kJ/mol/A)       21.2545       78.3008     27.1447%
+    Net Force (kJ/mol/A)       9.7423       32.1778     30.2764%
+    Torque (kJ/mol/rad)        7.6281       23.8284     32.0128%
 --------------------------------------------------------------------------
 
 #========================================================================#
@@ -693,172 +693,172 @@ quadrupole-zz                -0.409    -0.130    -0.279      0.07759
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            8.9610       74.7341     11.9905% 
-    Gradient (kJ/mol/A)       21.4049       78.7958     27.1650% 
-    Net Force (kJ/mol/A)       9.8358       32.0941     30.6467% 
-    Torque (kJ/mol/rad)        7.5971       23.9032     31.7826% 
+    Energy (kJ/mol)            8.9610       74.7341     11.9905%
+    Gradient (kJ/mol/A)       21.4049       78.7958     27.1650%
+    Net Force (kJ/mol/A)       9.8358       32.0941     30.6467%
+    Torque (kJ/mol/rad)        7.5971       23.9032     31.7826%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-18  Type: AbInitio_OpenMM  Objective = 6.95740e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            9.0278       74.1175     12.1804% 
-    Gradient (kJ/mol/A)       21.5566       79.7547     27.0286% 
-    Net Force (kJ/mol/A)       9.9129       32.4592     30.5396% 
-    Torque (kJ/mol/rad)        7.7159       24.3502     31.6872% 
+    Energy (kJ/mol)            9.0278       74.1175     12.1804%
+    Gradient (kJ/mol/A)       21.5566       79.7547     27.0286%
+    Net Force (kJ/mol/A)       9.9129       32.4592     30.5396%
+    Torque (kJ/mol/rad)        7.7159       24.3502     31.6872%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-19  Type: AbInitio_OpenMM  Objective = 7.01583e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)            9.2340       78.2371     11.8026% 
-    Gradient (kJ/mol/A)       21.6027       79.3407     27.2278% 
-    Net Force (kJ/mol/A)      10.0051       32.7299     30.5686% 
-    Torque (kJ/mol/rad)        7.8425       24.5590     31.9332% 
+    Energy (kJ/mol)            9.2340       78.2371     11.8026%
+    Gradient (kJ/mol/A)       21.6027       79.3407     27.2278%
+    Net Force (kJ/mol/A)      10.0051       32.7299     30.5686%
+    Torque (kJ/mol/rad)        7.8425       24.5590     31.9332%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-20  Type: AbInitio_OpenMM  Objective = 7.11764e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)           10.9326       74.6841     14.6385% 
-    Gradient (kJ/mol/A)       25.4193      121.0110     21.0058% 
-    Net Force (kJ/mol/A)      10.2206       30.7664     33.2199% 
-    Torque (kJ/mol/rad)        7.8994       24.6216     32.0832% 
+    Energy (kJ/mol)           10.9326       74.6841     14.6385%
+    Gradient (kJ/mol/A)       25.4193      121.0110     21.0058%
+    Net Force (kJ/mol/A)      10.2206       30.7664     33.2199%
+    Torque (kJ/mol/rad)        7.8994       24.6216     32.0832%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-21  Type: AbInitio_OpenMM  Objective = 7.32571e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)           10.1192       67.7058     14.9458% 
-    Gradient (kJ/mol/A)       25.6373      122.2439     20.9723% 
-    Net Force (kJ/mol/A)      10.5811       31.1697     33.9468% 
-    Torque (kJ/mol/rad)        8.0874       25.1696     32.1314% 
+    Energy (kJ/mol)           10.1192       67.7058     14.9458%
+    Gradient (kJ/mol/A)       25.6373      122.2439     20.9723%
+    Net Force (kJ/mol/A)      10.5811       31.1697     33.9468%
+    Torque (kJ/mol/rad)        8.0874       25.1696     32.1314%
 --------------------------------------------------------------------------
 #========================================================================#
 #|  Target: cluster-22  Type: AbInitio_OpenMM  Objective = 7.33957e-02  |#
 #|                            Difference   Denominator     Percent      |#
 #|     Physical Variable      (Calc-Ref)     RMS (Ref)   Difference     |#
 #========================================================================#
-    Energy (kJ/mol)           10.3140       65.2679     15.8026% 
-    Gradient (kJ/mol/A)       25.4145      121.2534     20.9598% 
-    Net Force (kJ/mol/A)      10.3447       30.8508     33.5313% 
-    Torque (kJ/mol/rad)        8.0450       24.9215     32.2812% 
+    Energy (kJ/mol)           10.3140       65.2679     15.8026%
+    Gradient (kJ/mol/A)       25.4145      121.2534     20.9598%
+    Net Force (kJ/mol/A)      10.3447       30.8508     33.5313%
+    Torque (kJ/mol/rad)        8.0450       24.9215     32.2812%
 --------------------------------------------------------------------------
 #=====================================================================#
 #| [92m    Interaction Energies (kcal/mol), Objective =  1.15951e-02    [0m |#
 #| [92m  Interaction              Calc.      Ref.     Delta        Term [0m |#
 #=====================================================================#
-Dimer                        -5.092    -4.985    -0.108      0.01160 
+Dimer                        -5.092    -4.985    -0.108      0.01160
 -----------------------------------------------------------------------
 #=====================================================================#
 #| [92m Geometry Optimized Systems (Angstrom), Objective = 1.88206e-01  [0m |#
 #| [92m  System                                        RMSD        Term [0m |#
 #=====================================================================#
-monomer_opt                                       0.011      0.00000 
-dimer                                             0.043      0.18821 
+monomer_opt                                       0.011      0.00000
+dimer                                             0.043      0.18821
 -----------------------------------------------------------------------
 #=====================================================================#
 #| [92m    Interaction Energies (kcal/mol), Objective =  1.31748e-01    [0m |#
 #| [92m  Interaction              Calc.      Ref.     Delta        Term [0m |#
 #=====================================================================#
-Smith1                       -5.015    -4.968    -0.047      0.00002 
-Smith2                       -4.471    -4.453    -0.018      0.00000 
-Smith3                       -4.466    -4.418    -0.047      0.00002 
-Smith4                       -3.563    -4.250     0.687      0.00472 
-Smith5                       -2.977    -3.998     1.021      0.01042 
-Smith6                       -2.819    -3.957     1.138      0.01295 
-Smith7                       -2.740    -3.256     0.517      0.00267 
-Smith8                       -1.334    -1.300    -0.034      0.00001 
-Smith9                       -3.397    -3.047    -0.350      0.00123 
-Smith10                      -2.804    -2.182    -0.622      0.00387 
-Trimer                      -15.055   -15.742     0.687      0.00472 
-Tetramer                    -26.840   -27.400     0.561      0.00315 
-Pentamer                    -35.105   -35.933     0.829      0.00687 
-Prism                       -44.668   -45.920     1.252      0.01567 
-Cage                        -44.475   -45.670     1.195      0.01428 
-Bag                         -43.242   -44.300     1.058      0.01119 
-CyclicChair                 -43.388   -44.120     0.732      0.00536 
-Book1                       -44.179   -45.200     1.021      0.01043 
-Book2                       -43.635   -44.900     1.265      0.01600 
-CyclicBoat1                 -42.462   -43.130     0.668      0.00446 
-CyclicBoat2                 -42.462   -43.070     0.608      0.00370 
+Smith1                       -5.015    -4.968    -0.047      0.00002
+Smith2                       -4.471    -4.453    -0.018      0.00000
+Smith3                       -4.466    -4.418    -0.047      0.00002
+Smith4                       -3.563    -4.250     0.687      0.00472
+Smith5                       -2.977    -3.998     1.021      0.01042
+Smith6                       -2.819    -3.957     1.138      0.01295
+Smith7                       -2.740    -3.256     0.517      0.00267
+Smith8                       -1.334    -1.300    -0.034      0.00001
+Smith9                       -3.397    -3.047    -0.350      0.00123
+Smith10                      -2.804    -2.182    -0.622      0.00387
+Trimer                      -15.055   -15.742     0.687      0.00472
+Tetramer                    -26.840   -27.400     0.561      0.00315
+Pentamer                    -35.105   -35.933     0.829      0.00687
+Prism                       -44.668   -45.920     1.252      0.01567
+Cage                        -44.475   -45.670     1.195      0.01428
+Bag                         -43.242   -44.300     1.058      0.01119
+CyclicChair                 -43.388   -44.120     0.732      0.00536
+Book1                       -44.179   -45.200     1.021      0.01043
+Book2                       -43.635   -44.900     1.265      0.01600
+CyclicBoat1                 -42.462   -43.130     0.668      0.00446
+CyclicBoat2                 -42.462   -43.070     0.608      0.00370
 -----------------------------------------------------------------------
 #=====================================================================#
 #| [92m Geometry Optimized Systems (Angstrom), Objective = 5.54135e-02  [0m |#
 #| [92m  System                                        RMSD        Term [0m |#
 #=====================================================================#
-monomer_opt                                       0.011      0.00000 
-trimer                                            0.052      0.00067 
-tetramer                                          0.113      0.00318 
-pentamer                                          0.125      0.00391 
-hexamer01                                         0.081      0.00164 
-hexamer02                                         0.093      0.00218 
-hexamer03                                         0.151      0.00571 
-hexamer04                                         0.099      0.00245 
-hexamer05                                         0.109      0.00297 
-hexamer06                                         0.120      0.00358 
-hexamer07                                         0.282      0.01984 
-hexamer08                                         0.193      0.00928 
+monomer_opt                                       0.011      0.00000
+trimer                                            0.052      0.00067
+tetramer                                          0.113      0.00318
+pentamer                                          0.125      0.00391
+hexamer01                                         0.081      0.00164
+hexamer02                                         0.093      0.00218
+hexamer03                                         0.151      0.00571
+hexamer04                                         0.099      0.00245
+hexamer05                                         0.109      0.00297
+hexamer06                                         0.120      0.00358
+hexamer07                                         0.282      0.01984
+hexamer08                                         0.193      0.00928
 -----------------------------------------------------------------------
 #=====================================================================#
 #| [92m    Interaction Energies (kcal/mol), Objective =  2.09051e-01    [0m |#
 #| [92m  Interaction              Calc.      Ref.     Delta        Term [0m |#
 #=====================================================================#
-Octamer_S4                  -70.631   -72.700     2.069      0.00043 
-Octamer_D2d                 -70.600   -72.700     2.100      0.00044 
-11-mer_434                  -98.830  -105.718     6.888      0.00475 
-11-mer_515                  -98.728  -105.182     6.454      0.00417 
-11-mer_551                  -98.797  -104.920     6.123      0.00375 
-11-mer_443                  -99.204  -104.760     5.556      0.00309 
-11-mer_4412                 -98.227  -103.971     5.744      0.00330 
-16-mer_boat-a              -157.893  -170.800    12.907      0.01666 
-16-mer_boat-b              -157.935  -170.630    12.695      0.01612 
-16-mer_antiboat            -157.034  -170.540    13.506      0.01824 
-16-mer_abab                -157.752  -171.050    13.298      0.01768 
-16-mer_aabb                -157.726  -170.510    12.784      0.01634 
-17-mer_sphere              -168.208  -182.540    14.332      0.02054 
-17-mer_5525                -167.129  -181.830    14.701      0.02161 
-20-mer_Dodecahedron        -191.724  -200.100     8.376      0.00702 
-20-mer_FusedCubes          -201.518  -212.100    10.582      0.01120 
-20-mer_FaceSharingPrisms   -199.634  -215.200    15.566      0.02423 
-20-mer_EdgeSharingPrisms   -204.138  -218.100    13.962      0.01949 
+Octamer_S4                  -70.631   -72.700     2.069      0.00043
+Octamer_D2d                 -70.600   -72.700     2.100      0.00044
+11-mer_434                  -98.830  -105.718     6.888      0.00475
+11-mer_515                  -98.728  -105.182     6.454      0.00417
+11-mer_551                  -98.797  -104.920     6.123      0.00375
+11-mer_443                  -99.204  -104.760     5.556      0.00309
+11-mer_4412                 -98.227  -103.971     5.744      0.00330
+16-mer_boat-a              -157.893  -170.800    12.907      0.01666
+16-mer_boat-b              -157.935  -170.630    12.695      0.01612
+16-mer_antiboat            -157.034  -170.540    13.506      0.01824
+16-mer_abab                -157.752  -171.050    13.298      0.01768
+16-mer_aabb                -157.726  -170.510    12.784      0.01634
+17-mer_sphere              -168.208  -182.540    14.332      0.02054
+17-mer_5525                -167.129  -181.830    14.701      0.02161
+20-mer_Dodecahedron        -191.724  -200.100     8.376      0.00702
+20-mer_FusedCubes          -201.518  -212.100    10.582      0.01120
+20-mer_FaceSharingPrisms   -199.634  -215.200    15.566      0.02423
+20-mer_EdgeSharingPrisms   -204.138  -218.100    13.962      0.01949
 -----------------------------------------------------------------------
 #=====================================================================#
 #| [92m Geometry Optimized Systems (Angstrom), Objective = 3.69534e-02  [0m |#
 #| [92m  System                                        RMSD        Term [0m |#
 #=====================================================================#
-monomer_opt                                       0.011      0.00000 
-octamer_s4                                        0.056      0.00079 
-octamer_d2d                                       0.074      0.00135 
-n11_434                                           0.082      0.00167 
-n11_515                                           0.103      0.00265 
-n11_551                                           0.098      0.00240 
-n11_443                                           0.089      0.00196 
-n11_4412                                          0.109      0.00300 
-n16_boat                                          0.082      0.00169 
-n16_boat3                                         0.103      0.00264 
-n16_tip3p                                         0.096      0.00232 
-n16_abab                                          0.074      0.00136 
-n16_aabb                                          0.086      0.00185 
-n17_sphere                                        0.099      0.00243 
-n17_5525                                          0.100      0.00248 
-n20_dodecahedron_c1                               0.090      0.00203 
-n20_fused_cubes_c2                                0.087      0.00189 
-n20_facesharing_pentagonal_prisms_c1              0.087      0.00189 
-n20_edgesharing_pentagonal_prisms_c1              0.101      0.00255 
+monomer_opt                                       0.011      0.00000
+octamer_s4                                        0.056      0.00079
+octamer_d2d                                       0.074      0.00135
+n11_434                                           0.082      0.00167
+n11_515                                           0.103      0.00265
+n11_551                                           0.098      0.00240
+n11_443                                           0.089      0.00196
+n11_4412                                          0.109      0.00300
+n16_boat                                          0.082      0.00169
+n16_boat3                                         0.103      0.00264
+n16_tip3p                                         0.096      0.00232
+n16_abab                                          0.074      0.00136
+n16_aabb                                          0.086      0.00185
+n17_sphere                                        0.099      0.00243
+n17_5525                                          0.100      0.00248
+n20_dodecahedron_c1                               0.090      0.00203
+n20_fused_cubes_c2                                0.087      0.00189
+n20_facesharing_pentagonal_prisms_c1              0.087      0.00189
+n20_edgesharing_pentagonal_prisms_c1              0.101      0.00255
 -----------------------------------------------------------------------
 #================================================================================#
 #|                          Frequencies (wavenumbers)                           |#
 #|  Target: Monomer_Vibration  Type: Vibration_TINKER  Objective = 1.04148e-03  |#
 #|     Mode #            Reference   Calculated   Difference   Ref(dot)Calc     |#
 #================================================================================#
-    0                    1594.0     1593.242       -0.758         0.9997 
-    1                    3656.0     3655.483       -0.517         0.9997 
-    2                    3755.0     3755.309        0.309         0.9998 
+    0                    1594.0     1593.242       -0.758         0.9997
+    1                    3656.0     3655.483       -0.517         0.9997
+    2                    3755.0     3755.309        0.309         0.9998
 ----------------------------------------------------------------------------------
 
 
@@ -997,14 +997,14 @@ Running MBAR analysis on 42 states...
 Using embedded C++ helper code.
 K = 42, L = 42, N_max = 40000, total samples = 1680000
 There are 42 states with samples.
-N_k = 
+N_k =
 [ 40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.
   40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.
   40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.  40000.
   40000.  40000.  40000.  40000.  40000.  40000.]
 Initializing free energies to zero.
 Initial dimensionless free energies with method zeros
-f_k = 
+f_k =
 [ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
   0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]
 Determining dimensionless free energies by Newton-Raphson iteration.
@@ -1264,7 +1264,7 @@ Converged to tolerance of 2.086690e-13 in 28 iterations.
 Of 28 iterations, 9 were Newton-Raphson iterations and 19 were self-consistent iterations
 Recomputing all free energies and log weights for storage
 Final dimensionless free energies
-f_k = 
+f_k =
 [    0.        55.3786   108.216    158.6657   206.8774   252.983    297.0888   339.284    379.6574
    418.2988   455.2911   490.7117   532.8912   557.134    588.2727   618.1136   646.7165   674.1364
    700.4225   725.6218   749.7797   772.9398   795.1441   816.4332   836.8447   856.4125   875.1688
@@ -1804,48 +1804,48 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [1;94m                              Liquid Density (kg m^-3)                                [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      249.15      1.0 atm   990.497      989.788 +- 0.921    -0.709   0.00000   0.00000 
-      253.15      1.0 atm   993.547      992.978 +- 0.638    -0.569   0.02864   0.00232 
-      257.15      1.0 atm   995.816      995.373 +- 0.441    -0.443   0.02864   0.00140 
-      261.15      1.0 atm   997.476      997.227 +- 0.349    -0.249   0.02864   0.00045 
-      265.15      1.0 atm   998.647      998.626 +- 0.313    -0.021   0.02864   0.00000 
-      269.15      1.0 atm   999.414      999.583 +- 0.287     0.169   0.02864   0.00020 
-      273.15      1.0 atm   999.840     1000.125 +- 0.255     0.285   0.02864   0.00058 
-      277.15      1.0 atm   999.972     1000.315 +- 0.221     0.343   0.02864   0.00084 
-      281.15      1.0 atm   999.848     1000.273 +- 0.191     0.425   0.02864   0.00129 
-      285.15      1.0 atm   999.497     1000.042 +- 0.160     0.545   0.02864   0.00213 
-      289.15      1.0 atm   998.943      999.572 +- 0.130     0.629   0.02864   0.00283 
-      293.15      1.0 atm   998.204      998.886 +- 0.111     0.682   0.02864   0.00333 
-      298.15      1.0 atm   997.045      997.824 +- 0.104     0.779   0.02864   0.00434 
-      301.15      1.0 atm   996.234      997.072 +- 0.103     0.838   0.02864   0.00503 
-      305.15      1.0 atm   995.026      995.899 +- 0.104     0.873   0.02864   0.00546 
-      309.15      1.0 atm   993.684      994.520 +- 0.111     0.836   0.02864   0.00500 
-      313.15      1.0 atm   992.216      992.952 +- 0.119     0.736   0.02864   0.00388 
-      317.15      1.0 atm   990.628      991.227 +- 0.121     0.599   0.02864   0.00257 
-      321.15      1.0 atm   988.927      989.373 +- 0.119     0.446   0.02864   0.00143 
-      325.15      1.0 atm   987.119      987.417 +- 0.117     0.298   0.02864   0.00063 
-      329.15      1.0 atm   985.208      985.386 +- 0.116     0.178   0.02864   0.00023 
-      333.15      1.0 atm   983.199      983.298 +- 0.115     0.099   0.02864   0.00007 
-      337.15      1.0 atm   981.095      981.143 +- 0.113     0.048   0.02864   0.00002 
-      341.15      1.0 atm   978.900      978.906 +- 0.109     0.006   0.02864   0.00000 
-      345.15      1.0 atm   976.617      976.580 +- 0.106    -0.037   0.02864   0.00001 
-      349.15      1.0 atm   974.249      974.158 +- 0.104    -0.091   0.02864   0.00006 
-      353.15      1.0 atm   971.798      971.620 +- 0.103    -0.178   0.02864   0.00023 
-      357.15      1.0 atm   969.266      968.956 +- 0.106    -0.310   0.02864   0.00069 
-      361.15      1.0 atm   966.655      966.164 +- 0.113    -0.491   0.02864   0.00173 
-      365.15      1.0 atm   963.966      963.259 +- 0.124    -0.707   0.02864   0.00358 
-      369.15      1.0 atm   961.202      960.260 +- 0.139    -0.942   0.02864   0.00635 
-      373.15      1.0 atm   958.364      957.194 +- 0.157    -1.170   0.02864   0.00980 
-      298.15     20.0 bar   997.902      998.605 +- 0.104     0.703   0.02864   0.00354 
-      298.15     50.0 bar   999.246      999.833 +- 0.103     0.587   0.02864   0.00247 
-      298.15    100.0 bar  1001.467     1001.867 +- 0.102     0.400   0.02864   0.00114 
-      298.15    250.0 bar  1007.993     1007.858 +- 0.100    -0.135   0.01145   0.00005 
-      298.15    500.0 bar  1018.439     1017.492 +- 0.102    -0.947   0.00573   0.00128 
-      298.15    750.0 bar  1028.385     1026.706 +- 0.111    -1.679   0.00381   0.00268 
-      298.15   1000.0 bar  1037.872     1035.516 +- 0.125    -2.356   0.00286   0.00397 
-      298.15   2000.0 bar  1071.908     1066.770 +- 0.206    -5.138   0.00143   0.00945 
-      298.15   4000.0 bar  1126.580     1118.438 +- 0.233    -8.142   0.00072   0.01186 
-      298.15   8000.0 bar  1206.748     1193.893 +- 0.192   -12.855   0.00034   0.01420 
+      249.15      1.0 atm   990.497      989.788 +- 0.921    -0.709   0.00000   0.00000
+      253.15      1.0 atm   993.547      992.978 +- 0.638    -0.569   0.02864   0.00232
+      257.15      1.0 atm   995.816      995.373 +- 0.441    -0.443   0.02864   0.00140
+      261.15      1.0 atm   997.476      997.227 +- 0.349    -0.249   0.02864   0.00045
+      265.15      1.0 atm   998.647      998.626 +- 0.313    -0.021   0.02864   0.00000
+      269.15      1.0 atm   999.414      999.583 +- 0.287     0.169   0.02864   0.00020
+      273.15      1.0 atm   999.840     1000.125 +- 0.255     0.285   0.02864   0.00058
+      277.15      1.0 atm   999.972     1000.315 +- 0.221     0.343   0.02864   0.00084
+      281.15      1.0 atm   999.848     1000.273 +- 0.191     0.425   0.02864   0.00129
+      285.15      1.0 atm   999.497     1000.042 +- 0.160     0.545   0.02864   0.00213
+      289.15      1.0 atm   998.943      999.572 +- 0.130     0.629   0.02864   0.00283
+      293.15      1.0 atm   998.204      998.886 +- 0.111     0.682   0.02864   0.00333
+      298.15      1.0 atm   997.045      997.824 +- 0.104     0.779   0.02864   0.00434
+      301.15      1.0 atm   996.234      997.072 +- 0.103     0.838   0.02864   0.00503
+      305.15      1.0 atm   995.026      995.899 +- 0.104     0.873   0.02864   0.00546
+      309.15      1.0 atm   993.684      994.520 +- 0.111     0.836   0.02864   0.00500
+      313.15      1.0 atm   992.216      992.952 +- 0.119     0.736   0.02864   0.00388
+      317.15      1.0 atm   990.628      991.227 +- 0.121     0.599   0.02864   0.00257
+      321.15      1.0 atm   988.927      989.373 +- 0.119     0.446   0.02864   0.00143
+      325.15      1.0 atm   987.119      987.417 +- 0.117     0.298   0.02864   0.00063
+      329.15      1.0 atm   985.208      985.386 +- 0.116     0.178   0.02864   0.00023
+      333.15      1.0 atm   983.199      983.298 +- 0.115     0.099   0.02864   0.00007
+      337.15      1.0 atm   981.095      981.143 +- 0.113     0.048   0.02864   0.00002
+      341.15      1.0 atm   978.900      978.906 +- 0.109     0.006   0.02864   0.00000
+      345.15      1.0 atm   976.617      976.580 +- 0.106    -0.037   0.02864   0.00001
+      349.15      1.0 atm   974.249      974.158 +- 0.104    -0.091   0.02864   0.00006
+      353.15      1.0 atm   971.798      971.620 +- 0.103    -0.178   0.02864   0.00023
+      357.15      1.0 atm   969.266      968.956 +- 0.106    -0.310   0.02864   0.00069
+      361.15      1.0 atm   966.655      966.164 +- 0.113    -0.491   0.02864   0.00173
+      365.15      1.0 atm   963.966      963.259 +- 0.124    -0.707   0.02864   0.00358
+      369.15      1.0 atm   961.202      960.260 +- 0.139    -0.942   0.02864   0.00635
+      373.15      1.0 atm   958.364      957.194 +- 0.157    -1.170   0.02864   0.00980
+      298.15     20.0 bar   997.902      998.605 +- 0.104     0.703   0.02864   0.00354
+      298.15     50.0 bar   999.246      999.833 +- 0.103     0.587   0.02864   0.00247
+      298.15    100.0 bar  1001.467     1001.867 +- 0.102     0.400   0.02864   0.00114
+      298.15    250.0 bar  1007.993     1007.858 +- 0.100    -0.135   0.01145   0.00005
+      298.15    500.0 bar  1018.439     1017.492 +- 0.102    -0.947   0.00573   0.00128
+      298.15    750.0 bar  1028.385     1026.706 +- 0.111    -1.679   0.00381   0.00268
+      298.15   1000.0 bar  1037.872     1035.516 +- 0.125    -2.356   0.00286   0.00397
+      298.15   2000.0 bar  1071.908     1066.770 +- 0.206    -5.138   0.00143   0.00945
+      298.15   4000.0 bar  1126.580     1118.438 +- 0.233    -8.142   0.00072   0.01186
+      298.15   8000.0 bar  1206.748     1193.893 +- 0.192   -12.855   0.00034   0.01420
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m         Density objective function:  0.117         [0m |#
@@ -1854,48 +1854,48 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [1;94m                     Liquid Enthalpy of Vaporization (kJ mol^-1)                      [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      249.15      1.0 atm    46.103       47.677 +- 0.065     1.574   0.00000   0.00000 
-      253.15      1.0 atm    45.919       47.441 +- 0.053     1.522   0.03226   0.00299 
-      257.15      1.0 atm    45.740       47.215 +- 0.046     1.475   0.03226   0.00281 
-      261.15      1.0 atm    45.565       47.008 +- 0.045     1.443   0.03226   0.00269 
-      265.15      1.0 atm    45.393       46.819 +- 0.047     1.426   0.03226   0.00262 
-      269.15      1.0 atm    45.223       46.636 +- 0.047     1.413   0.03226   0.00258 
-      273.15      1.0 atm    45.053       46.452 +- 0.046     1.399   0.03226   0.00253 
-      277.15      1.0 atm    44.884       46.261 +- 0.044     1.377   0.03226   0.00245 
-      281.15      1.0 atm    44.714       46.072 +- 0.042     1.358   0.03226   0.00238 
-      285.15      1.0 atm    44.544       45.884 +- 0.039     1.340   0.03226   0.00232 
-      289.15      1.0 atm    44.374       45.697 +- 0.036     1.323   0.03226   0.00226 
-      293.15      1.0 atm    44.203       45.512 +- 0.034     1.309   0.03226   0.00221 
-      298.15      1.0 atm    43.989       45.286 +- 0.033     1.297   0.03226   0.00217 
-      301.15      1.0 atm    43.861       45.151 +- 0.033     1.290   0.03226   0.00215 
-      305.15      1.0 atm    43.689       44.971 +- 0.034     1.282   0.03226   0.00212 
-      309.15      1.0 atm    43.517       44.794 +- 0.037     1.277   0.03226   0.00210 
-      313.15      1.0 atm    43.345       44.619 +- 0.041     1.274   0.03226   0.00209 
-      317.15      1.0 atm    43.172       44.443 +- 0.044     1.271   0.03226   0.00208 
-      321.15      1.0 atm    42.999       44.265 +- 0.046     1.266   0.03226   0.00207 
-      325.15      1.0 atm    42.826       44.086 +- 0.048     1.260   0.03226   0.00205 
-      329.15      1.0 atm    42.652       43.906 +- 0.049     1.254   0.03226   0.00203 
-      333.15      1.0 atm    42.476       43.726 +- 0.049     1.250   0.03226   0.00202 
-      337.15      1.0 atm    42.300       43.548 +- 0.049     1.248   0.03226   0.00201 
-      341.15      1.0 atm    42.123       43.369 +- 0.048     1.246   0.03226   0.00200 
-      345.15      1.0 atm    41.943       43.189 +- 0.048     1.246   0.03226   0.00200 
-      349.15      1.0 atm    41.762       43.008 +- 0.048     1.246   0.03226   0.00200 
-      353.15      1.0 atm    41.580       42.823 +- 0.049     1.243   0.03226   0.00199 
-      357.15      1.0 atm    41.396       42.636 +- 0.051     1.240   0.03226   0.00199 
-      361.15      1.0 atm    41.210       42.446 +- 0.054     1.236   0.03226   0.00197 
-      365.15      1.0 atm    41.024       42.253 +- 0.060     1.229   0.03226   0.00195 
-      369.15      1.0 atm    40.837       42.062 +- 0.068     1.225   0.03226   0.00194 
-      373.15      1.0 atm    40.652       41.872 +- 0.079     1.220   0.03226   0.00192 
-      298.15     20.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15     50.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15    100.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15    250.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15    500.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15    750.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15   1000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15   2000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15   4000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
-      298.15   8000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000 
+      249.15      1.0 atm    46.103       47.677 +- 0.065     1.574   0.00000   0.00000
+      253.15      1.0 atm    45.919       47.441 +- 0.053     1.522   0.03226   0.00299
+      257.15      1.0 atm    45.740       47.215 +- 0.046     1.475   0.03226   0.00281
+      261.15      1.0 atm    45.565       47.008 +- 0.045     1.443   0.03226   0.00269
+      265.15      1.0 atm    45.393       46.819 +- 0.047     1.426   0.03226   0.00262
+      269.15      1.0 atm    45.223       46.636 +- 0.047     1.413   0.03226   0.00258
+      273.15      1.0 atm    45.053       46.452 +- 0.046     1.399   0.03226   0.00253
+      277.15      1.0 atm    44.884       46.261 +- 0.044     1.377   0.03226   0.00245
+      281.15      1.0 atm    44.714       46.072 +- 0.042     1.358   0.03226   0.00238
+      285.15      1.0 atm    44.544       45.884 +- 0.039     1.340   0.03226   0.00232
+      289.15      1.0 atm    44.374       45.697 +- 0.036     1.323   0.03226   0.00226
+      293.15      1.0 atm    44.203       45.512 +- 0.034     1.309   0.03226   0.00221
+      298.15      1.0 atm    43.989       45.286 +- 0.033     1.297   0.03226   0.00217
+      301.15      1.0 atm    43.861       45.151 +- 0.033     1.290   0.03226   0.00215
+      305.15      1.0 atm    43.689       44.971 +- 0.034     1.282   0.03226   0.00212
+      309.15      1.0 atm    43.517       44.794 +- 0.037     1.277   0.03226   0.00210
+      313.15      1.0 atm    43.345       44.619 +- 0.041     1.274   0.03226   0.00209
+      317.15      1.0 atm    43.172       44.443 +- 0.044     1.271   0.03226   0.00208
+      321.15      1.0 atm    42.999       44.265 +- 0.046     1.266   0.03226   0.00207
+      325.15      1.0 atm    42.826       44.086 +- 0.048     1.260   0.03226   0.00205
+      329.15      1.0 atm    42.652       43.906 +- 0.049     1.254   0.03226   0.00203
+      333.15      1.0 atm    42.476       43.726 +- 0.049     1.250   0.03226   0.00202
+      337.15      1.0 atm    42.300       43.548 +- 0.049     1.248   0.03226   0.00201
+      341.15      1.0 atm    42.123       43.369 +- 0.048     1.246   0.03226   0.00200
+      345.15      1.0 atm    41.943       43.189 +- 0.048     1.246   0.03226   0.00200
+      349.15      1.0 atm    41.762       43.008 +- 0.048     1.246   0.03226   0.00200
+      353.15      1.0 atm    41.580       42.823 +- 0.049     1.243   0.03226   0.00199
+      357.15      1.0 atm    41.396       42.636 +- 0.051     1.240   0.03226   0.00199
+      361.15      1.0 atm    41.210       42.446 +- 0.054     1.236   0.03226   0.00197
+      365.15      1.0 atm    41.024       42.253 +- 0.060     1.229   0.03226   0.00195
+      369.15      1.0 atm    40.837       42.062 +- 0.068     1.225   0.03226   0.00194
+      373.15      1.0 atm    40.652       41.872 +- 0.079     1.220   0.03226   0.00192
+      298.15     20.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15     50.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15    100.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15    250.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15    500.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15    750.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15   1000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15   2000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15   4000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
+      298.15   8000.0 bar    43.989        0.000 +- 0.000   -43.989   0.00000   0.00000
 --------------------------------------------------------------------------------------------
 #=========================================================#
 #| [92m Enthalpy of Vaporization objective function:  0.068 [0m |#
@@ -1904,48 +1904,48 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [1;94m                  Liquid Thermal Expansion Coefficient (10^-4 K^-1)                   [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      249.15      1.0 atm    -8.877       -9.309 +- 2.150    -0.432   0.00000   0.00000 
-      253.15      1.0 atm    -6.606       -6.949 +- 1.481    -0.343   0.02864   0.00336 
-      257.15      1.0 atm    -4.874       -5.271 +- 1.004    -0.397   0.02864   0.00452 
-      261.15      1.0 atm    -3.506       -4.073 +- 0.765    -0.567   0.02864   0.00920 
-      265.15      1.0 atm    -2.395       -2.940 +- 0.658    -0.545   0.02864   0.00851 
-      269.15      1.0 atm    -1.469       -1.869 +- 0.592    -0.400   0.02864   0.00457 
-      273.15      1.0 atm    -0.680       -0.881 +- 0.532    -0.201   0.02864   0.00116 
-      277.15      1.0 atm     0.003       -0.142 +- 0.475    -0.145   0.02864   0.00060 
-      281.15      1.0 atm     0.604        0.327 +- 0.420    -0.277   0.02864   0.00220 
-      285.15      1.0 atm     1.141        0.864 +- 0.358    -0.277   0.02864   0.00220 
-      289.15      1.0 atm     1.626        1.483 +- 0.298    -0.143   0.02864   0.00059 
-      293.15      1.0 atm     2.068        1.923 +- 0.263    -0.145   0.02864   0.00060 
-      298.15      1.0 atm     2.572        2.354 +- 0.248    -0.218   0.02864   0.00135 
-      301.15      1.0 atm     2.853        2.693 +- 0.243    -0.160   0.02864   0.00073 
-      305.15      1.0 atm     3.206        3.215 +- 0.243     0.009   0.02864   0.00000 
-      309.15      1.0 atm     3.539        3.723 +- 0.257     0.184   0.02864   0.00097 
-      313.15      1.0 atm     3.853        4.165 +- 0.278     0.312   0.02864   0.00278 
-      317.15      1.0 atm     4.152        4.532 +- 0.293     0.380   0.02864   0.00414 
-      321.15      1.0 atm     4.438        4.836 +- 0.299     0.398   0.02864   0.00454 
-      325.15      1.0 atm     4.712        5.069 +- 0.300     0.357   0.02864   0.00366 
-      329.15      1.0 atm     4.975        5.237 +- 0.298     0.262   0.02864   0.00197 
-      333.15      1.0 atm     5.231        5.402 +- 0.295     0.171   0.02864   0.00083 
-      337.15      1.0 atm     5.478        5.609 +- 0.292     0.131   0.02864   0.00049 
-      341.15      1.0 atm     5.719        5.841 +- 0.286     0.122   0.02864   0.00043 
-      345.15      1.0 atm     5.954        6.088 +- 0.281     0.134   0.02864   0.00051 
-      349.15      1.0 atm     6.185        6.375 +- 0.279     0.190   0.02864   0.00103 
-      353.15      1.0 atm     6.411        6.709 +- 0.279     0.298   0.02864   0.00255 
-      357.15      1.0 atm     6.633        7.063 +- 0.283     0.430   0.02864   0.00530 
-      361.15      1.0 atm     6.853        7.397 +- 0.292     0.544   0.02864   0.00849 
-      365.15      1.0 atm     7.071        7.689 +- 0.313     0.618   0.02864   0.01094 
-      369.15      1.0 atm     7.287        7.932 +- 0.347     0.645   0.02864   0.01193 
-      373.15      1.0 atm     7.501        8.072 +- 0.393     0.571   0.02864   0.00934 
-      298.15     20.0 bar     2.594        2.361 +- 0.247    -0.233   0.02864   0.00155 
-      298.15     50.0 bar     2.627        2.373 +- 0.246    -0.254   0.02864   0.00184 
-      298.15    100.0 bar     2.682        2.396 +- 0.243    -0.286   0.02864   0.00235 
-      298.15    250.0 bar     2.840        2.487 +- 0.238    -0.353   0.01145   0.00143 
-      298.15    500.0 bar     3.086        2.710 +- 0.240    -0.376   0.00573   0.00081 
-      298.15    750.0 bar     3.307        2.959 +- 0.261    -0.348   0.00381   0.00046 
-      298.15   1000.0 bar     3.502        3.147 +- 0.294    -0.355   0.00286   0.00036 
-      298.15   2000.0 bar     4.044        3.426 +- 0.505    -0.618   0.00143   0.00055 
-      298.15   4000.0 bar     4.407        4.311 +- 0.639    -0.096   0.00072   0.00001 
-      298.15   8000.0 bar     4.300        3.911 +- 0.449    -0.389   0.00034   0.00005 
+      249.15      1.0 atm    -8.877       -9.309 +- 2.150    -0.432   0.00000   0.00000
+      253.15      1.0 atm    -6.606       -6.949 +- 1.481    -0.343   0.02864   0.00336
+      257.15      1.0 atm    -4.874       -5.271 +- 1.004    -0.397   0.02864   0.00452
+      261.15      1.0 atm    -3.506       -4.073 +- 0.765    -0.567   0.02864   0.00920
+      265.15      1.0 atm    -2.395       -2.940 +- 0.658    -0.545   0.02864   0.00851
+      269.15      1.0 atm    -1.469       -1.869 +- 0.592    -0.400   0.02864   0.00457
+      273.15      1.0 atm    -0.680       -0.881 +- 0.532    -0.201   0.02864   0.00116
+      277.15      1.0 atm     0.003       -0.142 +- 0.475    -0.145   0.02864   0.00060
+      281.15      1.0 atm     0.604        0.327 +- 0.420    -0.277   0.02864   0.00220
+      285.15      1.0 atm     1.141        0.864 +- 0.358    -0.277   0.02864   0.00220
+      289.15      1.0 atm     1.626        1.483 +- 0.298    -0.143   0.02864   0.00059
+      293.15      1.0 atm     2.068        1.923 +- 0.263    -0.145   0.02864   0.00060
+      298.15      1.0 atm     2.572        2.354 +- 0.248    -0.218   0.02864   0.00135
+      301.15      1.0 atm     2.853        2.693 +- 0.243    -0.160   0.02864   0.00073
+      305.15      1.0 atm     3.206        3.215 +- 0.243     0.009   0.02864   0.00000
+      309.15      1.0 atm     3.539        3.723 +- 0.257     0.184   0.02864   0.00097
+      313.15      1.0 atm     3.853        4.165 +- 0.278     0.312   0.02864   0.00278
+      317.15      1.0 atm     4.152        4.532 +- 0.293     0.380   0.02864   0.00414
+      321.15      1.0 atm     4.438        4.836 +- 0.299     0.398   0.02864   0.00454
+      325.15      1.0 atm     4.712        5.069 +- 0.300     0.357   0.02864   0.00366
+      329.15      1.0 atm     4.975        5.237 +- 0.298     0.262   0.02864   0.00197
+      333.15      1.0 atm     5.231        5.402 +- 0.295     0.171   0.02864   0.00083
+      337.15      1.0 atm     5.478        5.609 +- 0.292     0.131   0.02864   0.00049
+      341.15      1.0 atm     5.719        5.841 +- 0.286     0.122   0.02864   0.00043
+      345.15      1.0 atm     5.954        6.088 +- 0.281     0.134   0.02864   0.00051
+      349.15      1.0 atm     6.185        6.375 +- 0.279     0.190   0.02864   0.00103
+      353.15      1.0 atm     6.411        6.709 +- 0.279     0.298   0.02864   0.00255
+      357.15      1.0 atm     6.633        7.063 +- 0.283     0.430   0.02864   0.00530
+      361.15      1.0 atm     6.853        7.397 +- 0.292     0.544   0.02864   0.00849
+      365.15      1.0 atm     7.071        7.689 +- 0.313     0.618   0.02864   0.01094
+      369.15      1.0 atm     7.287        7.932 +- 0.347     0.645   0.02864   0.01193
+      373.15      1.0 atm     7.501        8.072 +- 0.393     0.571   0.02864   0.00934
+      298.15     20.0 bar     2.594        2.361 +- 0.247    -0.233   0.02864   0.00155
+      298.15     50.0 bar     2.627        2.373 +- 0.246    -0.254   0.02864   0.00184
+      298.15    100.0 bar     2.682        2.396 +- 0.243    -0.286   0.02864   0.00235
+      298.15    250.0 bar     2.840        2.487 +- 0.238    -0.353   0.01145   0.00143
+      298.15    500.0 bar     3.086        2.710 +- 0.240    -0.376   0.00573   0.00081
+      298.15    750.0 bar     3.307        2.959 +- 0.261    -0.348   0.00381   0.00046
+      298.15   1000.0 bar     3.502        3.147 +- 0.294    -0.355   0.00286   0.00036
+      298.15   2000.0 bar     4.044        3.426 +- 0.505    -0.618   0.00143   0.00055
+      298.15   4000.0 bar     4.407        4.311 +- 0.639    -0.096   0.00072   0.00001
+      298.15   8000.0 bar     4.300        3.911 +- 0.449    -0.389   0.00034   0.00005
 --------------------------------------------------------------------------------------------
 #==============================================================#
 #| [92m Thermal Expansion Coefficient objective function:  0.119 [0m |#
@@ -1954,48 +1954,48 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [1;94m                  Liquid Isothermal Compressibility (10^-6 bar^-1)                    [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      249.15      1.0 atm    67.985       56.200 +- 4.214   -11.785   0.00000   0.00000 
-      253.15      1.0 atm    63.996       51.536 +- 2.877   -12.460   0.02864   0.04446 
-      257.15      1.0 atm    60.783       48.813 +- 1.907   -11.970   0.02864   0.04103 
-      261.15      1.0 atm    58.116       47.542 +- 1.451   -10.574   0.02864   0.03202 
-      265.15      1.0 atm    55.851       46.795 +- 1.300    -9.056   0.02864   0.02348 
-      269.15      1.0 atm    53.893       45.827 +- 1.189    -8.066   0.02864   0.01863 
-      273.15      1.0 atm    52.176       44.532 +- 1.030    -7.644   0.02864   0.01673 
-      277.15      1.0 atm    50.653       43.363 +- 0.865    -7.290   0.02864   0.01522 
-      281.15      1.0 atm    49.288       42.622 +- 0.725    -6.666   0.02864   0.01272 
-      285.15      1.0 atm    48.056       42.192 +- 0.592    -5.864   0.02864   0.00985 
-      289.15      1.0 atm    46.934       41.891 +- 0.473    -5.043   0.02864   0.00728 
-      293.15      1.0 atm    45.892       41.613 +- 0.401    -4.279   0.02864   0.00524 
-      298.15      1.0 atm    45.247       41.338 +- 0.374    -3.909   0.02864   0.00438 
-      301.15      1.0 atm    44.943       41.274 +- 0.369    -3.669   0.02864   0.00386 
-      305.15      1.0 atm    44.622       41.279 +- 0.375    -3.343   0.02864   0.00320 
-      309.15      1.0 atm    44.390       41.288 +- 0.398    -3.102   0.02864   0.00276 
-      313.15      1.0 atm    44.239       41.264 +- 0.422    -2.975   0.02864   0.00254 
-      317.15      1.0 atm    44.162       41.283 +- 0.428    -2.879   0.02864   0.00237 
-      321.15      1.0 atm    44.153       41.397 +- 0.423    -2.756   0.02864   0.00218 
-      325.15      1.0 atm    44.209       41.553 +- 0.420    -2.656   0.02864   0.00202 
-      329.15      1.0 atm    44.324       41.768 +- 0.419    -2.556   0.02864   0.00187 
-      333.15      1.0 atm    44.496       42.139 +- 0.415    -2.357   0.02864   0.00159 
-      337.15      1.0 atm    44.723       42.659 +- 0.406    -2.064   0.02864   0.00122 
-      341.15      1.0 atm    45.003       43.214 +- 0.394    -1.789   0.02864   0.00092 
-      345.15      1.0 atm    45.333       43.746 +- 0.383    -1.587   0.02864   0.00072 
-      349.15      1.0 atm    45.714       44.306 +- 0.377    -1.408   0.02864   0.00057 
-      353.15      1.0 atm    46.143       44.957 +- 0.379    -1.186   0.02864   0.00040 
-      357.15      1.0 atm    46.621       45.675 +- 0.390    -0.946   0.02864   0.00026 
-      361.15      1.0 atm    47.148       46.378 +- 0.415    -0.770   0.02864   0.00017 
-      365.15      1.0 atm    47.722       47.046 +- 0.455    -0.676   0.02864   0.00013 
-      369.15      1.0 atm    48.346       47.751 +- 0.513    -0.595   0.02864   0.00010 
-      373.15      1.0 atm    49.019       48.469 +- 0.583    -0.550   0.02864   0.00009 
-      298.15     20.0 bar    45.026       41.168 +- 0.372    -3.858   0.02864   0.00426 
-      298.15     50.0 bar    44.682       40.900 +- 0.369    -3.782   0.02864   0.00410 
-      298.15    100.0 bar    44.119       40.456 +- 0.364    -3.663   0.02864   0.00384 
-      298.15    250.0 bar    42.503       39.144 +- 0.351    -3.359   0.01145   0.00129 
-      298.15    500.0 bar    40.019       37.074 +- 0.344    -2.945   0.00573   0.00050 
-      298.15    750.0 bar    37.768       35.151 +- 0.360    -2.617   0.00381   0.00026 
-      298.15   1000.0 bar    35.723       33.290 +- 0.392    -2.433   0.00286   0.00017 
-      298.15   2000.0 bar    29.215       26.739 +- 0.554    -2.476   0.00143   0.00009 
-      298.15   4000.0 bar    21.371       20.473 +- 0.514    -0.898   0.00072   0.00001 
-      298.15   8000.0 bar    14.050       13.515 +- 0.300    -0.535   0.00034   0.00000 
+      249.15      1.0 atm    67.985       56.200 +- 4.214   -11.785   0.00000   0.00000
+      253.15      1.0 atm    63.996       51.536 +- 2.877   -12.460   0.02864   0.04446
+      257.15      1.0 atm    60.783       48.813 +- 1.907   -11.970   0.02864   0.04103
+      261.15      1.0 atm    58.116       47.542 +- 1.451   -10.574   0.02864   0.03202
+      265.15      1.0 atm    55.851       46.795 +- 1.300    -9.056   0.02864   0.02348
+      269.15      1.0 atm    53.893       45.827 +- 1.189    -8.066   0.02864   0.01863
+      273.15      1.0 atm    52.176       44.532 +- 1.030    -7.644   0.02864   0.01673
+      277.15      1.0 atm    50.653       43.363 +- 0.865    -7.290   0.02864   0.01522
+      281.15      1.0 atm    49.288       42.622 +- 0.725    -6.666   0.02864   0.01272
+      285.15      1.0 atm    48.056       42.192 +- 0.592    -5.864   0.02864   0.00985
+      289.15      1.0 atm    46.934       41.891 +- 0.473    -5.043   0.02864   0.00728
+      293.15      1.0 atm    45.892       41.613 +- 0.401    -4.279   0.02864   0.00524
+      298.15      1.0 atm    45.247       41.338 +- 0.374    -3.909   0.02864   0.00438
+      301.15      1.0 atm    44.943       41.274 +- 0.369    -3.669   0.02864   0.00386
+      305.15      1.0 atm    44.622       41.279 +- 0.375    -3.343   0.02864   0.00320
+      309.15      1.0 atm    44.390       41.288 +- 0.398    -3.102   0.02864   0.00276
+      313.15      1.0 atm    44.239       41.264 +- 0.422    -2.975   0.02864   0.00254
+      317.15      1.0 atm    44.162       41.283 +- 0.428    -2.879   0.02864   0.00237
+      321.15      1.0 atm    44.153       41.397 +- 0.423    -2.756   0.02864   0.00218
+      325.15      1.0 atm    44.209       41.553 +- 0.420    -2.656   0.02864   0.00202
+      329.15      1.0 atm    44.324       41.768 +- 0.419    -2.556   0.02864   0.00187
+      333.15      1.0 atm    44.496       42.139 +- 0.415    -2.357   0.02864   0.00159
+      337.15      1.0 atm    44.723       42.659 +- 0.406    -2.064   0.02864   0.00122
+      341.15      1.0 atm    45.003       43.214 +- 0.394    -1.789   0.02864   0.00092
+      345.15      1.0 atm    45.333       43.746 +- 0.383    -1.587   0.02864   0.00072
+      349.15      1.0 atm    45.714       44.306 +- 0.377    -1.408   0.02864   0.00057
+      353.15      1.0 atm    46.143       44.957 +- 0.379    -1.186   0.02864   0.00040
+      357.15      1.0 atm    46.621       45.675 +- 0.390    -0.946   0.02864   0.00026
+      361.15      1.0 atm    47.148       46.378 +- 0.415    -0.770   0.02864   0.00017
+      365.15      1.0 atm    47.722       47.046 +- 0.455    -0.676   0.02864   0.00013
+      369.15      1.0 atm    48.346       47.751 +- 0.513    -0.595   0.02864   0.00010
+      373.15      1.0 atm    49.019       48.469 +- 0.583    -0.550   0.02864   0.00009
+      298.15     20.0 bar    45.026       41.168 +- 0.372    -3.858   0.02864   0.00426
+      298.15     50.0 bar    44.682       40.900 +- 0.369    -3.782   0.02864   0.00410
+      298.15    100.0 bar    44.119       40.456 +- 0.364    -3.663   0.02864   0.00384
+      298.15    250.0 bar    42.503       39.144 +- 0.351    -3.359   0.01145   0.00129
+      298.15    500.0 bar    40.019       37.074 +- 0.344    -2.945   0.00573   0.00050
+      298.15    750.0 bar    37.768       35.151 +- 0.360    -2.617   0.00381   0.00026
+      298.15   1000.0 bar    35.723       33.290 +- 0.392    -2.433   0.00286   0.00017
+      298.15   2000.0 bar    29.215       26.739 +- 0.554    -2.476   0.00143   0.00009
+      298.15   4000.0 bar    21.371       20.473 +- 0.514    -0.898   0.00072   0.00001
+      298.15   8000.0 bar    14.050       13.515 +- 0.300    -0.535   0.00034   0.00000
 --------------------------------------------------------------------------------------------
 #===========================================================#
 #| [92m Isothermal Compressibility objective function:  0.273 [0m |#
@@ -2004,48 +2004,48 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [1;94m                   Liquid Isobaric Heat Capacity (cal mol^-1 K^-1)                    [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      249.15      1.0 atm    19.177       22.057 +- 1.752     2.880   0.00000   0.00000 
-      253.15      1.0 atm    18.777       22.084 +- 1.281     3.307   0.02864   0.07828 
-      257.15      1.0 atm    18.532       21.124 +- 0.946     2.592   0.02864   0.04809 
-      261.15      1.0 atm    18.380       19.927 +- 0.765     1.547   0.02864   0.01714 
-      265.15      1.0 atm    18.280       19.052 +- 0.667     0.772   0.02864   0.00427 
-      269.15      1.0 atm    18.210       18.953 +- 0.611     0.743   0.02864   0.00395 
-      273.15      1.0 atm    18.157       19.372 +- 0.584     1.215   0.02864   0.01057 
-      277.15      1.0 atm    18.115       19.487 +- 0.560     1.372   0.02864   0.01347 
-      281.15      1.0 atm    18.080       19.292 +- 0.519     1.212   0.02864   0.01052 
-      285.15      1.0 atm    18.052       19.213 +- 0.454     1.161   0.02864   0.00966 
-      289.15      1.0 atm    18.030       19.169 +- 0.386     1.139   0.02864   0.00929 
-      293.15      1.0 atm    18.015       19.009 +- 0.344     0.994   0.02864   0.00708 
-      298.15      1.0 atm    18.002       18.772 +- 0.327     0.770   0.02864   0.00424 
-      301.15      1.0 atm    17.998       18.707 +- 0.321     0.709   0.02864   0.00360 
-      305.15      1.0 atm    17.995       18.618 +- 0.318     0.623   0.02864   0.00278 
-      309.15      1.0 atm    17.995       18.430 +- 0.331     0.435   0.02864   0.00135 
-      313.15      1.0 atm    17.996       18.342 +- 0.354     0.346   0.02864   0.00086 
-      317.15      1.0 atm    17.999       18.435 +- 0.371     0.436   0.02864   0.00136 
-      321.15      1.0 atm    18.002       18.502 +- 0.382     0.500   0.02864   0.00179 
-      325.15      1.0 atm    18.006       18.504 +- 0.387     0.498   0.02864   0.00177 
-      329.15      1.0 atm    18.011       18.498 +- 0.386     0.487   0.02864   0.00170 
-      333.15      1.0 atm    18.018       18.422 +- 0.383     0.404   0.02864   0.00117 
-      337.15      1.0 atm    18.026       18.301 +- 0.379     0.275   0.02864   0.00054 
-      341.15      1.0 atm    18.035       18.261 +- 0.372     0.226   0.02864   0.00036 
-      345.15      1.0 atm    18.046       18.337 +- 0.367     0.291   0.02864   0.00061 
-      349.15      1.0 atm    18.058       18.438 +- 0.365     0.380   0.02864   0.00103 
-      353.15      1.0 atm    18.071       18.517 +- 0.367     0.446   0.02864   0.00142 
-      357.15      1.0 atm    18.086       18.611 +- 0.371     0.525   0.02864   0.00197 
-      361.15      1.0 atm    18.101       18.684 +- 0.380     0.583   0.02864   0.00243 
-      365.15      1.0 atm    18.117       18.661 +- 0.400     0.544   0.02864   0.00212 
-      369.15      1.0 atm    18.134       18.537 +- 0.437     0.403   0.02864   0.00116 
-      373.15      1.0 atm    18.151       18.208 +- 0.490     0.057   0.02864   0.00002 
-      298.15     20.0 bar    17.980       18.747 +- 0.326     0.767   0.02864   0.00421 
-      298.15     50.0 bar    17.944       18.709 +- 0.324     0.765   0.02864   0.00419 
-      298.15    100.0 bar    17.885       18.649 +- 0.320     0.764   0.02864   0.00418 
-      298.15    250.0 bar    17.720       18.488 +- 0.313     0.768   0.01145   0.00169 
-      298.15    500.0 bar    17.483       18.285 +- 0.318     0.802   0.00573   0.00092 
-      298.15    750.0 bar    17.286       18.168 +- 0.353     0.882   0.00381   0.00074 
-      298.15   1000.0 bar    17.123       18.120 +- 0.408     0.997   0.00286   0.00071 
-      298.15   2000.0 bar    16.703       18.046 +- 0.800     1.343   0.00143   0.00065 
-      298.15   4000.0 bar    16.375       16.469 +- 0.981     0.094   0.00072   0.00000 
-      298.15   8000.0 bar    16.195       15.904 +- 0.849    -0.291   0.00034   0.00001 
+      249.15      1.0 atm    19.177       22.057 +- 1.752     2.880   0.00000   0.00000
+      253.15      1.0 atm    18.777       22.084 +- 1.281     3.307   0.02864   0.07828
+      257.15      1.0 atm    18.532       21.124 +- 0.946     2.592   0.02864   0.04809
+      261.15      1.0 atm    18.380       19.927 +- 0.765     1.547   0.02864   0.01714
+      265.15      1.0 atm    18.280       19.052 +- 0.667     0.772   0.02864   0.00427
+      269.15      1.0 atm    18.210       18.953 +- 0.611     0.743   0.02864   0.00395
+      273.15      1.0 atm    18.157       19.372 +- 0.584     1.215   0.02864   0.01057
+      277.15      1.0 atm    18.115       19.487 +- 0.560     1.372   0.02864   0.01347
+      281.15      1.0 atm    18.080       19.292 +- 0.519     1.212   0.02864   0.01052
+      285.15      1.0 atm    18.052       19.213 +- 0.454     1.161   0.02864   0.00966
+      289.15      1.0 atm    18.030       19.169 +- 0.386     1.139   0.02864   0.00929
+      293.15      1.0 atm    18.015       19.009 +- 0.344     0.994   0.02864   0.00708
+      298.15      1.0 atm    18.002       18.772 +- 0.327     0.770   0.02864   0.00424
+      301.15      1.0 atm    17.998       18.707 +- 0.321     0.709   0.02864   0.00360
+      305.15      1.0 atm    17.995       18.618 +- 0.318     0.623   0.02864   0.00278
+      309.15      1.0 atm    17.995       18.430 +- 0.331     0.435   0.02864   0.00135
+      313.15      1.0 atm    17.996       18.342 +- 0.354     0.346   0.02864   0.00086
+      317.15      1.0 atm    17.999       18.435 +- 0.371     0.436   0.02864   0.00136
+      321.15      1.0 atm    18.002       18.502 +- 0.382     0.500   0.02864   0.00179
+      325.15      1.0 atm    18.006       18.504 +- 0.387     0.498   0.02864   0.00177
+      329.15      1.0 atm    18.011       18.498 +- 0.386     0.487   0.02864   0.00170
+      333.15      1.0 atm    18.018       18.422 +- 0.383     0.404   0.02864   0.00117
+      337.15      1.0 atm    18.026       18.301 +- 0.379     0.275   0.02864   0.00054
+      341.15      1.0 atm    18.035       18.261 +- 0.372     0.226   0.02864   0.00036
+      345.15      1.0 atm    18.046       18.337 +- 0.367     0.291   0.02864   0.00061
+      349.15      1.0 atm    18.058       18.438 +- 0.365     0.380   0.02864   0.00103
+      353.15      1.0 atm    18.071       18.517 +- 0.367     0.446   0.02864   0.00142
+      357.15      1.0 atm    18.086       18.611 +- 0.371     0.525   0.02864   0.00197
+      361.15      1.0 atm    18.101       18.684 +- 0.380     0.583   0.02864   0.00243
+      365.15      1.0 atm    18.117       18.661 +- 0.400     0.544   0.02864   0.00212
+      369.15      1.0 atm    18.134       18.537 +- 0.437     0.403   0.02864   0.00116
+      373.15      1.0 atm    18.151       18.208 +- 0.490     0.057   0.02864   0.00002
+      298.15     20.0 bar    17.980       18.747 +- 0.326     0.767   0.02864   0.00421
+      298.15     50.0 bar    17.944       18.709 +- 0.324     0.765   0.02864   0.00419
+      298.15    100.0 bar    17.885       18.649 +- 0.320     0.764   0.02864   0.00418
+      298.15    250.0 bar    17.720       18.488 +- 0.313     0.768   0.01145   0.00169
+      298.15    500.0 bar    17.483       18.285 +- 0.318     0.802   0.00573   0.00092
+      298.15    750.0 bar    17.286       18.168 +- 0.353     0.882   0.00381   0.00074
+      298.15   1000.0 bar    17.123       18.120 +- 0.408     0.997   0.00286   0.00071
+      298.15   2000.0 bar    16.703       18.046 +- 0.800     1.343   0.00143   0.00065
+      298.15   4000.0 bar    16.375       16.469 +- 0.981     0.094   0.00072   0.00000
+      298.15   8000.0 bar    16.195       15.904 +- 0.849    -0.291   0.00034   0.00001
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m Isobaric Heat Capacity objective function:  0.262  [0m |#
@@ -2054,48 +2054,48 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [1;94m                              Liquid Dielectric Constant                              [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      249.15      1.0 atm    98.650      103.374 +- 8.082     4.724   0.00000   0.00000 
-      253.15      1.0 atm    96.580      105.322 +- 6.945     8.742   0.02864   0.02188 
-      257.15      1.0 atm    94.683      102.591 +- 5.779     7.908   0.02864   0.01791 
-      261.15      1.0 atm    92.898       97.845 +- 4.584     4.947   0.02864   0.00701 
-      265.15      1.0 atm    91.186       93.994 +- 3.666     2.808   0.02864   0.00226 
-      269.15      1.0 atm    89.525       91.753 +- 3.177     2.228   0.02864   0.00142 
-      273.15      1.0 atm    87.903       90.297 +- 2.911     2.394   0.02864   0.00164 
-      277.15      1.0 atm    86.311       88.973 +- 2.666     2.662   0.02864   0.00203 
-      281.15      1.0 atm    84.749       88.118 +- 2.408     3.369   0.02864   0.00325 
-      285.15      1.0 atm    83.213       87.704 +- 2.088     4.491   0.02864   0.00578 
-      289.15      1.0 atm    81.705       86.893 +- 1.710     5.188   0.02864   0.00771 
-      293.15      1.0 atm    80.223       85.371 +- 1.416     5.148   0.02864   0.00759 
-      298.15      1.0 atm    78.409       83.160 +- 1.263     4.751   0.02864   0.00646 
-      301.15      1.0 atm    77.339       81.900 +- 1.230     4.561   0.02864   0.00596 
-      305.15      1.0 atm    75.935       80.291 +- 1.229     4.356   0.02864   0.00543 
-      309.15      1.0 atm    74.556       78.721 +- 1.282     4.165   0.02864   0.00497 
-      313.15      1.0 atm    73.200       77.174 +- 1.327     3.974   0.02864   0.00452 
-      317.15      1.0 atm    71.869       75.701 +- 1.312     3.832   0.02864   0.00421 
-      321.15      1.0 atm    70.560       74.400 +- 1.257     3.840   0.02864   0.00422 
-      325.15      1.0 atm    69.275       73.242 +- 1.203     3.967   0.02864   0.00451 
-      329.15      1.0 atm    68.012       72.030 +- 1.153     4.018   0.02864   0.00462 
-      333.15      1.0 atm    66.772       70.613 +- 1.089     3.841   0.02864   0.00422 
-      337.15      1.0 atm    65.555       69.063 +- 1.003     3.508   0.02864   0.00352 
-      341.15      1.0 atm    64.359       67.584 +- 0.915     3.225   0.02864   0.00298 
-      345.15      1.0 atm    63.184       66.321 +- 0.846     3.137   0.02864   0.00282 
-      349.15      1.0 atm    62.030       65.294 +- 0.799     3.264   0.02864   0.00305 
-      353.15      1.0 atm    60.897       64.418 +- 0.763     3.521   0.02864   0.00355 
-      357.15      1.0 atm    59.784       63.567 +- 0.733     3.783   0.02864   0.00410 
-      361.15      1.0 atm    58.691       62.629 +- 0.719     3.938   0.02864   0.00444 
-      365.15      1.0 atm    57.617       61.556 +- 0.738     3.939   0.02864   0.00444 
-      369.15      1.0 atm    56.561       60.377 +- 0.798     3.816   0.02864   0.00417 
-      373.15      1.0 atm    55.522       59.152 +- 0.895     3.630   0.02864   0.00377 
-      298.15     20.0 bar    78.479       83.245 +- 1.260     4.766   0.02864   0.00650 
-      298.15     50.0 bar    78.591       83.382 +- 1.256     4.791   0.02864   0.00657 
-      298.15    100.0 bar    78.776       83.616 +- 1.252     4.840   0.02864   0.00671 
-      298.15    250.0 bar    79.323       84.363 +- 1.260     5.040   0.01145   0.00291 
-      298.15    500.0 bar    80.209       85.739 +- 1.369     5.530   0.00573   0.00175 
-      298.15    750.0 bar    81.067       87.132 +- 1.585     6.065   0.00381   0.00140 
-      298.15   1000.0 bar    81.900       88.237 +- 1.829     6.337   0.00286   0.00115 
-      298.15   2000.0 bar    85.015       88.035 +- 3.210     3.020   0.00143   0.00013 
-      298.15   4000.0 bar    90.545       93.760 +- 4.893     3.215   0.00072   0.00007 
-      298.15   8000.0 bar   100.184       98.769 +- 4.401    -1.415   0.00034   0.00001 
+      249.15      1.0 atm    98.650      103.374 +- 8.082     4.724   0.00000   0.00000
+      253.15      1.0 atm    96.580      105.322 +- 6.945     8.742   0.02864   0.02188
+      257.15      1.0 atm    94.683      102.591 +- 5.779     7.908   0.02864   0.01791
+      261.15      1.0 atm    92.898       97.845 +- 4.584     4.947   0.02864   0.00701
+      265.15      1.0 atm    91.186       93.994 +- 3.666     2.808   0.02864   0.00226
+      269.15      1.0 atm    89.525       91.753 +- 3.177     2.228   0.02864   0.00142
+      273.15      1.0 atm    87.903       90.297 +- 2.911     2.394   0.02864   0.00164
+      277.15      1.0 atm    86.311       88.973 +- 2.666     2.662   0.02864   0.00203
+      281.15      1.0 atm    84.749       88.118 +- 2.408     3.369   0.02864   0.00325
+      285.15      1.0 atm    83.213       87.704 +- 2.088     4.491   0.02864   0.00578
+      289.15      1.0 atm    81.705       86.893 +- 1.710     5.188   0.02864   0.00771
+      293.15      1.0 atm    80.223       85.371 +- 1.416     5.148   0.02864   0.00759
+      298.15      1.0 atm    78.409       83.160 +- 1.263     4.751   0.02864   0.00646
+      301.15      1.0 atm    77.339       81.900 +- 1.230     4.561   0.02864   0.00596
+      305.15      1.0 atm    75.935       80.291 +- 1.229     4.356   0.02864   0.00543
+      309.15      1.0 atm    74.556       78.721 +- 1.282     4.165   0.02864   0.00497
+      313.15      1.0 atm    73.200       77.174 +- 1.327     3.974   0.02864   0.00452
+      317.15      1.0 atm    71.869       75.701 +- 1.312     3.832   0.02864   0.00421
+      321.15      1.0 atm    70.560       74.400 +- 1.257     3.840   0.02864   0.00422
+      325.15      1.0 atm    69.275       73.242 +- 1.203     3.967   0.02864   0.00451
+      329.15      1.0 atm    68.012       72.030 +- 1.153     4.018   0.02864   0.00462
+      333.15      1.0 atm    66.772       70.613 +- 1.089     3.841   0.02864   0.00422
+      337.15      1.0 atm    65.555       69.063 +- 1.003     3.508   0.02864   0.00352
+      341.15      1.0 atm    64.359       67.584 +- 0.915     3.225   0.02864   0.00298
+      345.15      1.0 atm    63.184       66.321 +- 0.846     3.137   0.02864   0.00282
+      349.15      1.0 atm    62.030       65.294 +- 0.799     3.264   0.02864   0.00305
+      353.15      1.0 atm    60.897       64.418 +- 0.763     3.521   0.02864   0.00355
+      357.15      1.0 atm    59.784       63.567 +- 0.733     3.783   0.02864   0.00410
+      361.15      1.0 atm    58.691       62.629 +- 0.719     3.938   0.02864   0.00444
+      365.15      1.0 atm    57.617       61.556 +- 0.738     3.939   0.02864   0.00444
+      369.15      1.0 atm    56.561       60.377 +- 0.798     3.816   0.02864   0.00417
+      373.15      1.0 atm    55.522       59.152 +- 0.895     3.630   0.02864   0.00377
+      298.15     20.0 bar    78.479       83.245 +- 1.260     4.766   0.02864   0.00650
+      298.15     50.0 bar    78.591       83.382 +- 1.256     4.791   0.02864   0.00657
+      298.15    100.0 bar    78.776       83.616 +- 1.252     4.840   0.02864   0.00671
+      298.15    250.0 bar    79.323       84.363 +- 1.260     5.040   0.01145   0.00291
+      298.15    500.0 bar    80.209       85.739 +- 1.369     5.530   0.00573   0.00175
+      298.15    750.0 bar    81.067       87.132 +- 1.585     6.065   0.00381   0.00140
+      298.15   1000.0 bar    81.900       88.237 +- 1.829     6.337   0.00286   0.00115
+      298.15   2000.0 bar    85.015       88.035 +- 3.210     3.020   0.00143   0.00013
+      298.15   4000.0 bar    90.545       93.760 +- 4.893     3.215   0.00072   0.00007
+      298.15   8000.0 bar   100.184       98.769 +- 4.401    -1.415   0.00034   0.00001
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m   Dielectric Constant objective function:  0.192   [0m |#
@@ -2104,47 +2104,47 @@ Physical quantity Dielectric Constant uses denominator =  10.0000
 #| [94m               Liquid Condensed Phase Properties:               [0m |#
 #| [94m  Property Name                Residual x Weight = Contribution [0m |#
 #====================================================================#
-Density                            0.11713    0.167    1.95223e-02 
-Enthalpy of Vaporization           0.06848    0.167    1.14134e-02 
-Thermal Expansion Coefficient      0.11892    0.167    1.98202e-02 
-Isothermal Compressibility         0.27251    0.167    4.54178e-02 
-Isobaric Heat Capacity             0.26193    0.167    4.36542e-02 
-Dielectric Constant                0.19165    0.167    3.19421e-02 
-Total                                                  1.71770e-01 
+Density                            0.11713    0.167    1.95223e-02
+Enthalpy of Vaporization           0.06848    0.167    1.14134e-02
+Thermal Expansion Coefficient      0.11892    0.167    1.98202e-02
+Isothermal Compressibility         0.27251    0.167    4.54178e-02
+Isobaric Heat Capacity             0.26193    0.167    4.36542e-02
+Dielectric Constant                0.19165    0.167    3.19421e-02
+Total                                                  1.71770e-01
 ----------------------------------------------------------------------
 #====================================================================#
 #| [94m                  Objective Function Breakdown                  [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution [0m |#
 #====================================================================#
-Liquid                         0.17177      5.000 [94m     8.58850e-01[0m 
-Monomer_Moments                0.18401      1.000 [94m     1.84009e-01[0m 
-cluster-02                     0.08274      0.500 [94m     4.13676e-02[0m 
-cluster-03                     0.07763      0.500 [94m     3.88161e-02[0m 
-cluster-04                     0.07492      0.500 [94m     3.74587e-02[0m 
-cluster-05                     0.07474      0.500 [94m     3.73676e-02[0m 
-cluster-06                     0.07313      0.500 [94m     3.65661e-02[0m 
-cluster-07                     0.07379      0.500 [94m     3.68939e-02[0m 
-cluster-08                     0.07270      0.500 [94m     3.63507e-02[0m 
-cluster-09                     0.07186      0.500 [94m     3.59295e-02[0m 
-cluster-10                     0.07234      0.500 [94m     3.61675e-02[0m 
-cluster-11                     0.07173      0.500 [94m     3.58634e-02[0m 
-cluster-12                     0.07176      0.500 [94m     3.58807e-02[0m 
-cluster-13                     0.07156      0.500 [94m     3.57799e-02[0m 
-cluster-14                     0.07144      0.500 [94m     3.57196e-02[0m 
-cluster-15                     0.06961      0.500 [94m     3.48035e-02[0m 
-cluster-16                     0.06937      0.500 [94m     3.46858e-02[0m 
-cluster-17                     0.06966      0.500 [94m     3.48311e-02[0m 
-cluster-18                     0.06957      0.500 [94m     3.47870e-02[0m 
-cluster-19                     0.07016      0.500 [94m     3.50791e-02[0m 
-cluster-20                     0.07118      0.500 [94m     3.55882e-02[0m 
-cluster-21                     0.07326      0.500 [94m     3.66286e-02[0m 
-cluster-22                     0.07340      0.500 [94m     3.66978e-02[0m 
-DimerMin                       0.19980      1.000 [94m     1.99802e-01[0m 
-Interactions_CCSDT             0.18716      1.000 [94m     1.87162e-01[0m 
-Interactions_MP2               0.24600      1.000 [94m     2.46005e-01[0m 
-Monomer_Vibration              0.00104      1.000 [94m     1.04148e-03[0m 
-Regularization                 0.01834      1.000 [94m     1.83442e-02[0m 
-Total                                             [94m     2.45847e+00[0m 
+Liquid                         0.17177      5.000 [94m     8.58850e-01[0m
+Monomer_Moments                0.18401      1.000 [94m     1.84009e-01[0m
+cluster-02                     0.08274      0.500 [94m     4.13676e-02[0m
+cluster-03                     0.07763      0.500 [94m     3.88161e-02[0m
+cluster-04                     0.07492      0.500 [94m     3.74587e-02[0m
+cluster-05                     0.07474      0.500 [94m     3.73676e-02[0m
+cluster-06                     0.07313      0.500 [94m     3.65661e-02[0m
+cluster-07                     0.07379      0.500 [94m     3.68939e-02[0m
+cluster-08                     0.07270      0.500 [94m     3.63507e-02[0m
+cluster-09                     0.07186      0.500 [94m     3.59295e-02[0m
+cluster-10                     0.07234      0.500 [94m     3.61675e-02[0m
+cluster-11                     0.07173      0.500 [94m     3.58634e-02[0m
+cluster-12                     0.07176      0.500 [94m     3.58807e-02[0m
+cluster-13                     0.07156      0.500 [94m     3.57799e-02[0m
+cluster-14                     0.07144      0.500 [94m     3.57196e-02[0m
+cluster-15                     0.06961      0.500 [94m     3.48035e-02[0m
+cluster-16                     0.06937      0.500 [94m     3.46858e-02[0m
+cluster-17                     0.06966      0.500 [94m     3.48311e-02[0m
+cluster-18                     0.06957      0.500 [94m     3.47870e-02[0m
+cluster-19                     0.07016      0.500 [94m     3.50791e-02[0m
+cluster-20                     0.07118      0.500 [94m     3.55882e-02[0m
+cluster-21                     0.07326      0.500 [94m     3.66286e-02[0m
+cluster-22                     0.07340      0.500 [94m     3.66978e-02[0m
+DimerMin                       0.19980      1.000 [94m     1.99802e-01[0m
+Interactions_CCSDT             0.18716      1.000 [94m     1.87162e-01[0m
+Interactions_MP2               0.24600      1.000 [94m     2.46005e-01[0m
+Monomer_Vibration              0.00104      1.000 [94m     1.04148e-03[0m
+Regularization                 0.01834      1.000 [94m     1.83442e-02[0m
+Total                                             [94m     2.45847e+00[0m
 ----------------------------------------------------------------------
 #========================================================#
 #| [92m    Objective Function Single Point: 2.45847458     [0m |#

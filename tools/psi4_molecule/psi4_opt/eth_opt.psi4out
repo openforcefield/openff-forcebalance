@@ -3,7 +3,7 @@
           Psi4: An Open-Source Ab Initio Electronic Structure Package
                                Psi4 1.3.2 release
 
-                         Git: Rev {HEAD} ecbda83 
+                         Git: Rev {HEAD} ecbda83
 
 
     R. M. Parrish, L. A. Burns, D. G. A. Smith, A. C. Simmonett,
@@ -30,22 +30,22 @@
     PSIDATADIR: /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4
     Memory:     500.0 MiB
     Threads:    8
-    
+
   ==> Input File <==
 
 --------------------------------------------------------------------------
 memory 4 gb
 
 molecule dimer {
-   C  24.081  20.550   2.967  
-   C  25.023  21.562   2.352  
-   O  24.861  21.548   0.942  
-   H  25.478  22.205   0.581  
-   H  24.180  20.535   4.056  
-   H  23.042  20.785   2.711  
-   H  24.284  19.546   2.580  
-   H  26.062  21.311   2.589  
-   H  24.803  22.567   2.723  
+   C  24.081  20.550   2.967
+   C  25.023  21.562   2.352
+   O  24.861  21.548   0.942
+   H  25.478  22.205   0.581
+   H  24.180  20.535   4.056
+   H  23.042  20.785   2.711
+   H  24.284  19.546   2.580
+   H  26.062  21.311   2.589
+   H  24.803  22.567   2.723
 
 units angstrom
 symmetry c1
@@ -71,9 +71,9 @@ gradient() will perform analytic gradient computation.
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
 
          ---------------------------------------------------------
@@ -91,7 +91,7 @@ gradient() will perform analytic gradient computation.
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.590100967826    -0.690338639889     0.919853051332    12.000000000000
          C            0.351899032174     0.321661360111     0.304853051332    12.000000000000
@@ -138,7 +138,7 @@ gradient() will perform analytic gradient computation.
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -180,9 +180,9 @@ gradient() will perform analytic gradient computation.
     Name: (AUG-CC-PVDZ AUX)
     Role: JKFIT
     Keyword: DF_BASIS_SCF
-    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
 
   ==> Pre-Iterations <==
 
@@ -231,7 +231,7 @@ gradient() will perform analytic gradient computation.
 
                            Total Energy        Delta E     RMS |[F,P]|
 
-   @DF-RKS iter SAD:  -154.27422280389897   -1.54274e+02   0.00000e+00 
+   @DF-RKS iter SAD:  -154.27422280389897   -1.54274e+02   0.00000e+00
    @DF-RKS iter   1:  -154.32801042259987   -5.37876e-02   8.32032e-03 DIIS
    @DF-RKS iter   2:  -152.83458527335293    1.49343e+00   1.59878e-02 DIIS
    @DF-RKS iter   3:  -154.82864689655955   -1.99406e+00   2.31653e-03 DIIS
@@ -252,56 +252,56 @@ gradient() will perform analytic gradient computation.
     Orbital Energies [Eh]
     ---------------------
 
-    Doubly Occupied:                                                      
+    Doubly Occupied:
 
-       1A    -18.771604     2A     -9.937497     3A     -9.885043  
-       4A     -0.938611     5A     -0.681255     6A     -0.551100  
-       7A     -0.467572     8A     -0.417477     9A     -0.361236  
-      10A     -0.341209    11A     -0.320205    12A     -0.290240  
-      13A     -0.225476  
+       1A    -18.771604     2A     -9.937497     3A     -9.885043
+       4A     -0.938611     5A     -0.681255     6A     -0.551100
+       7A     -0.467572     8A     -0.417477     9A     -0.361236
+      10A     -0.341209    11A     -0.320205    12A     -0.290240
+      13A     -0.225476
 
-    Virtual:                                                              
+    Virtual:
 
-      14A     -0.024046    15A     -0.002400    16A      0.012322  
-      17A      0.012817    18A      0.035115    19A      0.048171  
-      20A      0.060398    21A      0.068174    22A      0.081100  
-      23A      0.086177    24A      0.097769    25A      0.109255  
-      26A      0.112204    27A      0.123916    28A      0.135051  
-      29A      0.137037    30A      0.151157    31A      0.169572  
-      32A      0.175087    33A      0.178166    34A      0.202823  
-      35A      0.208449    36A      0.251859    37A      0.262932  
-      38A      0.266339    39A      0.277757    40A      0.295876  
-      41A      0.307603    42A      0.328810    43A      0.333406  
-      44A      0.350996    45A      0.361589    46A      0.371205  
-      47A      0.381287    48A      0.397021    49A      0.427208  
-      50A      0.430448    51A      0.442054    52A      0.446860  
-      53A      0.465735    54A      0.474521    55A      0.482978  
-      56A      0.509238    57A      0.532984    58A      0.560241  
-      59A      0.560993    60A      0.561586    61A      0.598106  
-      62A      0.598991    63A      0.624149    64A      0.645059  
-      65A      0.648651    66A      0.726997    67A      0.727217  
-      68A      0.763871    69A      0.766122    70A      0.783351  
-      71A      0.849289    72A      0.864160    73A      0.932529  
-      74A      0.944399    75A      0.974902    76A      0.999259  
-      77A      1.032464    78A      1.056922    79A      1.160731  
-      80A      1.223830    81A      1.232094    82A      1.250736  
-      83A      1.277505    84A      1.350934    85A      1.447141  
-      86A      1.467409    87A      1.498276    88A      1.570797  
-      89A      1.577485    90A      1.616562    91A      1.620153  
-      92A      1.668543    93A      1.727031    94A      1.765938  
-      95A      1.779549    96A      1.798381    97A      1.838425  
-      98A      1.844387    99A      1.898489   100A      1.917602  
-     101A      1.930393   102A      1.987894   103A      1.989712  
-     104A      2.096568   105A      2.119497   106A      2.217057  
-     107A      2.243134   108A      2.286494   109A      2.325787  
-     110A      2.358356   111A      2.427633   112A      2.461413  
-     113A      2.538541   114A      2.576072   115A      2.674070  
-     116A      2.706509   117A      2.797495   118A      2.838617  
-     119A      3.284070   120A      3.316498   121A      3.329127  
-     122A      3.446958   123A      3.828057  
+      14A     -0.024046    15A     -0.002400    16A      0.012322
+      17A      0.012817    18A      0.035115    19A      0.048171
+      20A      0.060398    21A      0.068174    22A      0.081100
+      23A      0.086177    24A      0.097769    25A      0.109255
+      26A      0.112204    27A      0.123916    28A      0.135051
+      29A      0.137037    30A      0.151157    31A      0.169572
+      32A      0.175087    33A      0.178166    34A      0.202823
+      35A      0.208449    36A      0.251859    37A      0.262932
+      38A      0.266339    39A      0.277757    40A      0.295876
+      41A      0.307603    42A      0.328810    43A      0.333406
+      44A      0.350996    45A      0.361589    46A      0.371205
+      47A      0.381287    48A      0.397021    49A      0.427208
+      50A      0.430448    51A      0.442054    52A      0.446860
+      53A      0.465735    54A      0.474521    55A      0.482978
+      56A      0.509238    57A      0.532984    58A      0.560241
+      59A      0.560993    60A      0.561586    61A      0.598106
+      62A      0.598991    63A      0.624149    64A      0.645059
+      65A      0.648651    66A      0.726997    67A      0.727217
+      68A      0.763871    69A      0.766122    70A      0.783351
+      71A      0.849289    72A      0.864160    73A      0.932529
+      74A      0.944399    75A      0.974902    76A      0.999259
+      77A      1.032464    78A      1.056922    79A      1.160731
+      80A      1.223830    81A      1.232094    82A      1.250736
+      83A      1.277505    84A      1.350934    85A      1.447141
+      86A      1.467409    87A      1.498276    88A      1.570797
+      89A      1.577485    90A      1.616562    91A      1.620153
+      92A      1.668543    93A      1.727031    94A      1.765938
+      95A      1.779549    96A      1.798381    97A      1.838425
+      98A      1.844387    99A      1.898489   100A      1.917602
+     101A      1.930393   102A      1.987894   103A      1.989712
+     104A      2.096568   105A      2.119497   106A      2.217057
+     107A      2.243134   108A      2.286494   109A      2.325787
+     110A      2.358356   111A      2.427633   112A      2.461413
+     113A      2.538541   114A      2.576072   115A      2.674070
+     116A      2.706509   117A      2.797495   118A      2.838617
+     119A      3.284070   120A      3.316498   121A      3.329127
+     122A      3.446958   123A      3.828057
 
     Final Occupation by Irrep:
-              A 
+              A
     DOCC [    13 ]
 
   @DF-RKS Final Energy:  -154.86317192381571
@@ -351,9 +351,9 @@ Total time:
 
 
          ------------------------------------------------------------
-                                   SCF GRAD                          
-                          Rob Parrish, Justin Turney,                
-                       Andy Simmonett, and Alex Sokolov              
+                                   SCF GRAD
+                          Rob Parrish, Justin Turney,
+                       Andy Simmonett, and Alex Sokolov
          ------------------------------------------------------------
 
   ==> Geometry <==
@@ -363,7 +363,7 @@ Total time:
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.590100967826    -0.690338639889     0.919853051332    12.000000000000
          C            0.351899032174     0.321661360111     0.304853051332    12.000000000000
@@ -411,7 +411,7 @@ Total time:
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -474,8 +474,8 @@ Total time:
 	total time  =          4 seconds =       0.07 minutes
 
 			-----------------------------------------
-			 OPTKING 2.0: for geometry optimizations 
-			  - R.A. King,  Bethel University        
+			 OPTKING 2.0: for geometry optimizations
+			  - R.A. King,  Bethel University
 			-----------------------------------------
 
 	Internal coordinates to be generated automatically.
@@ -564,7 +564,7 @@ Total time:
 
 	--- Internal Coordinate Step in ANG or DEG, aJ/ANG or AJ/DEG ---
 	 ---------------------------------------------------------------------------
-	   Coordinate                Previous        Force       Change         New 
+	   Coordinate                Previous        Force       Change         New
 	   ----------                --------       ------       ------       ------
 	    1 R(1,2)          =      1.513186     0.028131     0.005847     1.519033
 	    2 R(1,5)          =      1.093594     0.061705     0.011426     1.105019
@@ -627,7 +627,7 @@ Total time:
 	    H     1.4069962256   0.0701507703   0.5828332290
 	    H     0.1359705224   1.3375949910   0.7174586666
 			--------------------------
-			 OPTKING Finished Execution 
+			 OPTKING Finished Execution
 			--------------------------
 
     Structure for next step:
@@ -656,9 +656,9 @@ gradient() will perform analytic gradient computation.
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
 
          ---------------------------------------------------------
@@ -676,7 +676,7 @@ gradient() will perform analytic gradient computation.
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.592086093673    -0.691388567035     0.918476931850    12.000000000000
          C            0.359808971323     0.326987700825     0.314930993928    12.000000000000
@@ -723,7 +723,7 @@ gradient() will perform analytic gradient computation.
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -765,18 +765,18 @@ gradient() will perform analytic gradient computation.
     Name: (AUG-CC-PVDZ AUX)
     Role: JKFIT
     Keyword: DF_BASIS_SCF
-    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
 
    => Loading Basis Set <=
 
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
   Reading orbitals from file 180, no projection.
 
@@ -827,7 +827,7 @@ gradient() will perform analytic gradient computation.
 
                            Total Energy        Delta E     RMS |[F,P]|
 
-   @DF-RKS iter   0:  -154.84179024354282   -1.54842e+02   6.32206e-04 
+   @DF-RKS iter   0:  -154.84179024354282   -1.54842e+02   6.32206e-04
    @DF-RKS iter   1:  -154.86424189892728   -2.24517e-02   1.89944e-04 DIIS
    @DF-RKS iter   2:  -154.86416340048476    7.84984e-05   2.13022e-04 DIIS
    @DF-RKS iter   3:  -154.86447000458901   -3.06604e-04   4.98506e-05 DIIS
@@ -845,56 +845,56 @@ gradient() will perform analytic gradient computation.
     Orbital Energies [Eh]
     ---------------------
 
-    Doubly Occupied:                                                      
+    Doubly Occupied:
 
-       1A    -18.773682     2A     -9.943648     3A     -9.889032  
-       4A     -0.931716     5A     -0.679973     6A     -0.548314  
-       7A     -0.465384     8A     -0.412395     9A     -0.357351  
-      10A     -0.338747    11A     -0.317958    12A     -0.291030  
-      13A     -0.227748  
+       1A    -18.773682     2A     -9.943648     3A     -9.889032
+       4A     -0.931716     5A     -0.679973     6A     -0.548314
+       7A     -0.465384     8A     -0.412395     9A     -0.357351
+      10A     -0.338747    11A     -0.317958    12A     -0.291030
+      13A     -0.227748
 
-    Virtual:                                                              
+    Virtual:
 
-      14A     -0.024111    15A     -0.003509    16A      0.010931  
-      17A      0.012352    18A      0.034116    19A      0.047880  
-      20A      0.060239    21A      0.067239    22A      0.081221  
-      23A      0.085532    24A      0.095689    25A      0.108305  
-      26A      0.111286    27A      0.121190    28A      0.131661  
-      29A      0.134519    30A      0.149336    31A      0.166906  
-      32A      0.170105    33A      0.177154    34A      0.203560  
-      35A      0.205500    36A      0.251652    37A      0.259724  
-      38A      0.261024    39A      0.275251    40A      0.291780  
-      41A      0.307486    42A      0.325140    43A      0.330402  
-      44A      0.348453    45A      0.361350    46A      0.368091  
-      47A      0.376705    48A      0.396225    49A      0.425299  
-      50A      0.428052    51A      0.439817    52A      0.443621  
-      53A      0.463828    54A      0.468368    55A      0.479454  
-      56A      0.507597    57A      0.529761    58A      0.555188  
-      59A      0.555605    60A      0.563801    61A      0.596399  
-      62A      0.597656    63A      0.617879    64A      0.637747  
-      65A      0.649325    66A      0.720869    67A      0.728168  
-      68A      0.759332    69A      0.760087    70A      0.779697  
-      71A      0.849020    72A      0.860329    73A      0.937885  
-      74A      0.946898    75A      0.971360    76A      0.994587  
-      77A      1.027386    78A      1.050898    79A      1.151143  
-      80A      1.219328    81A      1.234152    82A      1.251864  
-      83A      1.279296    84A      1.345970    85A      1.425466  
-      86A      1.461197    87A      1.493197    88A      1.571647  
-      89A      1.581595    90A      1.612065    91A      1.615764  
-      92A      1.665092    93A      1.718400    94A      1.741877  
-      95A      1.774505    96A      1.785931    97A      1.829145  
-      98A      1.836068    99A      1.879761   100A      1.903340  
-     101A      1.904907   102A      1.969077   103A      1.978653  
-     104A      2.080852   105A      2.103456   106A      2.194140  
-     107A      2.231442   108A      2.273255   109A      2.303910  
-     110A      2.335876   111A      2.426950   112A      2.437148  
-     113A      2.499747   114A      2.553510   115A      2.649652  
-     116A      2.682740   117A      2.810377   118A      2.831397  
-     119A      3.280788   120A      3.306714   121A      3.330973  
-     122A      3.435381   123A      3.821065  
+      14A     -0.024111    15A     -0.003509    16A      0.010931
+      17A      0.012352    18A      0.034116    19A      0.047880
+      20A      0.060239    21A      0.067239    22A      0.081221
+      23A      0.085532    24A      0.095689    25A      0.108305
+      26A      0.111286    27A      0.121190    28A      0.131661
+      29A      0.134519    30A      0.149336    31A      0.166906
+      32A      0.170105    33A      0.177154    34A      0.203560
+      35A      0.205500    36A      0.251652    37A      0.259724
+      38A      0.261024    39A      0.275251    40A      0.291780
+      41A      0.307486    42A      0.325140    43A      0.330402
+      44A      0.348453    45A      0.361350    46A      0.368091
+      47A      0.376705    48A      0.396225    49A      0.425299
+      50A      0.428052    51A      0.439817    52A      0.443621
+      53A      0.463828    54A      0.468368    55A      0.479454
+      56A      0.507597    57A      0.529761    58A      0.555188
+      59A      0.555605    60A      0.563801    61A      0.596399
+      62A      0.597656    63A      0.617879    64A      0.637747
+      65A      0.649325    66A      0.720869    67A      0.728168
+      68A      0.759332    69A      0.760087    70A      0.779697
+      71A      0.849020    72A      0.860329    73A      0.937885
+      74A      0.946898    75A      0.971360    76A      0.994587
+      77A      1.027386    78A      1.050898    79A      1.151143
+      80A      1.219328    81A      1.234152    82A      1.251864
+      83A      1.279296    84A      1.345970    85A      1.425466
+      86A      1.461197    87A      1.493197    88A      1.571647
+      89A      1.581595    90A      1.612065    91A      1.615764
+      92A      1.665092    93A      1.718400    94A      1.741877
+      95A      1.774505    96A      1.785931    97A      1.829145
+      98A      1.836068    99A      1.879761   100A      1.903340
+     101A      1.904907   102A      1.969077   103A      1.978653
+     104A      2.080852   105A      2.103456   106A      2.194140
+     107A      2.231442   108A      2.273255   109A      2.303910
+     110A      2.335876   111A      2.426950   112A      2.437148
+     113A      2.499747   114A      2.553510   115A      2.649652
+     116A      2.682740   117A      2.810377   118A      2.831397
+     119A      3.280788   120A      3.306714   121A      3.330973
+     122A      3.435381   123A      3.821065
 
     Final Occupation by Irrep:
-              A 
+              A
     DOCC [    13 ]
 
   @DF-RKS Final Energy:  -154.86448884548068
@@ -944,9 +944,9 @@ Total time:
 
 
          ------------------------------------------------------------
-                                   SCF GRAD                          
-                          Rob Parrish, Justin Turney,                
-                       Andy Simmonett, and Alex Sokolov              
+                                   SCF GRAD
+                          Rob Parrish, Justin Turney,
+                       Andy Simmonett, and Alex Sokolov
          ------------------------------------------------------------
 
   ==> Geometry <==
@@ -956,7 +956,7 @@ Total time:
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.592086093673    -0.691388567035     0.918476931850    12.000000000000
          C            0.359808971323     0.326987700825     0.314930993928    12.000000000000
@@ -1004,7 +1004,7 @@ Total time:
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -1067,8 +1067,8 @@ Total time:
 	total time  =          7 seconds =       0.12 minutes
 
 			-----------------------------------------
-			 OPTKING 2.0: for geometry optimizations 
-			  - R.A. King,  Bethel University        
+			 OPTKING 2.0: for geometry optimizations
+			  - R.A. King,  Bethel University
 			-----------------------------------------
 
 	Previous internal coordinate definitions found.
@@ -1149,7 +1149,7 @@ Total time:
 
 	--- Internal Coordinate Step in ANG or DEG, aJ/ANG or AJ/DEG ---
 	 ---------------------------------------------------------------------------
-	   Coordinate                Previous        Force       Change         New 
+	   Coordinate                Previous        Force       Change         New
 	   ----------                --------       ------       ------       ------
 	    1 R(1,2)          =      1.519033     0.004213     0.000935     1.519968
 	    2 R(1,5)          =      1.105019     0.003645     0.000874     1.105894
@@ -1192,7 +1192,7 @@ Total time:
   Measures of convergence in internal coordinates in au.
   Criteria marked as inactive (o), active & met (*), and active & unmet ( ).
   ---------------------------------------------------------------------------------------------
-   Step     Total Energy     Delta E     MAX Force     RMS Force      MAX Disp      RMS Disp   
+   Step     Total Energy     Delta E     MAX Force     RMS Force      MAX Disp      RMS Disp
   ---------------------------------------------------------------------------------------------
     Convergence Criteria    1.00e-06 *    3.00e-04 *             o    1.20e-03 *             o
   ---------------------------------------------------------------------------------------------
@@ -1212,7 +1212,7 @@ Total time:
 	    H     1.4097558492   0.0744428055   0.5829702063
 	    H     0.1394213313   1.3411743301   0.7177091608
 			--------------------------
-			 OPTKING Finished Execution 
+			 OPTKING Finished Execution
 			--------------------------
 
     Structure for next step:
@@ -1241,9 +1241,9 @@ gradient() will perform analytic gradient computation.
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
 
          ---------------------------------------------------------
@@ -1261,7 +1261,7 @@ gradient() will perform analytic gradient computation.
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.592893201347    -0.692005905036     0.916018218339    12.000000000000
          C            0.360417007312     0.327984490804     0.315082868222    12.000000000000
@@ -1308,7 +1308,7 @@ gradient() will perform analytic gradient computation.
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -1350,18 +1350,18 @@ gradient() will perform analytic gradient computation.
     Name: (AUG-CC-PVDZ AUX)
     Role: JKFIT
     Keyword: DF_BASIS_SCF
-    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
 
    => Loading Basis Set <=
 
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
   Reading orbitals from file 180, no projection.
 
@@ -1412,7 +1412,7 @@ gradient() will perform analytic gradient computation.
 
                            Total Energy        Delta E     RMS |[F,P]|
 
-   @DF-RKS iter   0:  -154.86490715692844   -1.54865e+02   7.89942e-05 
+   @DF-RKS iter   0:  -154.86490715692844   -1.54865e+02   7.89942e-05
    @DF-RKS iter   1:  -154.86451746917248    3.89688e-04   2.50486e-05 DIIS
    @DF-RKS iter   2:  -154.86451721181015    2.57362e-07   2.63746e-05 DIIS
    @DF-RKS iter   3:  -154.86452175025937   -4.53845e-06   7.87827e-06 DIIS
@@ -1428,56 +1428,56 @@ gradient() will perform analytic gradient computation.
     Orbital Energies [Eh]
     ---------------------
 
-    Doubly Occupied:                                                      
+    Doubly Occupied:
 
-       1A    -18.773431     2A     -9.943539     3A     -9.889201  
-       4A     -0.932492     5A     -0.679436     6A     -0.548299  
-       7A     -0.465299     8A     -0.412458     9A     -0.357668  
-      10A     -0.337958    11A     -0.318617    12A     -0.291648  
-      13A     -0.227412  
+       1A    -18.773431     2A     -9.943539     3A     -9.889201
+       4A     -0.932492     5A     -0.679436     6A     -0.548299
+       7A     -0.465299     8A     -0.412458     9A     -0.357668
+      10A     -0.337958    11A     -0.318617    12A     -0.291648
+      13A     -0.227412
 
-    Virtual:                                                              
+    Virtual:
 
-      14A     -0.024166    15A     -0.003460    16A      0.010992  
-      17A      0.012300    18A      0.034210    19A      0.047811  
-      20A      0.060180    21A      0.067190    22A      0.081072  
-      23A      0.085751    24A      0.095795    25A      0.108251  
-      26A      0.111288    27A      0.121243    28A      0.131957  
-      29A      0.134834    30A      0.149057    31A      0.166858  
-      32A      0.170306    33A      0.176963    34A      0.203375  
-      35A      0.205393    36A      0.251671    37A      0.260146  
-      38A      0.260997    39A      0.275185    40A      0.291432  
-      41A      0.307398    42A      0.325976    43A      0.330201  
-      44A      0.348200    45A      0.361266    46A      0.368483  
-      47A      0.377534    48A      0.396025    49A      0.425284  
-      50A      0.427650    51A      0.439315    52A      0.443871  
-      53A      0.463533    54A      0.468920    55A      0.479650  
-      56A      0.507502    57A      0.529723    58A      0.555803  
-      59A      0.556049    60A      0.563803    61A      0.595985  
-      62A      0.597432    63A      0.618143    64A      0.637911  
-      65A      0.648574    66A      0.721011    67A      0.727290  
-      68A      0.759375    69A      0.760050    70A      0.780109  
-      71A      0.848768    72A      0.859705    73A      0.937056  
-      74A      0.945722    75A      0.971823    76A      0.994741  
-      77A      1.027556    78A      1.052505    79A      1.154031  
-      80A      1.218789    81A      1.233967    82A      1.251957  
-      83A      1.278402    84A      1.346507    85A      1.427565  
-      86A      1.462757    87A      1.492720    88A      1.571377  
-      89A      1.580455    90A      1.611901    91A      1.616413  
-      92A      1.664688    93A      1.716938    94A      1.743465  
-      95A      1.773930    96A      1.786162    97A      1.827629  
-      98A      1.836492    99A      1.878763   100A      1.902200  
-     101A      1.904904   102A      1.969063   103A      1.979260  
-     104A      2.081684   105A      2.103727   106A      2.195233  
-     107A      2.232273   108A      2.270637   109A      2.301593  
-     110A      2.335831   111A      2.427067   112A      2.436870  
-     113A      2.503434   114A      2.551258   115A      2.647851  
-     116A      2.679776   117A      2.810211   118A      2.830952  
-     119A      3.281221   120A      3.308375   121A      3.330191  
-     122A      3.435619   123A      3.823021  
+      14A     -0.024166    15A     -0.003460    16A      0.010992
+      17A      0.012300    18A      0.034210    19A      0.047811
+      20A      0.060180    21A      0.067190    22A      0.081072
+      23A      0.085751    24A      0.095795    25A      0.108251
+      26A      0.111288    27A      0.121243    28A      0.131957
+      29A      0.134834    30A      0.149057    31A      0.166858
+      32A      0.170306    33A      0.176963    34A      0.203375
+      35A      0.205393    36A      0.251671    37A      0.260146
+      38A      0.260997    39A      0.275185    40A      0.291432
+      41A      0.307398    42A      0.325976    43A      0.330201
+      44A      0.348200    45A      0.361266    46A      0.368483
+      47A      0.377534    48A      0.396025    49A      0.425284
+      50A      0.427650    51A      0.439315    52A      0.443871
+      53A      0.463533    54A      0.468920    55A      0.479650
+      56A      0.507502    57A      0.529723    58A      0.555803
+      59A      0.556049    60A      0.563803    61A      0.595985
+      62A      0.597432    63A      0.618143    64A      0.637911
+      65A      0.648574    66A      0.721011    67A      0.727290
+      68A      0.759375    69A      0.760050    70A      0.780109
+      71A      0.848768    72A      0.859705    73A      0.937056
+      74A      0.945722    75A      0.971823    76A      0.994741
+      77A      1.027556    78A      1.052505    79A      1.154031
+      80A      1.218789    81A      1.233967    82A      1.251957
+      83A      1.278402    84A      1.346507    85A      1.427565
+      86A      1.462757    87A      1.492720    88A      1.571377
+      89A      1.580455    90A      1.611901    91A      1.616413
+      92A      1.664688    93A      1.716938    94A      1.743465
+      95A      1.773930    96A      1.786162    97A      1.827629
+      98A      1.836492    99A      1.878763   100A      1.902200
+     101A      1.904904   102A      1.969063   103A      1.979260
+     104A      2.081684   105A      2.103727   106A      2.195233
+     107A      2.232273   108A      2.270637   109A      2.301593
+     110A      2.335831   111A      2.427067   112A      2.436870
+     113A      2.503434   114A      2.551258   115A      2.647851
+     116A      2.679776   117A      2.810211   118A      2.830952
+     119A      3.281221   120A      3.308375   121A      3.330191
+     122A      3.435619   123A      3.823021
 
     Final Occupation by Irrep:
-              A 
+              A
     DOCC [    13 ]
 
   @DF-RKS Final Energy:  -154.86452218410255
@@ -1527,9 +1527,9 @@ Total time:
 
 
          ------------------------------------------------------------
-                                   SCF GRAD                          
-                          Rob Parrish, Justin Turney,                
-                       Andy Simmonett, and Alex Sokolov              
+                                   SCF GRAD
+                          Rob Parrish, Justin Turney,
+                       Andy Simmonett, and Alex Sokolov
          ------------------------------------------------------------
 
   ==> Geometry <==
@@ -1539,7 +1539,7 @@ Total time:
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.592893201347    -0.692005905036     0.916018218339    12.000000000000
          C            0.360417007312     0.327984490804     0.315082868222    12.000000000000
@@ -1587,7 +1587,7 @@ Total time:
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -1650,8 +1650,8 @@ Total time:
 	total time  =         10 seconds =       0.17 minutes
 
 			-----------------------------------------
-			 OPTKING 2.0: for geometry optimizations 
-			  - R.A. King,  Bethel University        
+			 OPTKING 2.0: for geometry optimizations
+			  - R.A. King,  Bethel University
 			-----------------------------------------
 
 	Previous internal coordinate definitions found.
@@ -1732,7 +1732,7 @@ Total time:
 
 	--- Internal Coordinate Step in ANG or DEG, aJ/ANG or AJ/DEG ---
 	 ---------------------------------------------------------------------------
-	   Coordinate                Previous        Force       Change         New 
+	   Coordinate                Previous        Force       Change         New
 	   ----------                --------       ------       ------       ------
 	    1 R(1,2)          =      1.519968    -0.002026    -0.000344     1.519625
 	    2 R(1,5)          =      1.105894     0.000489     0.000142     1.106036
@@ -1775,7 +1775,7 @@ Total time:
   Measures of convergence in internal coordinates in au.
   Criteria marked as inactive (o), active & met (*), and active & unmet ( ).
   ---------------------------------------------------------------------------------------------
-   Step     Total Energy     Delta E     MAX Force     RMS Force      MAX Disp      RMS Disp   
+   Step     Total Energy     Delta E     MAX Force     RMS Force      MAX Disp      RMS Disp
   ---------------------------------------------------------------------------------------------
     Convergence Criteria    1.00e-06 *    3.00e-04 *             o    1.20e-03 *             o
   ---------------------------------------------------------------------------------------------
@@ -1795,7 +1795,7 @@ Total time:
 	    H     1.4102074788   0.0755468338   0.5822001367
 	    H     0.1406334830   1.3415344460   0.7166784010
 			--------------------------
-			 OPTKING Finished Execution 
+			 OPTKING Finished Execution
 			--------------------------
 
     Structure for next step:
@@ -1824,9 +1824,9 @@ gradient() will perform analytic gradient computation.
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
 
          ---------------------------------------------------------
@@ -1844,7 +1844,7 @@ gradient() will perform analytic gradient computation.
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.593058754700    -0.692083569194     0.916521361269    12.000000000000
          C            0.359905712095     0.327447674965     0.315128264951    12.000000000000
@@ -1891,7 +1891,7 @@ gradient() will perform analytic gradient computation.
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -1933,18 +1933,18 @@ gradient() will perform analytic gradient computation.
     Name: (AUG-CC-PVDZ AUX)
     Role: JKFIT
     Keyword: DF_BASIS_SCF
-    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
-    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs 
+    atoms 1-2 entry C          line   154 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 3   entry O          line   270 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
+    atoms 4-9 entry H          line    70 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz-jkfit.gbs
 
    => Loading Basis Set <=
 
     Name: AUG-CC-PVDZ
     Role: ORBITAL
     Keyword: BASIS
-    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
-    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs 
+    atoms 1-2 entry C          line   178 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 3   entry O          line   250 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
+    atoms 4-9 entry H          line    36 file /home/jstoppelman3/anaconda3/envs/test_forcebalance/share/psi4/basis/aug-cc-pvdz.gbs
 
   Reading orbitals from file 180, no projection.
 
@@ -1995,7 +1995,7 @@ gradient() will perform analytic gradient computation.
 
                            Total Energy        Delta E     RMS |[F,P]|
 
-   @DF-RKS iter   0:  -154.86497991463091   -1.54865e+02   1.99802e-05 
+   @DF-RKS iter   0:  -154.86497991463091   -1.54865e+02   1.99802e-05
    @DF-RKS iter   1:  -154.86452377790397    4.56137e-04   3.59991e-06 DIIS
    @DF-RKS iter   2:  -154.86452369220743    8.56965e-08   4.98341e-06 DIIS
    @DF-RKS iter   3:  -154.86452388454475   -1.92337e-07   4.37317e-07 DIIS
@@ -2010,56 +2010,56 @@ gradient() will perform analytic gradient computation.
     Orbital Energies [Eh]
     ---------------------
 
-    Doubly Occupied:                                                      
+    Doubly Occupied:
 
-       1A    -18.773401     2A     -9.943473     3A     -9.889180  
-       4A     -0.932321     5A     -0.679575     6A     -0.548348  
-       7A     -0.465244     8A     -0.412517     9A     -0.357592  
-      10A     -0.338057    11A     -0.318769    12A     -0.291596  
-      13A     -0.227361  
+       1A    -18.773401     2A     -9.943473     3A     -9.889180
+       4A     -0.932321     5A     -0.679575     6A     -0.548348
+       7A     -0.465244     8A     -0.412517     9A     -0.357592
+      10A     -0.338057    11A     -0.318769    12A     -0.291596
+      13A     -0.227361
 
-    Virtual:                                                              
+    Virtual:
 
-      14A     -0.024168    15A     -0.003451    16A      0.011008  
-      17A      0.012309    18A      0.034185    19A      0.047819  
-      20A      0.060192    21A      0.067206    22A      0.081101  
-      23A      0.085750    24A      0.095809    25A      0.108265  
-      26A      0.111296    27A      0.121226    28A      0.131879  
-      29A      0.134828    30A      0.149233    31A      0.166849  
-      32A      0.170264    33A      0.176927    34A      0.203287  
-      35A      0.205503    36A      0.251688    37A      0.260270  
-      38A      0.261015    39A      0.275169    40A      0.291424  
-      41A      0.307399    42A      0.326008    43A      0.330277  
-      44A      0.348148    45A      0.361247    46A      0.368481  
-      47A      0.377458    48A      0.396067    49A      0.425316  
-      50A      0.427747    51A      0.439405    52A      0.443732  
-      53A      0.463530    54A      0.468995    55A      0.479672  
-      56A      0.507630    57A      0.529673    58A      0.555851  
-      59A      0.556063    60A      0.563790    61A      0.596012  
-      62A      0.597420    63A      0.618233    64A      0.638036  
-      65A      0.648623    66A      0.721047    67A      0.727331  
-      68A      0.759611    69A      0.760049    70A      0.780153  
-      71A      0.849048    72A      0.859444    73A      0.936897  
-      74A      0.945781    75A      0.971854    76A      0.994725  
-      77A      1.027531    78A      1.052420    79A      1.153883  
-      80A      1.219061    81A      1.234090    82A      1.251909  
-      83A      1.278436    84A      1.346720    85A      1.427581  
-      86A      1.462812    87A      1.492305    88A      1.571341  
-      89A      1.580643    90A      1.611463    91A      1.616517  
-      92A      1.664668    93A      1.717274    94A      1.743481  
-      95A      1.774100    96A      1.786467    97A      1.827731  
-      98A      1.836568    99A      1.879046   100A      1.902759  
-     101A      1.904714   102A      1.969323   103A      1.979168  
-     104A      2.081809   105A      2.103562   106A      2.195827  
-     107A      2.232515   108A      2.270453   109A      2.302252  
-     110A      2.335841   111A      2.427137   112A      2.437411  
-     113A      2.504222   114A      2.551532   115A      2.648138  
-     116A      2.680500   117A      2.809579   118A      2.831151  
-     119A      3.281258   120A      3.308346   121A      3.330181  
-     122A      3.435474   123A      3.822820  
+      14A     -0.024168    15A     -0.003451    16A      0.011008
+      17A      0.012309    18A      0.034185    19A      0.047819
+      20A      0.060192    21A      0.067206    22A      0.081101
+      23A      0.085750    24A      0.095809    25A      0.108265
+      26A      0.111296    27A      0.121226    28A      0.131879
+      29A      0.134828    30A      0.149233    31A      0.166849
+      32A      0.170264    33A      0.176927    34A      0.203287
+      35A      0.205503    36A      0.251688    37A      0.260270
+      38A      0.261015    39A      0.275169    40A      0.291424
+      41A      0.307399    42A      0.326008    43A      0.330277
+      44A      0.348148    45A      0.361247    46A      0.368481
+      47A      0.377458    48A      0.396067    49A      0.425316
+      50A      0.427747    51A      0.439405    52A      0.443732
+      53A      0.463530    54A      0.468995    55A      0.479672
+      56A      0.507630    57A      0.529673    58A      0.555851
+      59A      0.556063    60A      0.563790    61A      0.596012
+      62A      0.597420    63A      0.618233    64A      0.638036
+      65A      0.648623    66A      0.721047    67A      0.727331
+      68A      0.759611    69A      0.760049    70A      0.780153
+      71A      0.849048    72A      0.859444    73A      0.936897
+      74A      0.945781    75A      0.971854    76A      0.994725
+      77A      1.027531    78A      1.052420    79A      1.153883
+      80A      1.219061    81A      1.234090    82A      1.251909
+      83A      1.278436    84A      1.346720    85A      1.427581
+      86A      1.462812    87A      1.492305    88A      1.571341
+      89A      1.580643    90A      1.611463    91A      1.616517
+      92A      1.664668    93A      1.717274    94A      1.743481
+      95A      1.774100    96A      1.786467    97A      1.827731
+      98A      1.836568    99A      1.879046   100A      1.902759
+     101A      1.904714   102A      1.969323   103A      1.979168
+     104A      2.081809   105A      2.103562   106A      2.195827
+     107A      2.232515   108A      2.270453   109A      2.302252
+     110A      2.335841   111A      2.427137   112A      2.437411
+     113A      2.504222   114A      2.551532   115A      2.648138
+     116A      2.680500   117A      2.809579   118A      2.831151
+     119A      3.281258   120A      3.308346   121A      3.330181
+     122A      3.435474   123A      3.822820
 
     Final Occupation by Irrep:
-              A 
+              A
     DOCC [    13 ]
 
   @DF-RKS Final Energy:  -154.86452388597047
@@ -2109,9 +2109,9 @@ Total time:
 
 
          ------------------------------------------------------------
-                                   SCF GRAD                          
-                          Rob Parrish, Justin Turney,                
-                       Andy Simmonett, and Alex Sokolov              
+                                   SCF GRAD
+                          Rob Parrish, Justin Turney,
+                       Andy Simmonett, and Alex Sokolov
          ------------------------------------------------------------
 
   ==> Geometry <==
@@ -2121,7 +2121,7 @@ Total time:
 
     Geometry (in Angstrom), charge = 0, multiplicity = 1:
 
-       Center              X                  Y                   Z               Mass       
+       Center              X                  Y                   Z               Mass
     ------------   -----------------  -----------------  -----------------  -----------------
          C           -0.593058754700    -0.692083569194     0.916521361269    12.000000000000
          C            0.359905712095     0.327447674965     0.315128264951    12.000000000000
@@ -2169,7 +2169,7 @@ Total time:
 
   ==> DFT Potential <==
 
-   => Composite Functional: PBE <= 
+   => Composite Functional: PBE <=
 
     PBE GGA Exchange-Correlation Functional
 
@@ -2232,8 +2232,8 @@ Total time:
 	total time  =         12 seconds =       0.20 minutes
 
 			-----------------------------------------
-			 OPTKING 2.0: for geometry optimizations 
-			  - R.A. King,  Bethel University        
+			 OPTKING 2.0: for geometry optimizations
+			  - R.A. King,  Bethel University
 			-----------------------------------------
 
 	Previous internal coordinate definitions found.
@@ -2317,7 +2317,7 @@ Total time:
 
 	--- Internal Coordinate Step in ANG or DEG, aJ/ANG or AJ/DEG ---
 	 ---------------------------------------------------------------------------
-	   Coordinate                Previous        Force       Change         New 
+	   Coordinate                Previous        Force       Change         New
 	   ----------                --------       ------       ------       ------
 	    1 R(1,2)          =      1.519625    -0.000721    -0.000172     1.519453
 	    2 R(1,5)          =      1.106036    -0.000340    -0.000053     1.105983
@@ -2360,7 +2360,7 @@ Total time:
   Measures of convergence in internal coordinates in au.
   Criteria marked as inactive (o), active & met (*), and active & unmet ( ).
   ---------------------------------------------------------------------------------------------
-   Step     Total Energy     Delta E     MAX Force     RMS Force      MAX Disp      RMS Disp   
+   Step     Total Energy     Delta E     MAX Force     RMS Force      MAX Disp      RMS Disp
   ---------------------------------------------------------------------------------------------
     Convergence Criteria    1.00e-06 *    3.00e-04 *             o    1.20e-03 *             o
   ---------------------------------------------------------------------------------------------
@@ -2397,7 +2397,7 @@ Total time:
 	    H     0.1406846908   1.3416588789   0.7168855508
 	Saving final (previous) structure.
 			--------------------------
-			 OPTKING Finished Execution 
+			 OPTKING Finished Execution
 			--------------------------
 
     Final optimized geometry and variables:

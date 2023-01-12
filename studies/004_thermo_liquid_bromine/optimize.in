@@ -75,4 +75,3 @@ n_sim_chain 2
 md_steps 100000
 eq_steps 50000
 $end
-

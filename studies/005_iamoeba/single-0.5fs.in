@@ -473,4 +473,3 @@ weight 1.0
 # (float) Wavenumber tolerance, normalizes the objective function.
 wavenumber_tol 30.0
 $end
-

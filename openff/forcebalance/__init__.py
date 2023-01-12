@@ -1,33 +1,33 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import object
-
-from re import split, findall
-from collections import defaultdict, OrderedDict
-
 from collections import OrderedDict
-from .parser import tgt_opts_defaults, gen_opts_defaults
+from re import findall
 
-class BaseClass(object):
-    """ Provides some nifty functions that are common to all ForceBalance classes. """
+from .parser import gen_opts_defaults, tgt_opts_defaults
+
+
+class BaseClass:
+    """Provides some nifty functions that are common to all ForceBalance classes."""
 
     def __setattr__(self, key, value):
-        if not hasattr(self, 'OptionDict'):
-            super(BaseClass,self).__setattr__('OptionDict', OrderedDict())
-        if not hasattr(self, 'OptionKeys'):
-            super(BaseClass,self).__setattr__('OptionKeys', set())
+        if not hasattr(self, "OptionDict"):
+            super().__setattr__("OptionDict", OrderedDict())
+        if not hasattr(self, "OptionKeys"):
+            super().__setattr__("OptionKeys", set())
         ## These attributes return a list of attribute names defined in this class, that belong in the chosen category.
         ## For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
         if key in self.OptionKeys:
             self.OptionDict[key] = value
-        return super(BaseClass,self).__setattr__(key, value)
+        return super().__setattr__(key, value)
 
     def __init__(self, options):
-        self.verbose_options  = options['verbose_options'] if 'verbose_options' in options else False
-        
-    def set_option(self, in_dict, src_key, dest_key = None, val = None, default = None, forceprint=False):
-        if not hasattr(self, 'PrintOptionDict'):
-            self.PrintOptionDict  = OrderedDict()
+        self.verbose_options = (
+            options["verbose_options"] if "verbose_options" in options else False
+        )
+
+    def set_option(
+        self, in_dict, src_key, dest_key=None, val=None, default=None, forceprint=False
+    ):
+        if not hasattr(self, "PrintOptionDict"):
+            self.PrintOptionDict = OrderedDict()
         if dest_key is None:
             dest_key = src_key
         if val is None:
@@ -35,23 +35,31 @@ class BaseClass(object):
                 val = in_dict[src_key]
             elif default is not None:
                 val = default
-            elif src_key in gen_opts_defaults: 
+            elif src_key in gen_opts_defaults:
                 val = gen_opts_defaults[src_key]
             elif src_key in tgt_opts_defaults:
                 val = tgt_opts_defaults[src_key]
         if default is None:
-            if src_key in gen_opts_defaults: 
+            if src_key in gen_opts_defaults:
                 default = gen_opts_defaults[src_key]
             elif src_key in tgt_opts_defaults:
                 default = tgt_opts_defaults[src_key]
-            else: default = None
-        if ((val != default or (hasattr(self, 'verbose_options') and self.verbose_options)) and dest_key != 'root') or forceprint:
+            else:
+                default = None
+        if (
+            (
+                val != default
+                or (hasattr(self, "verbose_options") and self.verbose_options)
+            )
+            and dest_key != "root"
+        ) or forceprint:
             self.PrintOptionDict[dest_key] = val
         self.OptionKeys.add(dest_key)
         return self.__setattr__(dest_key, val)
 
-class BaseReader(object):
-    """ The 'reader' class.  It serves two main functions:
+
+class BaseReader:
+    """The 'reader' class.  It serves two main functions:
 
     1) When parsing a text force field file, the 'feed' method is
     called once for every line.  Calling the 'feed' method stores the
@@ -65,33 +73,33 @@ class BaseReader(object):
 
     """
 
-    def __init__(self,fnm):
-        self.ln     = 0
-        self.itype  = fnm
-        self.suffix = ''
-        self.pdict  = {}
+    def __init__(self, fnm):
+        self.ln = 0
+        self.itype = fnm
+        self.suffix = ""
+        self.pdict = {}
         ## The mapping of (this residue, atom number) to (atom name) for building atom-specific interactions in [ bonds ], [ angles ] etc.
-        self.adict      = OrderedDict()
+        self.adict = OrderedDict()
         ## The mapping of (molecule name) to a dictionary of  of atom types for the atoms in that residue.
-        #self.moleculedict = OrderedDict()
+        # self.moleculedict = OrderedDict()
         ## The listing of 'RES:ATOMNAMES' for atom names in the line
         ## This is obviously a placeholder.
-        self.molatom = ("Sniffy",["Mao","Schmao"])
+        self.molatom = ("Sniffy", ["Mao", "Schmao"])
 
         self.Molecules = OrderedDict()
         self.AtomTypes = OrderedDict()
 
     def Split(self, line):
         return line.split()
-    
+
     def Whites(self, line):
-        return findall('[ ]+',line)
-    
-    def feed(self,line):
+        return findall("[ ]+", line)
+
+    def feed(self, line):
         self.ln += 1
-        
+
     def build_pid(self, pfld):
-        """ Returns the parameter type (e.g. K in BONDSK) based on the
+        """Returns the parameter type (e.g. K in BONDSK) based on the
         current interaction type.
 
         Both the 'pdict' dictionary (see gmxio.pdict) and the
@@ -104,23 +112,24 @@ class BaseReader(object):
         Note that if the interaction type state is not set, then it
         defaults to the file name, so a generic parameter ID is
         'filename.line_num.field_num'
-        
+
         """
-        #print self.pdict[self.itype][pfld]
-        if hasattr(self, 'overpfx'): 
-            return self.overpfx + ':%i:' % pfld + self.oversfx
-        ptype = self.pdict.get(self.itype,{}).get(pfld,':%i.%i' % (self.ln,pfld))
+        # print self.pdict[self.itype][pfld]
+        if hasattr(self, "overpfx"):
+            return self.overpfx + ":%i:" % pfld + self.oversfx
+        ptype = self.pdict.get(self.itype, {}).get(pfld, ":%i.%i" % (self.ln, pfld))
         answer = self.itype
         answer += ptype
         answer += self.suffix
         return answer
 
-from . import parser, forcefield, optimizer, objective, output
 
+from . import forcefield, objective, optimizer, output, parser
 
 # Handle versioneer
 from ._version import get_versions
+
 versions = get_versions()
-__version__ = versions['version']
-__git_revision__ = versions['full-revisionid']
+__version__ = versions["version"]
+__git_revision__ = versions["full-revisionid"]
 del get_versions, versions
