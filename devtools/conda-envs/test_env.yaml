@@ -5,12 +5,10 @@ channels:
 dependencies:
   - python
   - pip
-  - pytest
   - pytest-cov
-  - numpy
+  - pytest-xdist
   - scipy
   - lxml
-  - networkx
   - zlib
   - swig
   - pymbar =3
