@@ -1,7 +1,13 @@
 from collections import OrderedDict
 from re import findall
 
+from ._version import get_versions
 from .parser import gen_opts_defaults, tgt_opts_defaults
+
+versions = get_versions()
+__version__ = versions["version"]
+__git_revision__ = versions["full-revisionid"]
+del get_versions, versions
 
 
 class BaseClass:
@@ -122,14 +128,3 @@ class BaseReader:
         answer += ptype
         answer += self.suffix
         return answer
-
-
-from . import forcefield, objective, optimizer, output, parser
-
-# Handle versioneer
-from ._version import get_versions
-
-versions = get_versions()
-__version__ = versions["version"]
-__git_revision__ = versions["full-revisionid"]
-del get_versions, versions
