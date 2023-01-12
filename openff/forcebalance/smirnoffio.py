@@ -79,8 +79,10 @@ def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
             optgeo_options_txt = os.path.join(
                 target_path, tgt_option["optgeo_options_txt"]
             )
-            sys_opts = forcebalance.opt_geo_target.OptGeoTarget.parse_optgeo_options(
-                optgeo_options_txt
+            sys_opts = (
+                openff.forcebalance.opt_geo_target.OptGeoTarget.parse_optgeo_options(
+                    optgeo_options_txt
+                )
             )
             mol2_paths = [
                 os.path.join(target_path, fnm)

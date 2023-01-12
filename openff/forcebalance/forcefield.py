@@ -777,7 +777,7 @@ class FF(BaseClass):
                     + " already exists on disk! Please delete it\n"
                 )
                 raise RuntimeError
-            wfile = forcebalance.nifty.wopen(absScript)
+            wfile = openff.forcebalance.nifty.wopen(absScript)
             wfile.write(Script)
             wfile.close()
             self.addff(ffnameScript, xmlScript=True)

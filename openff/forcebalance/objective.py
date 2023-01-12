@@ -206,7 +206,7 @@ class Objective(BaseClass):
             # using opts['type'] as the key.  The object is created by
             # passing (options, opts, forcefield) to the constructor.
             if opts["remote"] and self.wq_port != 0:
-                Tgt = forcebalance.target.RemoteTarget(options, opts, forcefield)
+                Tgt = openff.forcebalance.target.RemoteTarget(options, opts, forcefield)
             else:
                 Tgt = Implemented_Targets[opts["type"]](options, opts, forcefield)
             self.Targets.append(Tgt)

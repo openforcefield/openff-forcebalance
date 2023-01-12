@@ -10,10 +10,12 @@ from .__init__ import ForceBalanceTestCase
 class TargetTests(ForceBalanceTestCase):
     def setup_method(self, method):
         super().setup_method(method)
-        self.logger = forcebalance.output.getLogger("forcebalance.test." + __name__[5:])
+        self.logger = openff.forcebalance.output.getLogger(
+            "openff.forcebalance.test." + __name__[5:]
+        )
         self.logger.debug("\nBuilding options for target...\n")
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
-        self.tgt_opt = forcebalance.parser.tgt_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
+        self.tgt_opt = openff.forcebalance.parser.tgt_opts_defaults.copy()
         self.ff = None  # Forcefield this target is fitting
         self.options.update({"root": os.path.join(os.getcwd(), "files")})
         self.check_grad_fd = True  # Whether to check gradient vs. finite difference. Set to False for liquid targets.

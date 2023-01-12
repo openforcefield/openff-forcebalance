@@ -3,7 +3,7 @@ import re
 
 import openff.forcebalance.output
 
-forcebalance.output.getLogger("forcebalance.test").propagate = False
+openff.forcebalance.output.getLogger("openff.forcebalance.test").propagate = False
 
 os.chdir(os.path.dirname(__file__))
 __all__ = [
@@ -19,7 +19,9 @@ class ForceBalanceTestCase:
         """Override default test case constructor to set longMessage=True, reset cwd after test
         @override unittest.TestCase.__init(methodName='runTest')"""
 
-        cls.logger = forcebalance.output.getLogger("forcebalance.test." + __name__[5:])
+        cls.logger = openff.forcebalance.output.getLogger(
+            "openff.forcebalance.test." + __name__[5:]
+        )
         cls.start_directory = os.getcwd()
 
         # unset this env to prevent error in mdrun

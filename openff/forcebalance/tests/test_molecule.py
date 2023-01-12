@@ -18,7 +18,7 @@ class TestPDBMolecule(ForceBalanceTestCase):
         super().setup_method(method)
         os.chdir("files")
         try:
-            self.molecule = forcebalance.molecule.Molecule(
+            self.molecule = openff.forcebalance.molecule.Molecule(
                 self.source, build_topology=False
             )
         except OSError:
@@ -38,7 +38,7 @@ class TestPDBMolecule(ForceBalanceTestCase):
         self.molecule.write(self.source[:-3] + "xyz")
         self.logger.debug("done\nTrying to read generated xyz file... ")
         try:
-            molecule1 = forcebalance.molecule.Molecule(
+            molecule1 = openff.forcebalance.molecule.Molecule(
                 self.source[:-3] + "xyz", build_topology=False
             )
             self.logger.debug("ok\n")
@@ -99,7 +99,7 @@ class TestPDBMolecule(ForceBalanceTestCase):
         self.molecule.write(self.source[:-3] + "gro")
         self.logger.debug("done\nTrying to read generated gro file... ")
         try:
-            molecule1 = forcebalance.molecule.Molecule(
+            molecule1 = openff.forcebalance.molecule.Molecule(
                 self.source[:-3] + "gro", build_topology=False
             )
             self.logger.debug("ok\n")
@@ -136,7 +136,7 @@ class TestPDBMolecule(ForceBalanceTestCase):
         self.molecule.write(self.source[:-3] + "arc")
         self.logger.debug("done\nTrying to read generated gro file... ")
         try:
-            molecule1 = forcebalance.molecule.Molecule(
+            molecule1 = openff.forcebalance.molecule.Molecule(
                 self.source[:-3] + "arc", build_topology=False
             )
             self.logger.debug("ok\n")
@@ -166,7 +166,9 @@ class TestPDBMolecule(ForceBalanceTestCase):
         """Check reading pdb with build_topology=True"""
         self.logger.debug("\nTrying to read molecule with topology... ")
         try:
-            molecule = forcebalance.molecule.Molecule(self.source, build_topology=True)
+            molecule = openff.forcebalance.molecule.Molecule(
+                self.source, build_topology=True
+            )
             self.logger.debug(
                 "\ndone\nChecking molecule has correct number of residues"
             )
@@ -188,7 +190,9 @@ class TestLipidGRO(ForceBalanceTestCase):
         super().setup_method(method)
         os.chdir("files")
         try:
-            self.molecule = forcebalance.molecule.Molecule(self.source, toppbc=True)
+            self.molecule = openff.forcebalance.molecule.Molecule(
+                self.source, toppbc=True
+            )
         except OSError:
             pytest.skip("Input pdb file test/files/%s doesn't exist" % self.source)
         except:
@@ -224,7 +228,9 @@ class TestWaterPDB(ForceBalanceTestCase):
         super().setup_method(method)
         os.chdir("files")
         try:
-            self.molecule = forcebalance.molecule.Molecule(self.source, toppbc=True)
+            self.molecule = openff.forcebalance.molecule.Molecule(
+                self.source, toppbc=True
+            )
         except OSError:
             pytest.skip("Input pdb file test/files/%s doesn't exist" % self.source)
         except:
@@ -248,7 +254,7 @@ class TestAlaGRO(ForceBalanceTestCase):
         super().setup_method(method)
         os.chdir("files")
         try:
-            self.molecule = forcebalance.molecule.Molecule(self.source)
+            self.molecule = openff.forcebalance.molecule.Molecule(self.source)
         except OSError:
             pytest.skip("Input gro file test/files/%s doesn't exist" % self.source)
         except:
@@ -272,7 +278,7 @@ class TestGalbPNPMol2(ForceBalanceTestCase):
         super().setup_method(method)
         os.chdir("files")
         try:
-            self.molecule = forcebalance.molecule.Molecule(self.source)
+            self.molecule = openff.forcebalance.molecule.Molecule(self.source)
         except OSError:
             pytest.skip("Input gro file test/files/%s doesn't exist" % self.source)
         except:

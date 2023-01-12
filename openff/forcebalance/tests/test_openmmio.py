@@ -51,13 +51,13 @@ class TestLiquid_OpenMM(TargetTests):
             }
         )
 
-        self.ff = forcebalance.forcefield.FF(self.options)
+        self.ff = openff.forcebalance.forcefield.FF(self.options)
 
         self.ffname = self.options["forcefield"][0][:-3]
         self.filetype = self.options["forcefield"][0][-3:]
         self.mvals = np.array([0.5] * self.ff.np)
 
-        self.target = forcebalance.openmmio.Liquid_OpenMM(
+        self.target = openff.forcebalance.openmmio.Liquid_OpenMM(
             self.options, self.tgt_opt, self.ff
         )
         self.target.stage(self.mvals, AGrad=True, use_iterdir=False)
@@ -85,13 +85,13 @@ class TestInteraction_OpenMM(TargetTests):
             }
         )
 
-        self.ff = forcebalance.forcefield.FF(self.options)
+        self.ff = openff.forcebalance.forcefield.FF(self.options)
 
         self.ffname = self.options["forcefield"][0][:-3]
         self.filetype = self.options["forcefield"][0][-3:]
         self.mvals = [0.5] * self.ff.np
 
-        self.target = forcebalance.openmmio.Interaction_OpenMM(
+        self.target = openff.forcebalance.openmmio.Interaction_OpenMM(
             self.options, self.tgt_opt, self.ff
         )
 

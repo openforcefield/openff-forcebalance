@@ -84,7 +84,7 @@ class CleanFileHandler(FileHandler):
 
 # set up package level logger that by default prints to sys.stdout
 setLoggerClass(ForceBalanceLogger)
-logger = getLogger("forcebalance")
+logger = getLogger("openff.forcebalance")
 logger.setLevel(INFO)
 
 

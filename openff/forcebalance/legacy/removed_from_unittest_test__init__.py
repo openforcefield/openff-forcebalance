@@ -68,7 +68,7 @@ class ForceBalanceTestResult(unittest.TestResult):
     def __init__(self):
         """Add logging capabilities to the standard TestResult implementation"""
         super().__init__()
-        self.logger = forcebalance.output.getLogger("forcebalance.test.results")
+        self.logger = openff.forcebalance.output.getLogger("forcebalance.test.results")
 
     def startTest(self, test):
         """Notify of test start by writing message to stderr, and also printing to stdout
