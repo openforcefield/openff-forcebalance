@@ -1,6 +1,6 @@
 import pytest
 
-import openff.forcebalance
+from openff.forcebalance import nifty
 from openff.forcebalance.nifty import *
 from openff.forcebalance.nifty import _exec
 
@@ -100,18 +100,18 @@ class TestNifty(ForceBalanceTestCase):
         # Work Queue will no longer be initialized to None
         self.logger.debug("\nChecking Work Queue is initialized to None...\n")
         assert (
-            forcebalance.nifty.WORK_QUEUE is None
+            nifty.WORK_QUEUE is None
         ), "Unexpected initialization of forcebalance.nifty.WORK_QUEUE " "to %s" % str(
-            forcebalance.nifty.WORK_QUEUE
+            nifty.WORK_QUEUE
         )
         self.logger.info("\n")
 
         createWorkQueue(9191, debug=False)
         self.logger.debug("Created work queue, verifying...\n")
-        assert type(forcebalance.nifty.WORK_QUEUE) is work_queue.WorkQueue, (
+        assert type(nifty.WORK_QUEUE) is work_queue.WorkQueue, (
             "Expected forcebalance.nifty.WORK_QUEUE to "
             "be a WorkQueue object, but got a %s "
-            "instead" % str(type(forcebalance.nifty.WORK_QUEUE))
+            "instead" % str(type(nifty.WORK_QUEUE))
         )
         self.logger.debug(
             "Checking that getWorkQueue() returns valid WorkQueue object...\n"

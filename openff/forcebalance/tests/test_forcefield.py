@@ -93,7 +93,7 @@ class TestWaterFF(ForceBalanceTestCase, FFTests):
         os.chdir(os.path.join(self.cwd, "files"))
         # options used in 001_water_tutorial
         self.logger.debug("\nSetting up options...\n")
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
         self.options.update(
             {
                 "root": os.getcwd(),
@@ -119,7 +119,7 @@ class TestXmlFF(ForceBalanceTestCase, FFTests):
         os.chdir(os.path.join(self.cwd, "files"))
         # options from 2013 tutorial
         self.logger.debug("Setting up options...\n")
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
         self.options.update(
             {
                 "root": os.getcwd(),
@@ -177,7 +177,7 @@ class TestGbsFF(ForceBalanceTestCase, FFTests):
         self.cwd = os.path.dirname(os.path.realpath(__file__))
         os.chdir(os.path.join(self.cwd, "files"))
         self.logger.debug("Setting up options...\n")
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
         self.options.update(
             {
                 "root": os.getcwd(),

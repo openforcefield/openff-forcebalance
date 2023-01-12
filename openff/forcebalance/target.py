@@ -10,7 +10,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from openff.forcebalance import BaseClass
+from openff.forcebalance import BaseClass, nifty
 from openff.forcebalance.finite_difference import (
     f1d2p,
     f12d3p,
@@ -636,8 +636,8 @@ class Target(abc.ABCMeta, BaseClass):
                     )
                     raise RuntimeError
                 # Add a handler for printing to screen and file
-                logger = getLogger("forcebalance")
-                hdlr = forcebalance.output.RawFileHandler("indicate.log")
+                logger = getLogger("openff.forcebalance")
+                hdlr = openff.forcebalance.output.RawFileHandler("indicate.log")
                 logger.addHandler(hdlr)
             # Execute the indicate function
             self.indicate()
@@ -700,7 +700,7 @@ class Target(abc.ABCMeta, BaseClass):
             ## Evaluate the objective function.
             Answer = self.get(mvals, AGrad, AHess)
             if self.write_objective:
-                forcebalance.nifty.lp_dump(Answer, "objective.p")
+                nifty.lp_dump(Answer, "objective.p")
 
         ## Save the force field files to this directory, so that it
         ## reflects the objective function and properties that were
@@ -902,11 +902,9 @@ class Target(abc.ABCMeta, BaseClass):
             # logger.info("Writing force field to: %s\n" % self.ffpd)
             self.FF.make(mvals)
             np.savetxt("mvals.txt", mvals)
-            forcebalance.nifty.lp_dump((self.FF, mvals), "forcefield.p")
+            nifty.lp_dump((self.FF, mvals), "forcefield.p")
         os.chdir(cwd)
-        forcebalance.nifty.LinkFile(
-            os.path.join(self.ffpd, "forcefield.p"), "forcefield.p"
-        )
+        nifty.LinkFile(os.path.join(self.ffpd, "forcefield.p"), "forcefield.p")
 
 
 class RemoteTarget(Target):
@@ -947,20 +945,20 @@ class RemoteTarget(Target):
         id_string = "%s_iter%04i" % (self.name, Counter())
 
         self.serialize_ff(mvals, outside="forcefield-remote")
-        forcebalance.nifty.lp_dump(
+        nifty.lp_dump(
             (AGrad, AHess, id_string, self.r_options, self.r_tgt_opts, self.pgrad),
             "options.p",
         )
 
         # Link in the rpfx script.
         if len(self.rpfx) > 0:
-            forcebalance.nifty.LinkFile(
+            nifty.LinkFile(
                 os.path.join(os.path.split(__file__)[0], "data", self.rpfx), self.rpfx
             )
-        forcebalance.nifty.LinkFile(
+        nifty.LinkFile(
             os.path.join(os.path.split(__file__)[0], "data", "rtarget.py"), "rtarget.py"
         )
-        forcebalance.nifty.LinkFile(
+        nifty.LinkFile(
             os.path.join(self.root, self.tempdir, "target.tar.bz2"), "target.tar.bz2"
         )
 
@@ -978,7 +976,7 @@ class RemoteTarget(Target):
         # if len(self.rpfx) > 0 and self.rpfx not in ['rungmx.sh', 'runcuda.sh']:
         #     logger.error('Unsupported prefix script for launching remote target')
         #     raise RuntimeError
-        forcebalance.nifty.queue_up(
+        nifty.queue_up(
             wq,
             "%spython rtarget.py > rtarget.out 2>&1"
             % (

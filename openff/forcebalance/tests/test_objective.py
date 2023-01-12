@@ -13,14 +13,14 @@ from .__init__ import ForceBalanceTestCase
 class TestImplemented(ForceBalanceTestCase):
     def test_implemented_targets_derived_from_target(self):
         """Check classes listed in Implemented_Targets are derived from Target"""
-        for key in forcebalance.objective.Implemented_Targets.keys():
+        for key in openff.forcebalance.objective.Implemented_Targets.keys():
             self.logger.debug(
                 "Assert %s is subclass of target\n"
-                % str(forcebalance.objective.Implemented_Targets[key])
+                % str(openff.forcebalance.objective.Implemented_Targets[key])
             )
             assert issubclass(
-                forcebalance.objective.Implemented_Targets[key],
-                forcebalance.target.Target,
+                openff.forcebalance.objective.Implemented_Targets[key],
+                openff.forcebalance.target.Target,
             )
 
     def test_no_unlisted_classes_derived_from_Target(self):
@@ -32,7 +32,7 @@ class TestImplemented(ForceBalanceTestCase):
         """
         forcebalance_modules = [
             module[:-3]
-            for module in os.listdir(forcebalance.__path__[0])
+            for module in os.listdir(openff.forcebalance.__path__[0])
             if re.compile(r".*\.py$").match(module) and module not in ["__init__.py"]
         ]
         for module in forcebalance_modules:
@@ -46,9 +46,12 @@ class TestImplemented(ForceBalanceTestCase):
             self.logger.debug(objs)
             for obj in objs:
                 obj = eval("m." + module + "." + obj)
-                if inspect.isclass(obj) and issubclass(obj, forcebalance.target.Target):
+                if inspect.isclass(obj) and issubclass(
+                    obj, openff.forcebalance.target.Target
+                ):
                     implemented = [
-                        i for i in forcebalance.objective.Implemented_Targets.values()
+                        i
+                        for i in openff.forcebalance.objective.Implemented_Targets.values()
                     ]
                     # list of documented exceptions
                     # Basically, platform-independent targets are excluded.
@@ -82,7 +85,7 @@ class TestPenalty(ForceBalanceTestCase):
         super().setup_method(method)
         self.cwd = os.path.dirname(os.path.realpath(__file__))
         os.chdir(os.path.join(self.cwd, "files"))
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
         self.options.update(
             {
                 "root": os.getcwd(),
@@ -93,12 +96,12 @@ class TestPenalty(ForceBalanceTestCase):
         )
         os.chdir(self.options["root"])
 
-        self.ff = forcebalance.forcefield.FF(self.options)
+        self.ff = openff.forcebalance.forcefield.FF(self.options)
         self.np = self.ff.np
 
         self.penalties = []
-        for ptype in forcebalance.objective.Penalty.Pen_Names.keys():
-            penalty = forcebalance.objective.Penalty(
+        for ptype in openff.forcebalance.objective.Penalty.Pen_Names.keys():
+            penalty = openff.forcebalance.objective.Penalty(
                 ptype,
                 self.ff,
                 self.options["penalty_additive"],
@@ -155,7 +158,7 @@ class TestWaterObjective(ForceBalanceTestCase, ObjectiveTests):
         super().setup_method(method)
         self.cwd = os.path.dirname(os.path.realpath(__file__))
         os.chdir(os.path.join(self.cwd, "files"))
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
         self.options.update(
             {
                 "root": os.getcwd(),
@@ -168,11 +171,11 @@ class TestWaterObjective(ForceBalanceTestCase, ObjectiveTests):
 
         self.logger.debug("\nUsing the following options:\n%s\n" % str(self.options))
 
-        self.tgt_opts = [forcebalance.parser.tgt_opts_defaults.copy()]
+        self.tgt_opts = [openff.forcebalance.parser.tgt_opts_defaults.copy()]
         self.tgt_opts[0].update({"type": "ABINITIO_GMX", "name": "cluster-06"})
-        self.ff = forcebalance.forcefield.FF(self.options)
+        self.ff = openff.forcebalance.forcefield.FF(self.options)
 
-        self.objective = forcebalance.objective.Objective(
+        self.objective = openff.forcebalance.objective.Objective(
             self.options, self.tgt_opts, self.ff
         )
 
@@ -182,7 +185,7 @@ class TestBromineObjective(ForceBalanceTestCase, ObjectiveTests):
         super().setup_method(method)
         self.cwd = os.path.dirname(os.path.realpath(__file__))
         os.chdir(os.path.join(self.cwd, "files"))
-        self.options = forcebalance.parser.gen_opts_defaults.copy()
+        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
         self.options.update(
             {
                 "root": os.getcwd(),
@@ -195,10 +198,10 @@ class TestBromineObjective(ForceBalanceTestCase, ObjectiveTests):
 
         self.logger.debug("\nUsing the following options:\n%s\n" % str(self.options))
 
-        self.tgt_opts = [forcebalance.parser.tgt_opts_defaults.copy()]
+        self.tgt_opts = [openff.forcebalance.parser.tgt_opts_defaults.copy()]
         self.tgt_opts[0].update({"type": "LIQUID_GMX", "name": "LiquidBromine"})
-        self.ff = forcebalance.forcefield.FF(self.options)
+        self.ff = openff.forcebalance.forcefield.FF(self.options)
 
-        self.objective = forcebalance.objective.Objective(
+        self.objective = openff.forcebalance.objective.Objective(
             self.options, self.tgt_opts, self.ff
         )

@@ -22,16 +22,18 @@ class TestOptimizer(ForceBalanceTestCase):
         targets.extractall()
         targets.close()
 
-        self.options, self.tgt_opts = forcebalance.parser.parse_inputs(self.input_file)
+        self.options, self.tgt_opts = openff.forcebalance.parser.parse_inputs(
+            self.input_file
+        )
 
         self.options.update({"writechk": "checkfile.tmp"})
 
-        self.forcefield = forcebalance.forcefield.FF(self.options)
-        self.objective = forcebalance.objective.Objective(
+        self.forcefield = openff.forcebalance.forcefield.FF(self.options)
+        self.objective = openff.forcebalance.objective.Objective(
             self.options, self.tgt_opts, self.forcefield
         )
         try:
-            self.optimizer = forcebalance.optimizer.Optimizer(
+            self.optimizer = openff.forcebalance.optimizer.Optimizer(
                 self.options, self.objective, self.forcefield
             )
         except:

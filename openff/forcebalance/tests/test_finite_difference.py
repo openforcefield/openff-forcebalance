@@ -39,7 +39,7 @@ class TestFiniteDifference(ForceBalanceTestCase):
         """Check fdwrap properly wraps function"""
         for func in self.functions:
             msg = "\nfdwrap alters function behavior"
-            f = forcebalance.finite_difference.fdwrap(func[0], [0] * 3, 0)
+            f = openff.forcebalance.finite_difference.fdwrap(func[0], [0] * 3, 0)
             self.logger.debug("Checking to make sure fdwrap returns a function\n")
             assert callable(
                 f
@@ -64,7 +64,7 @@ class TestFiniteDifference(ForceBalanceTestCase):
                 for x in range(10):
                     input = [0, 0, 0]
                     input[p] = x
-                    f = forcebalance.finite_difference.fdwrap(func[0], input, p)
+                    f = openff.forcebalance.finite_difference.fdwrap(func[0], input, p)
                     for stencil in fd_stencils:
                         fd = eval("forcebalance.finite_difference.%s" % stencil)
                         result = fd(f, 0.0001)

@@ -7,7 +7,7 @@ import openff.forcebalance.objective
 import openff.forcebalance.output
 from openff.forcebalance.nifty import wopen
 
-logger = forcebalance.output.getLogger("forcebalance")
+logger = openff.forcebalance.output.getLogger("openff.forcebalance")
 logger.setLevel(forcebalance.output.DEBUG)
 
 # load pickled variables from openff.forcebalance.p
@@ -21,12 +21,17 @@ if os.path.exists("forcebalance.p"):
         tgt_opts,
         forcefield,
         pgrad,
-    ) = forcebalance.nifty.lp_load("forcebalance.p")
+    ) = openff.forcebalance.nifty.lp_load("forcebalance.p")
 else:
-    forcefield, mvals = forcebalance.nifty.lp_load("forcefield.p")
-    AGrad, AHess, id_string, options, tgt_opts, pgrad = forcebalance.nifty.lp_load(
-        "options.p"
-    )
+    forcefield, mvals = openff.forcebalance.nifty.lp_load("forcefield.p")
+    (
+        AGrad,
+        AHess,
+        id_string,
+        options,
+        tgt_opts,
+        pgrad,
+    ) = openff.forcebalance.nifty.lp_load("options.p")
 
 print("Evaluating remote target ID: %s" % id_string)
 
@@ -41,7 +46,7 @@ tar = tarfile.open("target.tar.bz2", "r")
 tar.extractall()
 tar.close()
 
-Tgt = forcebalance.objective.Implemented_Targets[tgt_opts["type"]](
+Tgt = openff.forcebalance.objective.Implemented_Targets[tgt_opts["type"]](
     options, tgt_opts, forcefield
 )
 Tgt.read_objective = False
@@ -70,7 +75,7 @@ forcebalance.nifty.lp_dump(
 )  # or some other method of storing resulting objective
 
 # also run target.indicate()
-logger = forcebalance.output.getLogger("forcebalance")
+logger = openff.forcebalance.output.getLogger("openff.forcebalance")
 logger.addHandler(forcebalance.output.RawFileHandler("indicate.log"))
 Tgt.indicate()
 print("\n")

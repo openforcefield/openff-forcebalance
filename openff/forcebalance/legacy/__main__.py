@@ -99,18 +99,18 @@ def runHeadless(options):
 
     if not os.path.exists("/tmp/forcebalance"):
         os.mkdir("/tmp/forcebalance")
-    warningHandler = forcebalance.output.CleanFileHandler(
+    warningHandler = openff.forcebalance.output.CleanFileHandler(
         "/tmp/forcebalance/test.err", "w"
     )
     warningHandler.setLevel(forcebalance.output.WARNING)
     logfile = "/tmp/forcebalance/%s.log" % time.strftime("%m%d%y_%H%M%S")
-    debugHandler = forcebalance.output.CleanFileHandler(logfile, "w")
+    debugHandler = openff.forcebalance.output.CleanFileHandler(logfile, "w")
     debugHandler.setLevel(forcebalance.output.DEBUG)
 
-    forcebalance.output.getLogger("forcebalance.test").addHandler(warningHandler)
-    forcebalance.output.getLogger("forcebalance.test").addHandler(debugHandler)
+    forcebalance.output.getLogger("openff.forcebalance.test").addHandler(warningHandler)
+    forcebalance.output.getLogger("openff.forcebalance.test").addHandler(debugHandler)
 
-    options["loglevel"] = forcebalance.output.DEBUG
+    options["loglevel"] = openff.forcebalance.output.DEBUG
 
     runner = ForceBalanceTestRunner()
     results = runner.run(**options)
@@ -190,11 +190,11 @@ def runHeadless(options):
 
 def run(options):
     if options["no_color"]:
-        forcebalance.output.getLogger("forcebalance.test").addHandler(
+        forcebalance.output.getLogger("openff.forcebalance.test").addHandler(
             forcebalance.output.CleanStreamHandler(sys.stderr)
         )
     else:
-        forcebalance.output.getLogger("forcebalance.test").addHandler(
+        forcebalance.output.getLogger("openff.forcebalance.test").addHandler(
             forcebalance.output.RawStreamHandler(sys.stderr)
         )
     runner = ForceBalanceTestRunner()
