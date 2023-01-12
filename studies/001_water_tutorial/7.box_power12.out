@@ -8,18 +8,18 @@
 #| [1m           Arthur Vigil, Erik G. Brandt, Johnny Israeli           [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -38,19 +38,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: 7.box_power12.in
 #========================================================#
@@ -103,45 +103,45 @@ Parameter 7 occurs 1 times in molecule SOL in locations [3] (COUL:SOL-4)
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['water.itp'] 
-priors                    OrderedDict([('BONDSB', 0.01), ('BONDSK', 100.0), ('ANGLESB', 10.0), ('ANGLESK', 100.0), ('VDWS', 0.01), ('VDWT', 0.1), ('COUL', 0.1), ('VSITE3A', 0.01), ('VSITE3B', 0.01)]) 
+fnms                      ['water.itp']
+priors                    OrderedDict([('BONDSB', 0.01), ('BONDSK', 100.0), ('ANGLESB', 10.0), ('ANGLESK', 100.0), ('VDWS', 0.01), ('VDWT', 0.1), ('COUL', 0.1), ('VSITE3A', 0.01), ('VSITE3B', 0.01)])
 ----------------------------------------------------------
 The 'gmxpath' option was not specified; using default.
 Fitting the forces on all atoms
 #========================================================#
 #| [92m           Setup for target cluster-06 :            [0m |#
 #========================================================#
-name                      cluster-06 
-type                      ABINITIO_GMX 
-backup                    False 
-tgtdir                    targets/cluster-06 
-shots                     1208 
+name                      cluster-06
+type                      ABINITIO_GMX
+backup                    False
+tgtdir                    targets/cluster-06
+shots                     1208
 ----------------------------------------------------------
 Fitting the forces on all atoms
 #========================================================#
 #| [92m           Setup for target cluster-12 :            [0m |#
 #========================================================#
-name                      cluster-12 
-type                      ABINITIO_GMX 
-backup                    False 
-tgtdir                    targets/cluster-12 
-shots                     1201 
+name                      cluster-12
+type                      ABINITIO_GMX
+backup                    False
+tgtdir                    targets/cluster-12
+shots                     1201
 ----------------------------------------------------------
 Using box-style regularization with exponent 12.0, strength 1.0e-03 (+), 0.0e+00 (x)
 #========================================================#
 #| [92m           Setup for objective function :           [0m |#
 #========================================================#
-penalty_type              box 
-penalty_additive          0.001 
-penalty_power             12.0 
+penalty_type              box
+penalty_additive          0.001
+penalty_power             12.0
 ----------------------------------------------------------
 #========================================================#
 #| [92m                Setup for optimizer                 [0m |#
 #========================================================#
-jobtype                   NEWTON 
-trust0                    -1.0 
-backup                    False 
-input_file                7.box_power12.in 
+jobtype                   NEWTON
+trust0                    -1.0
+backup                    False
+input_file                7.box_power12.in
 ----------------------------------------------------------
 #========================================================#
 #| [1m                  Main Optimizer                    [0m |#
@@ -169,8 +169,8 @@ input_file                7.box_power12.in
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)           9.4124       27.3135     34.4605%     0.1188    1.000     0.1188 
-    Gradient (kJ/mol/A)      46.4302      139.5348     33.2750%     0.1107    1.000     0.1107 
+    Energy (kJ/mol)           9.4124       27.3135     34.4605%     0.1188    1.000     0.1188
+    Gradient (kJ/mol/A)      46.4302      139.5348     33.2750%     0.1107    1.000     0.1107
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 5 (H), frame 1207,  27.6656 kJ/mol/A
 
@@ -179,18 +179,18 @@ Maximum force difference on atom 5 (H), frame 1207,  27.6656 kJ/mol/A
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          15.2291       47.3455     32.1658%     0.1035    1.000     0.1035 
-    Gradient (kJ/mol/A)      45.7106      138.1028     33.0989%     0.1096    1.000     0.1096 
+    Energy (kJ/mol)          15.2291       47.3455     32.1658%     0.1035    1.000     0.1035
+    Gradient (kJ/mol/A)      45.7106      138.1028     33.0989%     0.1096    1.000     0.1096
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 19 (M), frame 1200,  46.3943 kJ/mol/A
 #====================================================================#
 #| [94m                  Objective Function Breakdown                  [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution [0m |#
 #====================================================================#
-cluster-06                     0.22948      0.500 [94m     1.14738e-01[0m 
-cluster-12                     0.21302      0.500 [94m     1.06509e-01[0m 
-Regularization                 0.00000      1.000 [94m     0.00000e+00[0m 
-Total                                             [94m     2.21247e-01[0m 
+cluster-06                     0.22948      0.500 [94m     1.14738e-01[0m
+cluster-12                     0.21302      0.500 [94m     1.06509e-01[0m
+Regularization                 0.00000      1.000 [94m     0.00000e+00[0m
+Total                                             [94m     2.21247e-01[0m
 ----------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual
@@ -212,7 +212,7 @@ Total                                             [94m     2.21247e-01[0m
 Calculating nonlinear optimization step
 Hessian has a small or negative eigenvalue (9.1e-08), mixing in some steepest descent (1.0e-04) to correct this.
 Eigenvalues are:
- 3.6e+01  2.9e+00  1.9e+00  1.2e-01  3.0e-02  1.2e-02  4.6e-04  1.2e-04  9.1e-08 
+ 3.6e+01  2.9e+00  1.9e+00  1.2e-01  3.0e-02  1.2e-02  4.6e-04  1.2e-04  9.1e-08
 Finding trust radius: H+0.0000*I, length 3.8793e+00 (target 1.0000e+00)
 Finding trust radius: H+9.0000*I, length 3.2581e-02 (target 1.0000e+00)
 Finding trust radius: H+61.6869*I, length 1.1943e-02 (target 1.0000e+00)
@@ -293,8 +293,8 @@ Input file with saved parameters: 7.box_power12.sav
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)           8.0533       27.3135     29.4846%     0.0869    1.000     0.0869 
-    Gradient (kJ/mol/A)      35.2260      139.5348     25.2453%     0.0637    1.000     0.0637 
+    Energy (kJ/mol)           8.0533       27.3135     29.4846%     0.0869    1.000     0.0869
+    Gradient (kJ/mol/A)      35.2260      139.5348     25.2453%     0.0637    1.000     0.0637
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 6 (H), frame 1207,  26.8906 kJ/mol/A
 
@@ -303,18 +303,18 @@ Maximum force difference on atom 6 (H), frame 1207,  26.8906 kJ/mol/A
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          13.1978       47.3455     27.8755%     0.0777    1.000     0.0777 
-    Gradient (kJ/mol/A)      35.6245      138.1028     25.7956%     0.0665    1.000     0.0665 
+    Energy (kJ/mol)          13.1978       47.3455     27.8755%     0.0777    1.000     0.0777
+    Gradient (kJ/mol/A)      35.6245      138.1028     25.7956%     0.0665    1.000     0.0665
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 18 (H), frame 1200,  38.2913 kJ/mol/A
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-cluster-06                     0.15067      0.500 [92m     7.53333e-02[0m ( -3.940e-02 ) 
-cluster-12                     0.14425      0.500 [92m     7.21230e-02[0m ( -3.439e-02 ) 
-Regularization                 0.00171      1.000 [91m     1.71365e-03[0m ( +1.714e-03 ) 
-Total                                             [92m     1.49170e-01[0m ( -7.208e-02 ) 
+cluster-06                     0.15067      0.500 [92m     7.53333e-02[0m ( -3.940e-02 )
+cluster-12                     0.14425      0.500 [92m     7.21230e-02[0m ( -3.439e-02 )
+Regularization                 0.00171      1.000 [91m     1.71365e-03[0m ( +1.714e-03 )
+Total                                             [92m     1.49170e-01[0m ( -7.208e-02 )
 -------------------------------------------------------------------------------------
 #=============================================================================#
 #|  The force field has been written to the result/7.box_power12 directory.  |#
@@ -340,7 +340,7 @@ Total                                             [92m     1.49170e-01[0m ( -7
 Calculating nonlinear optimization step
 Hessian has a small or negative eigenvalue (8.9e-08), mixing in some steepest descent (1.0e-04) to correct this.
 Eigenvalues are:
- 3.6e+01  2.1e+00  1.8e+00  2.2e-01  1.5e-01  3.4e-02  4.1e-04  1.4e-04  8.9e-08 
+ 3.6e+01  2.1e+00  1.8e+00  2.2e-01  1.5e-01  3.4e-02  4.1e-04  1.4e-04  8.9e-08
 Finding trust radius: H+0.0000*I, length 2.5189e+00 (target 1.1667e+00)
 Finding trust radius: H+9.0000*I, length 2.5427e-03 (target 1.1667e+00)
 Finding trust radius: H+61.6869*I, length 6.2053e-04 (target 1.1667e+00)
@@ -425,8 +425,8 @@ Input file with saved parameters: 7.box_power12.sav
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)           7.9839       27.3135     29.2307%     0.0854    1.000     0.0854 
-    Gradient (kJ/mol/A)      35.2823      139.5348     25.2857%     0.0639    1.000     0.0639 
+    Energy (kJ/mol)           7.9839       27.3135     29.2307%     0.0854    1.000     0.0854
+    Gradient (kJ/mol/A)      35.2823      139.5348     25.2857%     0.0639    1.000     0.0639
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 6 (H), frame 1207,  25.0544 kJ/mol/A
 
@@ -435,18 +435,18 @@ Maximum force difference on atom 6 (H), frame 1207,  25.0544 kJ/mol/A
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          13.1392       47.3455     27.7516%     0.0770    1.000     0.0770 
-    Gradient (kJ/mol/A)      35.5977      138.1028     25.7762%     0.0664    1.000     0.0664 
+    Energy (kJ/mol)          13.1392       47.3455     27.7516%     0.0770    1.000     0.0770
+    Gradient (kJ/mol/A)      35.5977      138.1028     25.7762%     0.0664    1.000     0.0664
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 18 (H), frame 1200,  35.9489 kJ/mol/A
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-cluster-06                     0.14938      0.500 [92m     7.46898e-02[0m ( -6.436e-04 ) 
-cluster-12                     0.14346      0.500 [92m     7.17283e-02[0m ( -3.946e-04 ) 
-Regularization                 0.00174      1.000 [91m     1.74240e-03[0m ( +2.875e-05 ) 
-Total                                             [92m     1.48160e-01[0m ( -1.009e-03 ) 
+cluster-06                     0.14938      0.500 [92m     7.46898e-02[0m ( -6.436e-04 )
+cluster-12                     0.14346      0.500 [92m     7.17283e-02[0m ( -3.946e-04 )
+Regularization                 0.00174      1.000 [91m     1.74240e-03[0m ( +2.875e-05 )
+Total                                             [92m     1.48160e-01[0m ( -1.009e-03 )
 -------------------------------------------------------------------------------------
 #=============================================================================#
 #|  The force field has been written to the result/7.box_power12 directory.  |#
@@ -472,7 +472,7 @@ Total                                             [92m     1.48160e-01[0m ( -1
 Calculating nonlinear optimization step
 Hessian has a small or negative eigenvalue (8.8e-08), mixing in some steepest descent (1.0e-04) to correct this.
 Eigenvalues are:
- 3.6e+01  2.1e+00  1.8e+00  2.1e-01  1.5e-01  3.4e-02  1.4e-02  1.4e-04  8.8e-08 
+ 3.6e+01  2.1e+00  1.8e+00  2.1e-01  1.5e-01  3.4e-02  1.4e-02  1.4e-04  8.8e-08
 Starting Hessian diagonal search with step size 5.1784e-01
 Hessian diagonal search: H+0.0000*I, length 5.1784e-01, result -3.8058e-05
 Hessian diagonal search: H+9.0000*I, length 5.9145e-05, result  6.4966e-08
@@ -527,8 +527,8 @@ Input file with saved parameters: 7.box_power12.sav
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)           7.9801       27.3135     29.2168%     0.0854    1.000     0.0854 
-    Gradient (kJ/mol/A)      35.3095      139.5348     25.3052%     0.0640    1.000     0.0640 
+    Energy (kJ/mol)           7.9801       27.3135     29.2168%     0.0854    1.000     0.0854
+    Gradient (kJ/mol/A)      35.3095      139.5348     25.3052%     0.0640    1.000     0.0640
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 6 (H), frame 1207,  25.1903 kJ/mol/A
 
@@ -537,18 +537,18 @@ Maximum force difference on atom 6 (H), frame 1207,  25.1903 kJ/mol/A
 #|                        Difference   Denominator     Percent                                  |#
 #|  Observable            (Calc-Ref)     RMS (Ref)   Difference       Term   x Wt =   Contrib.  |#
 #================================================================================================#
-    Energy (kJ/mol)          13.1215       47.3455     27.7143%     0.0768    1.000     0.0768 
-    Gradient (kJ/mol/A)      35.6293      138.1028     25.7991%     0.0666    1.000     0.0666 
+    Energy (kJ/mol)          13.1215       47.3455     27.7143%     0.0768    1.000     0.0768
+    Gradient (kJ/mol/A)      35.6293      138.1028     25.7991%     0.0666    1.000     0.0666
 --------------------------------------------------------------------------------------------------
 Maximum force difference on atom 18 (H), frame 1200,  36.1660 kJ/mol/A
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-cluster-06                     0.14940      0.500 [91m     7.46988e-02[0m ( +8.997e-06 ) 
-cluster-12                     0.14337      0.500 [92m     7.16839e-02[0m ( -4.446e-05 ) 
-Regularization                 0.00174      1.000 [92m     1.73980e-03[0m ( -2.596e-06 ) 
-Total                                             [92m     1.48122e-01[0m ( -3.806e-05 ) 
+cluster-06                     0.14940      0.500 [91m     7.46988e-02[0m ( +8.997e-06 )
+cluster-12                     0.14337      0.500 [92m     7.16839e-02[0m ( -4.446e-05 )
+Regularization                 0.00174      1.000 [92m     1.73980e-03[0m ( -2.596e-06 )
+Total                                             [92m     1.48122e-01[0m ( -3.806e-05 )
 -------------------------------------------------------------------------------------
 #=============================================================================#
 #|  The force field has been written to the result/7.box_power12 directory.  |#

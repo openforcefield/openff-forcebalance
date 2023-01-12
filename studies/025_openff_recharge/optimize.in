@@ -51,7 +51,7 @@ constrain_charge false
 
 priors
    ChargeIncrementModel/ChargeIncrement/charge_increment1 : 1.0
-/priors      
+/priors
 
 $end
 

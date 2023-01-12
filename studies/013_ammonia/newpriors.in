@@ -95,9 +95,9 @@ gas_timestep 1.0
 gas_interval 0.2
 
 # Parameters for self-polarization correction
-# 1) R. D. Nelson Jr., D. R. Lide, A. A. Maryott "Selected Values of electric dipole moments 
+# 1) R. D. Nelson Jr., D. R. Lide, A. A. Maryott "Selected Values of electric dipole moments
 # for molecules in the gas phase" NSRDS-NBS10, 1967
-# 2) TN Olney, NM Cann, G Cooper, CE Brion, Absolute scale determination for photoabsorption spectra 
+# 2) TN Olney, NM Cann, G Cooper, CE Brion, Absolute scale determination for photoabsorption spectra
 # and the calculation of molecular properties using dipole sum-rules, Chem. Phys. 223 (1997) 59-98
 self_pol_mu0 1.470
 self_pol_alpha 2.103

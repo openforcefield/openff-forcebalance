@@ -27,4 +27,3 @@
   <Atom type="tip4pew-M" charge="-1.04844" sigma="1" epsilon="0" parameter_eval="charge=-2.0*PARM['Atom/charge/tip4pew-H']"/>
  </NonbondedForce>
 </ForceField>
-

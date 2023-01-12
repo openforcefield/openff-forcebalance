@@ -22,61 +22,60 @@ $end
 
 $target
 type abinitio_gmx
-name cluster-03     
+name cluster-03
 $end
 
 $target
 type abinitio_gmx
-name cluster-04     
+name cluster-04
 $end
 
 $target
 type abinitio_gmx
-name cluster-05     
+name cluster-05
 $end
 
 $target
 type abinitio_gmx
-name cluster-06     
+name cluster-06
 $end
 
 $target
 type abinitio_gmx
-name cluster-07     
+name cluster-07
 $end
 
 $target
 type abinitio_gmx
-name cluster-08     
+name cluster-08
 $end
 
 $target
 type abinitio_gmx
-name cluster-09     
+name cluster-09
 $end
 
 $target
 type abinitio_gmx
-name cluster-10     
+name cluster-10
 $end
 
 $target
 type abinitio_gmx
-name cluster-11     
+name cluster-11
 $end
 
 $target
 type abinitio_gmx
-name cluster-12     
+name cluster-12
 $end
 
 $target
 type abinitio_gmx
-name cluster-13     
+name cluster-13
 $end
 
 $target
 type abinitio_gmx
-name cluster-14     
+name cluster-14
 $end
-

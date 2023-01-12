@@ -28,4 +28,3 @@ set xyzname [lindex $argv 0]
 mol new $xyzname type xyz waitfor all
 mol modstyle 0 0 Licorice 0.100000 30.000000 30.000000
 draw_esp $xyzname
-

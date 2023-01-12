@@ -6,7 +6,7 @@
 # Note: If the specified value is 'None' then the option will truly be set to None - not the string 'None'
 # Note: Section option types are more complicated and may require you to read the documentation
 # Note: Boolean option types require no value, the key being present implies 'True'
-# Note: List option types are specified using spaces as the delimiter - i.e. forcefield ff1.itp ff2.itp ; delete empty brackets before use [] 
+# Note: List option types are specified using spaces as the delimiter - i.e. forcefield ff1.itp ff2.itp ; delete empty brackets before use []
 
 $options
 

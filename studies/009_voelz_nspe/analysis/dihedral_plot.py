@@ -1,43 +1,51 @@
-from __future__ import print_function
-import os, sys, glob, string
-import numpy as np
+import glob
+import os
+import string
+import sys
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def Vdih_type9(dihangle, phi=0, k=1.0, n=0):
     """Returns the dihedral potential V(dihangle) = k*(1+cos(n*dihangle + phi)),
     where dihangle is in degrees."""
 
-    return k*(1.+np.cos(n*deg2rad(dihangle) + deg2rad(phi)))
+    return k * (1.0 + np.cos(n * deg2rad(dihangle) + deg2rad(phi)))
+
 
 def Vdih_type4(dihangle, phi=0, k=1.0, n=0):
     """Returns the dihedral potential V(dihangle) = k*(1+cos(n*dihangle + phi)),
     where dihangle is in degrees."""
 
-    return k*(1.+np.cos(n*deg2rad(dihangle) + deg2rad(phi)))
+    return k * (1.0 + np.cos(n * deg2rad(dihangle) + deg2rad(phi)))
+
 
 def deg2rad(angle):
-    return np.pi*angle/180.
+    return np.pi * angle / 180.0
+
 
 def parse_dihedraltypes(text):
 
     parms = {}
 
-    lines = text.split('\n')
+    lines = text.split("\n")
     for line in lines:
         fields = line.split()
         if len(fields) > 7:
-            key = string.joinfields(fields[0:4],' ')
-            dihtype  = int(fields[4])
+            key = string.joinfields(fields[0:4], " ")
+            dihtype = int(fields[4])
             phi, k, n = float(fields[5]), float(fields[6]), float(fields[7])
             if key not in parms:
                 parms[key] = []
-            parms[key].append( (dihtype, phi, k, n) )
-     
+            parms[key].append((dihtype, phi, k, n))
+
     return parms
 
+
 dihedraltypes = """[ dihedraltypes ]
-   hc   c3    c    n    9      180.00     0.00000           2 
-   hc   c3   c3    n    9        0.00     0.65084           3 
+   hc   c3    c    n    9      180.00     0.00000           2
+   hc   c3   c3    n    9        0.00     0.65084           3
    ca   ca   c3    n    9        0.00     0.00000           0 ; PARM 6
    ca   ca   c3    n    9        0.00     0.00000           1 ; PARM 6
    ca   ca   c3    n    9        0.00     0.00000           2 ; PARM 6
@@ -72,17 +80,16 @@ dihedraltypes = """[ dihedraltypes ]
     c   c3    n   c3    4      180.00     4.60240           2"""
 
 
-
-dihangles = np.arange(-270,270)
+dihangles = np.arange(-270, 270)
 parms = parse_dihedraltypes(dihedraltypes)
 
-print('number of dihedral types:', len(list(parms.keys())))
+print("number of dihedral types:", len(list(parms.keys())))
 
 plt.figure()
 panel = 1
 for key in list(parms.keys()):
 
-    potential = np.zeros( dihangles.shape )
+    potential = np.zeros(dihangles.shape)
 
     for parm in parms[key]:
         dihtype, phi, k, n = parm[0], parm[1], parm[2], parm[3]
@@ -91,15 +98,14 @@ for key in list(parms.keys()):
         else:
             potential += Vdih_type4(dihangles, phi, k, n)
 
-
-    plt.subplot(4,6,panel)
+    plt.subplot(4, 6, panel)
     plt.plot(dihangles, potential)
     if dihtype == 4:
-        plt.title(key+'*improper*')
+        plt.title(key + "*improper*")
     else:
         plt.title(key)
-    plt.xlabel('dihedral angle (degrees)')
-    plt.ylabel('V_dih (kJ/mol)')
+    plt.xlabel("dihedral angle (degrees)")
+    plt.ylabel("V_dih (kJ/mol)")
 
     panel += 1
 

@@ -92,28 +92,36 @@ we need more modules!
 @date 04/2012
 
 """
-from __future__ import division
 
-from builtins import zip
-from builtins import str
-from builtins import range
+import itertools
 import os
 import sys
-import numpy as np
-import networkx as nx
-from numpy import sin, cos, tan, sinh, cosh, tanh, exp, log, sqrt, pi
-from re import match, sub, split
-import forcebalance
-from forcebalance import gmxio, qchemio, tinkerio, custom_io, openmmio, amberio, psi4io, smirnoffio
-from forcebalance.finite_difference import in_fd
-from forcebalance.smirnoffio import assign_openff_parameter
-from forcebalance.nifty import *
+import traceback
+from collections import OrderedDict, defaultdict
+
 # from string import count
 from copy import deepcopy
-import traceback
-import itertools
-from collections import OrderedDict, defaultdict
-from forcebalance.output import getLogger
+from re import match, split
+
+import networkx as nx
+import numpy as np
+from numpy import cos, cosh, exp, log, pi, sin, sinh, sqrt, tan, tanh
+
+from openff.forcebalance import (
+    BaseClass,
+    amberio,
+    custom_io,
+    gmxio,
+    openmmio,
+    psi4io,
+    qchemio,
+    smirnoffio,
+)
+from openff.forcebalance.finite_difference import in_fd
+from openff.forcebalance.nifty import *
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.smirnoffio import assign_openff_parameter
+
 logger = getLogger(__name__)
 
 try:
@@ -121,78 +129,109 @@ try:
 except:
     logger.warning("Failed to import lxml module, needed by OpenMM engine")
 
-FF_Extensions = {"itp" : "gmx",
-                 "top" : "gmx",
-                 "in"  : "qchem",
-                 "prm" : "tinker",
-                 "gen" : "custom",
-                 "xml" : "openmm",
-                 "offxml" : "smirnoff",
-                 "frcmod" : "frcmod",
-                 "mol2" : "mol2",
-                 "gbs"  : "gbs",
-                 "grid" : "grid"
-                 }
+FF_Extensions = {
+    "itp": "gmx",
+    "top": "gmx",
+    "in": "qchem",
+    "prm": "tinker",
+    "gen": "custom",
+    "xml": "openmm",
+    "offxml": "smirnoff",
+    "frcmod": "frcmod",
+    "mol2": "mol2",
+    "gbs": "gbs",
+    "grid": "grid",
+}
 
 """ Recognized force field formats. """
-FF_IOModules = {"gmx": gmxio.ITP_Reader ,
-                "qchem": qchemio.QCIn_Reader ,
-                "custom": custom_io.Gen_Reader ,
-                "openmm" : openmmio.OpenMM_Reader,
-                "smirnoff" : smirnoffio.SMIRNOFF_Reader,
-                "frcmod" : amberio.FrcMod_Reader,
-                "mol2" : amberio.Mol2_Reader,
-                "gbs" : psi4io.GBS_Reader,
-                "grid" : psi4io.Grid_Reader
-                }
+FF_IOModules = {
+    "gmx": gmxio.ITP_Reader,
+    "qchem": qchemio.QCIn_Reader,
+    "custom": custom_io.Gen_Reader,
+    "openmm": openmmio.OpenMM_Reader,
+    "smirnoff": smirnoffio.SMIRNOFF_Reader,
+    "frcmod": amberio.FrcMod_Reader,
+    "mol2": amberio.Mol2_Reader,
+    "gbs": psi4io.GBS_Reader,
+    "grid": psi4io.Grid_Reader,
+}
 
-def determine_fftype(ffname,verbose=False):
-    """ Determine the type of a force field file.  It is possible to
+
+def determine_fftype(ffname, verbose=False):
+    """Determine the type of a force field file.  It is possible to
     specify the file type explicitly in the input file using the
     syntax 'force_field.ext:type'.  Otherwise this function will try
-    to determine the force field type by extension. """
+    to determine the force field type by extension."""
 
-    fsplit = ffname.split('/')[-1].split(':')
+    fsplit = ffname.split("/")[-1].split(":")
     fftype = None
-    if verbose: logger.info("Determining file type of %s ..." % fsplit[0])
+    if verbose:
+        logger.info("Determining file type of %s ..." % fsplit[0])
     if len(fsplit) == 2:
         if fsplit[1] in FF_IOModules:
-            if verbose: logger.info("We're golden! (%s)\n" % fsplit[1])
+            if verbose:
+                logger.info("We're golden! (%s)\n" % fsplit[1])
             fftype = fsplit[1]
         else:
-            if verbose: logger.info("\x1b[91m Warning: \x1b[0m %s not in supported types (%s)!\n" % (fsplit[1],', '.join(FF_IOModules.keys())))
+            if verbose:
+                logger.info(
+                    "\x1b[91m Warning: \x1b[0m {} not in supported types ({})!\n".format(
+                        fsplit[1], ", ".join(FF_IOModules.keys())
+                    )
+                )
     elif len(fsplit) == 1:
-        if verbose: logger.info("Guessing from extension (you may specify type with filename:type) ...")
+        if verbose:
+            logger.info(
+                "Guessing from extension (you may specify type with filename:type) ..."
+            )
         ffname = fsplit[0]
-        ffext = ffname.split('.')[-1]
+        ffext = ffname.split(".")[-1]
         if ffext in FF_Extensions:
             guesstype = FF_Extensions[ffext]
             if guesstype in FF_IOModules:
-                if verbose: logger.info("guessing %s -> %s!\n" % (ffext, guesstype))
+                if verbose:
+                    logger.info(f"guessing {ffext} -> {guesstype}!\n")
                 fftype = guesstype
             else:
-                if verbose: logger.info("\x1b[91m Warning: \x1b[0m %s not in supported types (%s)!\n" % (fsplit[0],', '.join(FF_IOModules.keys())))
+                if verbose:
+                    logger.info(
+                        "\x1b[91m Warning: \x1b[0m {} not in supported types ({})!\n".format(
+                            fsplit[0], ", ".join(FF_IOModules.keys())
+                        )
+                    )
         else:
-            if verbose: logger.info("\x1b[91m Warning: \x1b[0m %s not in supported extensions (%s)!\n" % (ffext,', '.join(FF_Extensions.keys())))
+            if verbose:
+                logger.info(
+                    "\x1b[91m Warning: \x1b[0m {} not in supported extensions ({})!\n".format(
+                        ffext, ", ".join(FF_Extensions.keys())
+                    )
+                )
     if fftype is None:
-        if verbose: logger.warning("Force field type not determined!\n")
-        #sys.exit(1)
+        if verbose:
+            logger.warning("Force field type not determined!\n")
+        # sys.exit(1)
     return fftype
+
 
 # Thanks to tos9 from #python on freenode. :)
 class BackedUpDict(dict):
     def __init__(self, backup_dict):
-        super(BackedUpDict, self).__init__()
+        super().__init__()
         self.backup_dict = backup_dict
+
     def __missing__(self, key):
         try:
-            return self.backup_dict[self['AtomType']][key]
+            return self.backup_dict[self["AtomType"]][key]
         except:
-            logger.error('The key %s does not exist as an atom attribute or as an atom type attribute!\n' % key)
+            logger.error(
+                "The key %s does not exist as an atom attribute or as an atom type attribute!\n"
+                % key
+            )
             raise KeyError
 
-class FF(forcebalance.BaseClass):
-    """ Force field class.
+
+class FF(BaseClass):
+    """Force field class.
 
     This class contains all methods for force field manipulation.
     To create an instance of this class, an input file is required
@@ -202,6 +241,7 @@ class FF(forcebalance.BaseClass):
     For details on force field parsing, see the detailed documentation for addff.
 
     """
+
     def __init__(self, options, verbose=True, printopt=True):
 
         """Instantiation of force field class.
@@ -210,76 +250,76 @@ class FF(forcebalance.BaseClass):
         methods like addff, rsmake, and mktransmat.
 
         """
-        super(FF, self).__init__(options)
-        #======================================#
+        super().__init__(options)
+        # ======================================#
         # Options that are given by the parser #
-        #======================================#
+        # ======================================#
         ## As these options proliferate, the force field class becomes less standalone.
         ## I need to think of a good solution here...
         ## The root directory of the project
-        self.set_option(None, None, 'root', os.getcwd())
+        self.set_option(None, None, "root", os.getcwd())
         ## File names of force fields
-        self.set_option(options,'forcefield','fnms')
+        self.set_option(options, "forcefield", "fnms")
         ## Directory containing force fields, relative to project directory
-        self.set_option(options,'ffdir')
+        self.set_option(options, "ffdir")
         ## Priors given by the user :)
-        self.set_option(options,'priors')
+        self.set_option(options, "priors")
         ## Whether to constrain the charges.
-        self.set_option(options,'constrain_charge')
+        self.set_option(options, "constrain_charge")
         ## Whether to constrain the charges.
-        self.set_option(options,'logarithmic_map')
+        self.set_option(options, "logarithmic_map")
         ## Switch for AMOEBA direct or mutual.
-        self.set_option(options, 'amoeba_pol')
+        self.set_option(options, "amoeba_pol")
         ## AMOEBA mutual dipole convergence tolerance.
-        self.set_option(options, 'amoeba_eps')
+        self.set_option(options, "amoeba_eps")
         ## Switch for rigid water molecules
-        self.set_option(options, 'rigid_water')
+        self.set_option(options, "rigid_water")
         ## Switch for constraining bonds involving hydrogen
-        self.set_option(options, 'constrain_h')
+        self.set_option(options, "constrain_h")
         ## Bypass the transformation and use physical parameters directly
-        self.set_option(options, 'use_pvals')
+        self.set_option(options, "use_pvals")
         ## Allow duplicate parameter names (internally construct unique names)
-        self.set_option(options, 'duplicate_pnames')
+        self.set_option(options, "duplicate_pnames")
 
-        #======================================#
+        # ======================================#
         #     Variables which are set here     #
-        #======================================#
+        # ======================================#
         # A lot of these variables are filled out by calling the methods.
 
         ## The content of all force field files are stored in memory
-        self.ffdata       = {}
+        self.ffdata = {}
         self.ffdata_isxml = {}
         ## The mapping of interaction type -> parameter number
-        self.map         = {}
+        self.map = {}
         ## The listing of parameter number -> interaction types
-        self.plist       = []
+        self.plist = []
         ## A listing of parameter number -> atoms involved
-        self.patoms      = []
+        self.patoms = []
         ## A list where pfields[i] = [pid,'file',line,field,mult,cmd],
         ## basically a new way to modify force field files; when we modify the
         ## force field file, we go to the specific line/field in a given file
         ## and change the number.
-        self.pfields     = []
+        self.pfields = []
         ## Improved representation of pfields as a networkx graph
-        self.pTree       = nx.DiGraph()
+        self.pTree = nx.DiGraph()
         # unit strings that might appear in offxml file
         self.offxml_unit_strs = defaultdict(str)
         ## List of rescaling factors
-        self.rs          = []
+        self.rs = []
         ## The transformation matrix for mathematical -> physical parameters
-        self.tm          = None
+        self.tm = None
         ## The transpose of the transformation matrix
-        self.tmI         = None
+        self.tmI = None
         ## Indices to exclude from optimization / Hessian inversion
-        self.excision    = None
+        self.excision = None
         ## The total number of parameters
-        self.np          = 0
+        self.np = 0
         ## Initial value of physical parameters
-        self.pvals0      = []
+        self.pvals0 = []
         ## A dictionary of force field reader classes
-        self.Readers           = OrderedDict()
+        self.Readers = OrderedDict()
         ## A list of atom names (this is new, for ESP fitting)
-        self.atomnames   = []
+        self.atomnames = []
 
         # Read the force fields into memory.
         for fnm in self.fnms:
@@ -293,7 +333,10 @@ class FF(forcebalance.BaseClass):
         for Reader in self.Readers.values():
             for k, v in Reader.AtomTypes.items():
                 if k in self.FFAtomTypes:
-                    warn_press_key('Trying to insert atomtype %s into the force field, but it is already there' % k)
+                    warn_press_key(
+                        "Trying to insert atomtype %s into the force field, but it is already there"
+                        % k
+                    )
                 self.FFAtomTypes[k] = v
         # This is an ordered dictionary of {'Molecule' : [{'AtomType' : string, 'ResidueNumber' : int, 'ResidueName' : string,
         #                                                  'AtomName' : string, 'ChargeGroup' : int, 'Charge' : float}]}
@@ -335,13 +378,14 @@ class FF(forcebalance.BaseClass):
         self.linedestroy_this = []
         self.prmdestroy_this = []
         ## Print the optimizer options.
-        if printopt: printcool_dictionary(self.PrintOptionDict, title="Setup for force field")
+        if printopt:
+            printcool_dictionary(self.PrintOptionDict, title="Setup for force field")
 
     @classmethod
     def fromfile(cls, fnm):
         ffdir = os.path.split(fnm)[0]
         fnm = os.path.split(fnm)[1]
-        options = {'forcefield' : [fnm], 'ffdir' : ffdir, 'duplicate_pnames' : True}
+        options = {"forcefield": [fnm], "ffdir": ffdir, "duplicate_pnames": True}
         return cls(options, verbose=False, printopt=False)
 
     def __getstate__(self):
@@ -349,8 +393,8 @@ class FF(forcebalance.BaseClass):
         for ffname in self.ffdata:
             if self.ffdata_isxml[ffname]:
                 temp = etree.tostring(self.ffdata[ffname])
-                del state['ffdata'][ffname]
-                state['ffdata'][ffname] = temp
+                del state["ffdata"][ffname]
+                state["ffdata"][ffname] = temp
         return state
 
     def __setstate__(self, state):
@@ -360,8 +404,8 @@ class FF(forcebalance.BaseClass):
                 temp = etree.ElementTree(etree.fromstring(self.ffdata[ffname]))
                 self.ffdata[ffname] = temp
 
-    def addff(self,ffname,xmlScript=False):
-        """ Parse a force field file and add it to the class.
+    def addff(self, ffname, xmlScript=False):
+        """Parse a force field file and add it to the class.
 
         First, figure out the type of force field file.  This is done
         either by explicitly specifying the type using for example,
@@ -433,7 +477,7 @@ class FF(forcebalance.BaseClass):
 
         """
         fftype = determine_fftype(ffname)
-        ffname = ffname.split(':')[0]
+        ffname = ffname.split(":")[0]
 
         # Set the OpenMM XML file, which will help for running OpenMM.
         if fftype == "openmm":
@@ -444,13 +488,21 @@ class FF(forcebalance.BaseClass):
 
         if fftype == "smirnoff":
             if hasattr(self, "offxml"):
-                warn_press_key("There should only be one SMIRNOFF XML file - confused!!")
+                warn_press_key(
+                    "There should only be one SMIRNOFF XML file - confused!!"
+                )
             else:
                 # OpenFF force field wants parameters to be modified using its API, so we enable that here
-                from openff.toolkit.typing.engines.smirnoff import ForceField as OpenFF_ForceField
+                from openff.toolkit.typing.engines.smirnoff import (
+                    ForceField as OpenFF_ForceField,
+                )
+
                 self.offxml = ffname
-                self.openff_forcefield = OpenFF_ForceField(os.path.join(self.root, self.ffdir, self.offxml),
-                                                           allow_cosmetic_attributes=True, load_plugins=True)
+                self.openff_forcefield = OpenFF_ForceField(
+                    os.path.join(self.root, self.ffdir, self.offxml),
+                    allow_cosmetic_attributes=True,
+                    load_plugins=True,
+                )
 
         self.amber_mol2 = []
         if fftype == "mol2":
@@ -465,7 +517,7 @@ class FF(forcebalance.BaseClass):
         Reader = FF_IOModules.get(fftype, forcebalance.BaseReader)
 
         # Open the force field using an absolute path and read its contents into memory.
-        absff = os.path.join(self.root,self.ffdir,ffname)
+        absff = os.path.join(self.root, self.ffdir, ffname)
 
         # Create an instance of the Reader.
         # The reader is essentially a finite state machine that allows us to
@@ -476,25 +528,32 @@ class FF(forcebalance.BaseClass):
             try:
                 self.ffdata[ffname] = etree.parse(absff)
             except NameError:
-                logger.error("If etree not defined, please check if lxml module has been installed")
+                logger.error(
+                    "If etree not defined, please check if lxml module has been installed"
+                )
                 raise
             self.ffdata_isxml[ffname] = True
             # Process the file
             self.addff_xml(ffname)
         else:
             ## Read in a text force field file as a list of lines
-            self.ffdata[ffname] = [line.expandtabs() for line in open(absff).readlines()]
+            self.ffdata[ffname] = [
+                line.expandtabs() for line in open(absff).readlines()
+            ]
             self.ffdata_isxml[ffname] = False
             # Process the file
-            self.addff_txt(ffname, fftype,xmlScript)
-        if hasattr(self.Readers[ffname], 'atomnames'):
+            self.addff_txt(ffname, fftype, xmlScript)
+        if hasattr(self.Readers[ffname], "atomnames"):
             if len(self.atomnames) > 0:
-                sys.stderr.write('Found more than one force field containing atom names; skipping the second one (%s)\n' % ffname)
+                sys.stderr.write(
+                    "Found more than one force field containing atom names; skipping the second one (%s)\n"
+                    % ffname
+                )
             else:
                 self.atomnames += self.Readers[ffname].atomnames
 
     def check_dupes(self, pid, ffname, ln, pfld):
-        """ Check to see whether a given parameter ID already exists, and provide an alternate if needed. """
+        """Check to see whether a given parameter ID already exists, and provide an alternate if needed."""
         pid_ = pid
 
         have_pids = [f[0] for f in self.pfields]
@@ -503,21 +562,25 @@ class FF(forcebalance.BaseClass):
             pid0 = pid
             extranum = 0
             dupfnms = [i[1] for i in self.pfields if pid == i[0]]
-            duplns  = [i[2] for i in self.pfields if pid == i[0]]
+            duplns = [i[2] for i in self.pfields if pid == i[0]]
             dupflds = [i[3] for i in self.pfields if pid == i[0]]
             while pid in have_pids:
                 pid = "%s%i" % (pid0, extranum)
                 extranum += 1
+
             def warn_or_err(*args):
                 if self.duplicate_pnames:
                     logger.warning(*args)
                 else:
                     logger.error(*args)
+
             warn_or_err("Encountered an duplicate parameter ID (%s)\n" % pid_)
-            warn_or_err("file %s line %i field %i duplicates:\n"
-                        % (os.path.basename(ffname), ln+1, pfld))
+            warn_or_err(
+                "file %s line %i field %i duplicates:\n"
+                % (os.path.basename(ffname), ln + 1, pfld)
+            )
             for dupfnm, dupln, dupfld in zip(dupfnms, duplns, dupflds):
-                warn_or_err("file %s line %i field %i\n" % (dupfnm, dupln+1, dupfld))
+                warn_or_err("file %s line %i field %i\n" % (dupfnm, dupln + 1, dupfld))
             if self.duplicate_pnames:
                 logger.warning("Parameter name has been changed to %s\n" % pid)
             else:
@@ -525,7 +588,7 @@ class FF(forcebalance.BaseClass):
         return pid
 
     def addff_txt(self, ffname, fftype, xmlScript):
-        """ Parse a text force field and create several important instance variables.
+        """Parse a text force field and create several important instance variables.
 
         Each line is processed using the 'feed' method as implemented
         in the reader class.  This essentially allows us to create the
@@ -552,46 +615,60 @@ class FF(forcebalance.BaseClass):
             try:
                 self.Readers[ffname].feed(line)
             except:
-                logger.warning(traceback.format_exc() + '\n')
-                logger.warning("The force field reader crashed when trying to read the following line:\n")
-                logger.warning(line + '\n')
+                logger.warning(traceback.format_exc() + "\n")
+                logger.warning(
+                    "The force field reader crashed when trying to read the following line:\n"
+                )
+                logger.warning(line + "\n")
                 traceback.print_exc()
-                warn_press_key("The force field parser got confused!  The traceback and line in question are printed above.")
+                warn_press_key(
+                    "The force field parser got confused!  The traceback and line in question are printed above."
+                )
             sline = self.Readers[ffname].Split(line)
 
-            kwds = list(itertools.chain(*[[i, "/%s" % i] for i in ['PRM', 'PARM', 'RPT', 'EVAL']]))
+            kwds = list(
+                itertools.chain(
+                    *[[i, "/%s" % i] for i in ["PRM", "PARM", "RPT", "EVAL"]]
+                )
+            )
 
             marks = OrderedDict()
             for k in kwds:
                 if sline.count(k) > 1:
                     logger.error(line)
-                    logger.error("The above line contains multiple occurrences of the keyword %s\n" % k)
+                    logger.error(
+                        "The above line contains multiple occurrences of the keyword %s\n"
+                        % k
+                    )
                     raise RuntimeError
                 elif sline.count(k) == 1:
                     marks[k] = (np.array(sline) == k).argmax()
-            marks['END'] = len(sline)
+            marks["END"] = len(sline)
 
-            pmark = marks.get('PRM',None)
-            if pmark is None: pmark = marks.get('PARM',None)
-            rmark = marks.get('RPT',None)
-            emark = marks.get('EVAL',None)
+            pmark = marks.get("PRM", None)
+            if pmark is None:
+                pmark = marks.get("PARM", None)
+            rmark = marks.get("RPT", None)
+            emark = marks.get("EVAL", None)
 
             if pmark is not None:
                 pstop = min([i for i in marks.values() if i > pmark])
-                pflds = [int(i) for i in sline[pmark+1:pstop]] # The integers that specify the parameter word positions
+                pflds = [
+                    int(i) for i in sline[pmark + 1 : pstop]
+                ]  # The integers that specify the parameter word positions
                 for pfld in pflds:
                     # For each of the fields that are to be parameterized (indicated by PRM #),
                     # assign a parameter type to it according to the Interaction Type -> Parameter Dictionary.
                     pid = self.Readers[ffname].build_pid(pfld)
                     if xmlScript:
-                        pid = 'Script/'+sline[pfld-2]+'/'
+                        pid = "Script/" + sline[pfld - 2] + "/"
                     pid = self.check_dupes(pid, ffname, ln, pfld)
                     self.map[pid] = self.np
                     # This parameter ID has these atoms involved.
                     self.patoms.append([self.Readers[ffname].molatom])
                     # Also append pid to the parameter list
-                    self.assign_p0(self.np,float(sline[pfld]))
-                    self.assign_field(self.np,pid,ffname,ln,pfld,1)
+                    self.assign_p0(self.np, float(sline[pfld]))
+                    self.assign_field(self.np, pid, ffname, ln, pfld, 1)
                     self.np += 1
             if rmark is not None:
                 parse = rmark + 1
@@ -602,25 +679,34 @@ class FF(forcebalance.BaseClass):
                     # Second is a string corresponding to the 'pid' that this parameter depends on.
                     pfld = int(sline[parse])
                     try:
-                        prep = self.map[sline[parse+1].replace('MINUS_','')]
+                        prep = self.map[sline[parse + 1].replace("MINUS_", "")]
                     except:
                         sys.stderr.write("Valid parameter IDs:\n")
                         count = 0
                         for i in self.map:
                             sys.stderr.write("%25s" % i)
-                            if count%3 == 2:
+                            if count % 3 == 2:
                                 sys.stderr.write("\n")
                             count += 1
-                        sys.stderr.write("\nOffending ID: %s\n" % sline[parse+1])
+                        sys.stderr.write("\nOffending ID: %s\n" % sline[parse + 1])
 
-                        logger.error('Parameter repetition entry in force field file is incorrect (see above)\n')
+                        logger.error(
+                            "Parameter repetition entry in force field file is incorrect (see above)\n"
+                        )
                         raise RuntimeError
                     pid = self.Readers[ffname].build_pid(pfld)
                     pid = self.check_dupes(pid, ffname, ln, pfld)
                     self.map[pid] = prep
                     # This repeated parameter ID also has these atoms involved.
                     self.patoms[prep].append(self.Readers[ffname].molatom)
-                    self.assign_field(prep,pid,ffname,ln,pfld,"MINUS_" in sline[parse+1] and -1 or 1)
+                    self.assign_field(
+                        prep,
+                        pid,
+                        ffname,
+                        ln,
+                        pfld,
+                        "MINUS_" in sline[parse + 1] and -1 or 1,
+                    )
                     parse += 2
             if emark is not None:
                 parse = emark + 1
@@ -630,19 +716,19 @@ class FF(forcebalance.BaseClass):
                     # First is a number corresponding to the field that contains the dependent parameter.
                     # Second is a Python command that determines how to calculate the parameter.
                     pfld = int(sline[parse])
-                    evalcmd = sline[parse+1] # This string is actually Python code!!
+                    evalcmd = sline[parse + 1]  # This string is actually Python code!!
                     pid = self.Readers[ffname].build_pid(pfld)
                     pid = self.check_dupes(pid, ffname, ln, pfld)
                     # EVAL parameters have no corresponding parameter index
-                    #self.map[pid] = None
-                    #self.map[pid] = prep
+                    # self.map[pid] = None
+                    # self.map[pid] = prep
                     # This repeated parameter ID also has these atoms involved.
-                    #self.patoms[prep].append(self.Readers[ffname].molatom)
-                    self.assign_field(None,pid,ffname,ln,pfld,None,evalcmd)
+                    # self.patoms[prep].append(self.Readers[ffname].molatom)
+                    self.assign_field(None, pid, ffname, ln, pfld, None, evalcmd)
                     parse += 2
 
     def addff_xml(self, ffname):
-        """ Parse an XML force field file and create important instance variables.
+        """Parse an XML force field file and create important instance variables.
 
         This was modeled after addff_txt, but XML and text files are
         fundamentally different, necessitating two different methods.
@@ -667,21 +753,29 @@ class FF(forcebalance.BaseClass):
 
         """
 
-        #check if xml file contains a script
-        #throw error if more than one script
-        #write script into .txt file and parse as text
+        # check if xml file contains a script
+        # throw error if more than one script
+        # write script into .txt file and parse as text
         fflist = list(self.ffdata[ffname].iter())
-        scriptElements = [elem for elem in fflist if elem.tag=='Script']
+        scriptElements = [elem for elem in fflist if elem.tag == "Script"]
         if len(scriptElements) > 1:
-            logger.error('XML file'+ffname+'contains more than one script! Consolidate your scripts into one script!\n')
+            logger.error(
+                "XML file"
+                + ffname
+                + "contains more than one script! Consolidate your scripts into one script!\n"
+            )
             raise RuntimeError
-        elif len(scriptElements)==1:
+        elif len(scriptElements) == 1:
             Script = scriptElements[0].text
-            ffnameList = ffname.split('.')
-            ffnameScript = ffnameList[0]+'Script.txt'
+            ffnameList = ffname.split(".")
+            ffnameScript = ffnameList[0] + "Script.txt"
             absScript = os.path.join(self.root, self.ffdir, ffnameScript)
             if os.path.exists(absScript):
-                logger.error('XML file '+absScript+' already exists on disk! Please delete it\n')
+                logger.error(
+                    "XML file "
+                    + absScript
+                    + " already exists on disk! Please delete it\n"
+                )
                 raise RuntimeError
             wfile = forcebalance.nifty.wopen(absScript)
             wfile.write(Script)
@@ -689,60 +783,97 @@ class FF(forcebalance.BaseClass):
             self.addff(ffnameScript, xmlScript=True)
             os.unlink(absScript)
 
-        for e in self.ffdata[ffname].getroot().xpath('//@parameterize/..'):
-            parameters_to_optimize = [i.strip() for i in e.get('parameterize').split(',')]
+        for e in self.ffdata[ffname].getroot().xpath("//@parameterize/.."):
+            parameters_to_optimize = [
+                i.strip() for i in e.get("parameterize").split(",")
+            ]
             for p in parameters_to_optimize:
                 if p not in e.attrib:
-                    logger.error("Parameter \'%s\' is not found for \'%s\', please check %s" % (p, e.get('type'), ffname) )
+                    logger.error(
+                        "Parameter '{}' is not found for '{}', please check {}".format(
+                            p, e.get("type"), ffname
+                        )
+                    )
                     raise RuntimeError
                 pid = self.Readers[ffname].build_pid(e, p)
                 self.map[pid] = self.np
                 # offxml file later than v0.3 may have unit strings in the field
                 quantity_str = e.get(p)
-                res = re.search(r'^[-+]?[0-9]*\.?[0-9]*([eEdD][-+]?[0-9]+)?', quantity_str)
-                value_str, unit_str = quantity_str[:res.end()], quantity_str[res.end():]
+                res = re.search(
+                    r"^[-+]?[0-9]*\.?[0-9]*([eEdD][-+]?[0-9]+)?", quantity_str
+                )
+                value_str, unit_str = (
+                    quantity_str[: res.end()],
+                    quantity_str[res.end() :],
+                )
                 self.assign_p0(self.np, float(value_str))
                 self.offxml_unit_strs[pid] = unit_str
-                self.assign_field(self.np,pid,ffname,fflist.index(e),p,1)
+                self.assign_field(self.np, pid, ffname, fflist.index(e), p, 1)
                 self.np += 1
                 self.patoms.append([])
 
-        for e in self.ffdata[ffname].getroot().xpath('//@parameter_repeat/..'):
-            for field in e.get('parameter_repeat').split(','):
-                parameter_name = field.strip().split('=', 1)[0]
+        for e in self.ffdata[ffname].getroot().xpath("//@parameter_repeat/.."):
+            for field in e.get("parameter_repeat").split(","):
+                parameter_name = field.strip().split("=", 1)[0]
                 if parameter_name not in e.attrib:
-                    logger.error("Parameter \'%s\' is not found for \'%s\', please check %s" % (parameter_name, e.get('type'), ffname) )
+                    logger.error(
+                        "Parameter '{}' is not found for '{}', please check {}".format(
+                            parameter_name, e.get("type"), ffname
+                        )
+                    )
                     raise RuntimeError
                 dest = self.Readers[ffname].build_pid(e, parameter_name)
-                src  = field.strip().split('=', 1)[1]
+                src = field.strip().split("=", 1)[1]
                 if src in self.map:
                     self.map[dest] = self.map[src]
                 else:
-                    warn_press_key("Warning: You wanted to copy parameter from %s to %s, but the source parameter does not seem to exist!" % (src, dest))
-                self.assign_field(self.map[dest],dest,ffname,fflist.index(e),parameter_name,1)
+                    warn_press_key(
+                        "Warning: You wanted to copy parameter from {} to {}, but the source parameter does not seem to exist!".format(
+                            src, dest
+                        )
+                    )
+                self.assign_field(
+                    self.map[dest], dest, ffname, fflist.index(e), parameter_name, 1
+                )
                 quantity_str = e.get(parameter_name)
-                res = re.search(r'^[-+]?[0-9]*\.?[0-9]*([eEdD][-+]?[0-9]+)?', quantity_str)
-                value_str, unit_str = quantity_str[:res.end()], quantity_str[res.end():]
+                res = re.search(
+                    r"^[-+]?[0-9]*\.?[0-9]*([eEdD][-+]?[0-9]+)?", quantity_str
+                )
+                value_str, unit_str = (
+                    quantity_str[: res.end()],
+                    quantity_str[res.end() :],
+                )
                 quantity_str = e.get(parameter_name)
                 self.offxml_unit_strs[dest] = unit_str
 
-        for e in self.ffdata[ffname].getroot().xpath('//@parameter_eval/..'):
-            for field in split(r',(?![^\[]*[\]])', e.get('parameter_eval')):
-                parameter_name = field.strip().split('=', 1)[0]
+        for e in self.ffdata[ffname].getroot().xpath("//@parameter_eval/.."):
+            for field in split(r",(?![^\[]*[\]])", e.get("parameter_eval")):
+                parameter_name = field.strip().split("=", 1)[0]
                 if parameter_name not in e.attrib:
-                    logger.error("Parameter \'%s\' is not found for \'%s\', please check %s" % (parameter_name, e.get('type'), ffname) )
+                    logger.error(
+                        "Parameter '{}' is not found for '{}', please check {}".format(
+                            parameter_name, e.get("type"), ffname
+                        )
+                    )
                     raise RuntimeError
                 dest = self.Readers[ffname].build_pid(e, parameter_name)
-                evalcmd  = field.strip().split('=', 1)[1]
-                self.assign_field(None,dest,ffname,fflist.index(e),parameter_name,None,evalcmd)
+                evalcmd = field.strip().split("=", 1)[1]
+                self.assign_field(
+                    None, dest, ffname, fflist.index(e), parameter_name, None, evalcmd
+                )
                 quantity_str = e.get(parameter_name)
-                res = re.search(r'^[-+]?[0-9]*\.?[0-9]*([eEdD][-+]?[0-9]+)?', quantity_str)
-                value_str, unit_str = quantity_str[:res.end()], quantity_str[res.end():]
+                res = re.search(
+                    r"^[-+]?[0-9]*\.?[0-9]*([eEdD][-+]?[0-9]+)?", quantity_str
+                )
+                value_str, unit_str = (
+                    quantity_str[: res.end()],
+                    quantity_str[res.end() :],
+                )
                 quantity_str = e.get(parameter_name)
                 self.offxml_unit_strs[dest] = unit_str
 
-    def make(self,vals=None,use_pvals=False,printdir=None,precision=12):
-        """ Create a new force field using provided parameter values.
+    def make(self, vals=None, use_pvals=False, printdir=None, precision=12):
+        """Create a new force field using provided parameter values.
 
         This big kahuna does a number of things:
         1) Creates the physical parameters from the mathematical parameters
@@ -761,35 +892,39 @@ class FF(forcebalance.BaseClass):
         @param[in] precision Number of decimal points to print out
 
         """
-        if type(vals)==np.ndarray and vals.ndim != 1:
-            logger.error('Please only pass 1-D arrays\n')
+        if type(vals) == np.ndarray and vals.ndim != 1:
+            logger.error("Please only pass 1-D arrays\n")
             raise RuntimeError
         if len(vals) != self.np:
-            logger.error('Input parameter np.array (%i) not the required size (%i)\n' % (len(vals), self.np))
+            logger.error(
+                "Input parameter np.array (%i) not the required size (%i)\n"
+                % (len(vals), self.np)
+            )
             raise RuntimeError
         if use_pvals or self.use_pvals:
             logger.info("Using physical parameters directly!\r")
             if isinstance(vals, list):
-                vals = np.array(vals)            
+                vals = np.array(vals)
             pvals = vals.copy().flatten()
         else:
             pvals = self.create_pvals(vals)
 
         OMMFormat = "%%.%ie" % precision
+
         def TXTFormat(number, precision):
             SciNot = "%% .%ie" % precision
             if abs(number) < 1000 and abs(number) > 0.001:
                 Decimal = "%% .%if" % precision
                 Num = Decimal % number
                 Mum = Decimal % (-1 * number)
-                if (float(Num) == float(Mum)):
+                if float(Num) == float(Mum):
                     return Decimal % abs(number)
                 else:
                     return Decimal % number
             else:
                 Num = SciNot % number
                 Mum = SciNot % (-1 * number)
-                if (float(Num) == float(Mum)):
+                if float(Num) == float(Mum):
                     return SciNot % abs(number)
                 else:
                     return SciNot % number
@@ -799,17 +934,23 @@ class FF(forcebalance.BaseClass):
         newffdata = deepcopy(self.ffdata)
 
         # The dictionary that takes parameter names to physical values.
-        PRM = {i:pvals[self.map[i]] for i in self.map}
+        PRM = {i: pvals[self.map[i]] for i in self.map}
 
-        #======================================#
+        # ======================================#
         #     Print the new force field.       #
-        #======================================#
+        # ======================================#
 
-        xml_lines = OrderedDict([(fnm, list(newffdata[fnm].iter())) for fnm in self.fnms if self.ffdata_isxml[fnm]])
+        xml_lines = OrderedDict(
+            [
+                (fnm, list(newffdata[fnm].iter()))
+                for fnm in self.fnms
+                if self.ffdata_isxml[fnm]
+            ]
+        )
 
         for i in range(len(self.pfields)):
             pfield = self.pfields[i]
-            pid,fnm,ln,fld,mult,cmd = pfield
+            pid, fnm, ln, fld, mult, cmd = pfield
             # XML force fields are easy to print.
             # Our 'pointer' to where to replace the value
             # is given by the position of this line in the
@@ -820,22 +961,30 @@ class FF(forcebalance.BaseClass):
                 try:
                     # Bobby Tables, anyone?
                     if any([x in cmd for x in ("system", "subprocess", "import")]):
-                        warn_press_key("The command %s (written in the force field file) appears to be unsafe!" % cmd)
-                    wval = eval(cmd.replace("PARM","PRM"))
+                        warn_press_key(
+                            "The command %s (written in the force field file) appears to be unsafe!"
+                            % cmd
+                        )
+                    wval = eval(cmd.replace("PARM", "PRM"))
                     # Attempt to allow evaluated parameters to be functions of each other.
                     PRM[pid] = wval
                 except:
-                    logger.error(traceback.format_exc() + '\n')
-                    logger.error("The command %s (written in the force field file) cannot be evaluated!\n" % cmd)
+                    logger.error(traceback.format_exc() + "\n")
+                    logger.error(
+                        "The command %s (written in the force field file) cannot be evaluated!\n"
+                        % cmd
+                    )
                     raise RuntimeError
             else:
-                wval = mult*pvals[self.map[pid]]
+                wval = mult * pvals[self.map[pid]]
             if self.ffdata_isxml[fnm]:
                 # offxml files with version higher than 0.3 may have unit strings in the field
-                xml_lines[fnm][ln].attrib[fld] = OMMFormat % (wval) + self.offxml_unit_strs[pid]
+                xml_lines[fnm][ln].attrib[fld] = (
+                    OMMFormat % (wval) + self.offxml_unit_strs[pid]
+                )
                 # If this is a SMIRNOFF parameter, assign it directly in the OpenFF ForceField object
                 # as well as writing out the file.
-                if hasattr(self, 'offxml') and fnm == self.offxml:
+                if hasattr(self, "offxml") and fnm == self.offxml:
                     assign_openff_parameter(self.openff_forcefield, wval, pid)
                 # list(newffdata[fnm].iter())[ln].attrib[fld] = OMMFormat % (wval)
             # Text force fields are a bit harder.
@@ -845,46 +994,58 @@ class FF(forcebalance.BaseClass):
             # columns.
             else:
                 # Split the string into whitespace and data fields.
-                sline       = self.Readers[fnm].Split(newffdata[fnm][ln])
-                whites      = self.Readers[fnm].Whites(newffdata[fnm][ln])
+                sline = self.Readers[fnm].Split(newffdata[fnm][ln])
+                whites = self.Readers[fnm].Whites(newffdata[fnm][ln])
                 # Align whitespaces and fields (it should go white, field, white, field)
-                if newffdata[fnm][ln][0] != ' ':
-                    whites = [''] + whites
+                if newffdata[fnm][ln][0] != " ":
+                    whites = [""] + whites
                 # Subtract one whitespace, unless the line begins with a minus sign.
-                if not match('^-',sline[fld]) and len(whites[fld]) > 1:
+                if not match("^-", sline[fld]) and len(whites[fld]) > 1:
                     whites[fld] = whites[fld][:-1]
                 # Actually replace the field with the physical parameter value.
                 if precision == 12:
-                    newrd  = "% 17.12e" % (wval)
+                    newrd = "% 17.12e" % (wval)
                 else:
-                    newrd  = TXTFormat(wval, precision)
+                    newrd = TXTFormat(wval, precision)
                 # The new word might be longer than the old word.
                 # If this is the case, we can try to shave off some whitespace.
                 Lold = len(sline[fld])
-                if not match('^-',sline[fld]):
+                if not match("^-", sline[fld]):
                     Lold += 1
                 Lnew = len(newrd)
                 if Lnew > Lold:
                     Shave = Lnew - Lold
-                    if Shave < (len(whites[fld+1])+2):
-                        whites[fld+1] = whites[fld+1][:-Shave]
+                    if Shave < (len(whites[fld + 1]) + 2):
+                        whites[fld + 1] = whites[fld + 1][:-Shave]
                 sline[fld] = newrd
                 # Replace the line in the new force field.
-                newffdata[fnm][ln] = ''.join([(whites[j] if (len(whites[j]) > 0 or j == 0) else ' ')+sline[j] for j in range(len(sline))])+'\n'
+                newffdata[fnm][ln] = (
+                    "".join(
+                        [
+                            (whites[j] if (len(whites[j]) > 0 or j == 0) else " ")
+                            + sline[j]
+                            for j in range(len(sline))
+                        ]
+                    )
+                    + "\n"
+                )
 
         if printdir is not None:
-            absprintdir = os.path.join(self.root,printdir)
+            absprintdir = os.path.join(self.root, printdir)
         else:
             absprintdir = os.getcwd()
 
         if not os.path.exists(absprintdir):
-            logger.info('Creating the directory %s to print the force field\n' % absprintdir)
+            logger.info(
+                "Creating the directory %s to print the force field\n" % absprintdir
+            )
             os.makedirs(absprintdir)
 
         for fnm in newffdata:
             if self.ffdata_isxml[fnm]:
-                with wopen(os.path.join(absprintdir,fnm), binary=True) as f: newffdata[fnm].write(f)
-            elif 'Script.txt' in fnm:
+                with wopen(os.path.join(absprintdir, fnm), binary=True) as f:
+                    newffdata[fnm].write(f)
+            elif "Script.txt" in fnm:
                 # if the xml file contains a script, ForceBalance will generate
                 # a temporary .txt file containing the script and any updates.
                 # We copy the updates made in the .txt file into the xml file by:
@@ -893,38 +1054,46 @@ class FF(forcebalance.BaseClass):
                 #           of the script element (assumed to be the last element)
                 #   Third. open the updated xml file as in the if statement above
                 tempText = "".join(newffdata[fnm])
-                fnmXml = fnm.split('Script')[0]+'.xml'
+                fnmXml = fnm.split("Script")[0] + ".xml"
                 Ntemp = len(list(newffdata[fnmXml].iter()))
-                list(newffdata[fnmXml].iter())[Ntemp-1].text = tempText
-                '''
+                list(newffdata[fnmXml].iter())[Ntemp - 1].text = tempText
+                """
                 scriptElements = [elem for elem in fflist if elem.tag=='Script']
                 if len(scriptElements) > 1:
                 logger.error('XML file'+ffname+'contains more than one script! Consolidate your scripts into one script!\n')
                 raise RuntimeError
                 else:
-                '''
-                with wopen(os.path.join(absprintdir,fnmXml), binary=True) as f: newffdata[fnmXml].write(f)
+                """
+                with wopen(os.path.join(absprintdir, fnmXml), binary=True) as f:
+                    newffdata[fnmXml].write(f)
             else:
-                with wopen(os.path.join(absprintdir,fnm)) as f: f.writelines(newffdata[fnm])
+                with wopen(os.path.join(absprintdir, fnm)) as f:
+                    f.writelines(newffdata[fnm])
 
         return pvals
 
-    def make_redirect(self,mvals):
+    def make_redirect(self, mvals):
         Groups = defaultdict(list)
         for p, pid in enumerate(self.plist):
-            if 'Exponent' not in pid or len(pid.split()) != 1:
-                warn_press_key("Fusion penalty currently implemented only for basis set optimizations, where parameters are like this: Exponent:Elem=H,AMom=D,Bas=0,Con=0")
-            Data = dict([(i.split('=')[0],i.split('=')[1]) for i in pid.split(':')[1].split(',')])
-            if 'Con' not in Data or Data['Con'] != '0':
-                warn_press_key("More than one contraction coefficient found!  You should expect the unexpected")
-            key = Data['Elem']+'_'+Data['AMom']
+            if "Exponent" not in pid or len(pid.split()) != 1:
+                warn_press_key(
+                    "Fusion penalty currently implemented only for basis set optimizations, where parameters are like this: Exponent:Elem=H,AMom=D,Bas=0,Con=0"
+                )
+            Data = {
+                i.split("=")[0]: i.split("=")[1] for i in pid.split(":")[1].split(",")
+            }
+            if "Con" not in Data or Data["Con"] != "0":
+                warn_press_key(
+                    "More than one contraction coefficient found!  You should expect the unexpected"
+                )
+            key = Data["Elem"] + "_" + Data["AMom"]
             Groups[key].append(p)
-        #pvals = self.FF.create_pvals(mvals)
-        #print "pvals: ", pvals
+        # pvals = self.FF.create_pvals(mvals)
+        # print "pvals: ", pvals
 
         pvals = self.create_pvals(mvals)
         logger.info("pvals:\n")
-        logger.info(str(pvals) + '\n')
+        logger.info(str(pvals) + "\n")
 
         Thresh = 1e-4
 
@@ -936,34 +1105,40 @@ class FF(forcebalance.BaseClass):
             for p in range(len(Order) - 1):
                 # The pointers to the parameter indices.
                 pi = pidx[Order[p]]
-                pj = pidx[Order[p+1]]
+                pj = pidx[Order[p + 1]]
                 # pvals[pi] is the SMALLER parameter.
                 # pvals[pj] is the LARGER parameter.
                 dp = np.log(pvals[pj]) - np.log(pvals[pi])
                 if dp < Thresh:
                     if pi in self.redirect:
-                        pk = self.redirect[pi]
+                        self.redirect[pi]
                     else:
-                        pk = pi
-                    #if pj not in self.redirect:
-                        #print "Redirecting parameter %i to %i" % (pj, pk)
-                        #self.redirect[pj] = pk
-        #print self.redirect
+                        pass
+                    # if pj not in self.redirect:
+                    # print "Redirecting parameter %i to %i" % (pj, pk)
+                    # self.redirect[pj] = pk
+        # print self.redirect
 
     def find_spacings(self):
         Groups = defaultdict(list)
         for p, pid in enumerate(self.plist):
-            if 'Exponent' not in pid or len(pid.split()) != 1:
-                warn_press_key("Fusion penalty currently implemented only for basis set optimizations, where parameters are like this: Exponent:Elem=H,AMom=D,Bas=0,Con=0")
-            Data = dict([(i.split('=')[0],i.split('=')[1]) for i in pid.split(':')[1].split(',')])
-            if 'Con' not in Data or Data['Con'] != '0':
-                warn_press_key("More than one contraction coefficient found!  You should expect the unexpected")
-            key = Data['Elem']+'_'+Data['AMom']
+            if "Exponent" not in pid or len(pid.split()) != 1:
+                warn_press_key(
+                    "Fusion penalty currently implemented only for basis set optimizations, where parameters are like this: Exponent:Elem=H,AMom=D,Bas=0,Con=0"
+                )
+            Data = {
+                i.split("=")[0]: i.split("=")[1] for i in pid.split(":")[1].split(",")
+            }
+            if "Con" not in Data or Data["Con"] != "0":
+                warn_press_key(
+                    "More than one contraction coefficient found!  You should expect the unexpected"
+                )
+            key = Data["Elem"] + "_" + Data["AMom"]
             Groups[key].append(p)
 
         pvals = self.create_pvals(np.zeros(self.np))
         logger.info("pvals:\n")
-        logger.info(str(pvals) + '\n')
+        logger.info(str(pvals) + "\n")
 
         spacdict = {}
         for gnm, pidx in Groups.items():
@@ -975,7 +1150,7 @@ class FF(forcebalance.BaseClass):
             for p in range(len(Order) - 1):
                 # The pointers to the parameter indices.
                 pi = pidx[Order[p]]
-                pj = pidx[Order[p+1]]
+                pj = pidx[Order[p + 1]]
                 # pvals[pi] is the SMALLER parameter.
                 # pvals[pj] is the LARGER parameter.
                 dp = np.log(pvals[pj]) - np.log(pvals[pi])
@@ -984,7 +1159,7 @@ class FF(forcebalance.BaseClass):
                 spacdict[gnm] = np.mean(np.array(spacs))
         return spacdict
 
-    def create_pvals(self,mvals):
+    def create_pvals(self, mvals):
         """Converts mathematical to physical parameters.
 
         First, mathematical parameters are rescaled and rotated by
@@ -1003,29 +1178,31 @@ class FF(forcebalance.BaseClass):
             try:
                 pvals = np.exp(mvals.flatten()) * self.pvals0
             except:
-                logger.exception(str(mvals) + '\n')
-                logger.error('What the hell did you do?\n')
+                logger.exception(str(mvals) + "\n")
+                logger.error("What the hell did you do?\n")
                 raise RuntimeError
         else:
-            pvals = flat(np.dot(self.tmI,col(mvals))) + self.pvals0
-        concern= ['polarizability','epsilon','VDWT']
+            pvals = flat(np.dot(self.tmI, col(mvals))) + self.pvals0
+        concern = ["polarizability", "epsilon", "VDWT"]
         # Guard against certain types of parameters changing sign.
 
         for i in range(self.np):
-            if any([j in self.plist[i] for j in concern]) and pvals[i] * self.pvals0[i] < 0:
-                #print "Parameter %s has changed sign but it's not allowed to! Setting to zero." % self.plist[i]
+            if (
+                any([j in self.plist[i] for j in concern])
+                and pvals[i] * self.pvals0[i] < 0
+            ):
+                # print "Parameter %s has changed sign but it's not allowed to! Setting to zero." % self.plist[i]
                 pvals[i] = 0.0
         # Redirect parameters (for the fusion penalty function.)
         for p in self.redirect:
             pvals[p] = pvals[self.redirect[p]]
         # if not in_fd():
         #     print pvals
-        #print "pvals = ", pvals
+        # print "pvals = ", pvals
 
         return pvals
 
-
-    def create_mvals(self,pvals):
+    def create_mvals(self, pvals):
         """Converts physical to mathematical parameters.
 
         We create the inverse transformation matrix using SVD.
@@ -1035,13 +1212,13 @@ class FF(forcebalance.BaseClass):
         """
 
         if self.logarithmic_map:
-            logger.error('create_mvals has not been implemented for logarithmic_map\n')
+            logger.error("create_mvals has not been implemented for logarithmic_map\n")
             raise RuntimeError
-        mvals = flat(np.dot(invert_svd(self.tmI), col(pvals-self.pvals0)))
+        mvals = flat(np.dot(invert_svd(self.tmI), col(pvals - self.pvals0)))
 
         return mvals
 
-    def rsmake(self,printfacs=True):
+    def rsmake(self, printfacs=True):
         """Create the rescaling factors for the coordinate transformation in parameter space.
 
         The proper choice of rescaling factors (read: prior widths in maximum likelihood analysis)
@@ -1065,19 +1242,25 @@ class FF(forcebalance.BaseClass):
                         if p[0] == pName:
                             fnm = p[1]
                             break
-                    ffnameScript = f.split('.')[0]+'Script.txt'
+                    ffnameScript = f.split(".")[0] + "Script.txt"
                     if fnm == f or fnm == ffnameScript:
-                        if fnm.endswith('offxml'):
-                            ttstr = '/'.join([pName.split('/')[0],pName.split('/')[1],pName.split('/')[2]])
+                        if fnm.endswith("offxml"):
+                            ttstr = "/".join(
+                                [
+                                    pName.split("/")[0],
+                                    pName.split("/")[1],
+                                    pName.split("/")[2],
+                                ]
+                            )
                         else:
-                            ttstr = '/'.join([pName.split('/')[0],pName.split('/')[1]])
+                            ttstr = "/".join([pName.split("/")[0], pName.split("/")[1]])
                         if ttstr not in termtypelist:
                             termtypelist.append(ttstr)
             else:
                 for i in self.Readers[f].pdict:
                     for j in self.Readers[f].pdict[i]:
                         if isint(str(j)):
-                            ttstr = i+self.Readers[f].pdict[i][j]
+                            ttstr = i + self.Readers[f].pdict[i][j]
                             if ttstr not in termtypelist:
                                 termtypelist.append(ttstr)
         for termtype in termtypelist:
@@ -1095,7 +1278,7 @@ class FF(forcebalance.BaseClass):
             rsfactors[termtype] = maxval
             rsfac_list.append(termtype)
             # Physically motivated overrides
-            rs_override(rsfactors,termtype)
+            rs_override(rsfactors, termtype)
         # Overrides from input file
         for termtype in self.priors:
             while termtype in rsfac_list:
@@ -1106,8 +1289,12 @@ class FF(forcebalance.BaseClass):
         # for line in os.popen("awk '/rsfactor/ {print $2,$3}' %s" % pkg.options).readlines():
         #     rsfactors[line.split()[0]] = float(line.split()[1])
         if printfacs:
-            bar = printcool("Rescaling Factors by Type (Lower Takes Precedence):",color=1)
-            logger.info(''.join(["   %-35s  : %.5e\n" % (i, rsfactors[i]) for i in rsfac_list]))
+            bar = printcool(
+                "Rescaling Factors by Type (Lower Takes Precedence):", color=1
+            )
+            logger.info(
+                "".join(["   %-35s  : %.5e\n" % (i, rsfactors[i]) for i in rsfac_list])
+            )
             logger.info(bar)
         self.rs_ord = OrderedDict([(i, rsfactors[i]) for i in rsfac_list])
         ## The array of rescaling factors
@@ -1129,12 +1316,19 @@ class FF(forcebalance.BaseClass):
             if pnum not in have_rs:
                 self.rs_type[pnum] = self.plist[pnum][0]
         if printfacs:
-            bar = printcool("Rescaling Types / Factors by Parameter Number:",color=1)
-            self.print_map(vals=["   %-28s  : %.5e" % (self.rs_type[pnum], self.rs[pnum]) for pnum in range(len(self.pvals0))])
+            bar = printcool("Rescaling Types / Factors by Parameter Number:", color=1)
+            self.print_map(
+                vals=[
+                    "   %-28s  : %.5e" % (self.rs_type[pnum], self.rs[pnum])
+                    for pnum in range(len(self.pvals0))
+                ]
+            )
             logger.info(bar)
 
-    def make_rescale(self, scales, mvals=None, G=None, H=None, multiply=True, verbose=False):
-        """ Obtain rescaled versions of the inputs according to dictionary values
+    def make_rescale(
+        self, scales, mvals=None, G=None, H=None, multiply=True, verbose=False
+    ):
+        """Obtain rescaled versions of the inputs according to dictionary values
         in "scales" (i.e. a replacement or multiplicative factor on self.rs_ord).
         Note that self.rs and self.rs_ord are not updated in this function. You
         need to do that outside.
@@ -1175,52 +1369,54 @@ class FF(forcebalance.BaseClass):
             'H' : New Hessian (if H is provided)
         """
         if type(scales) != OrderedDict:
-            raise RuntimeError('scales must have type OrderedDict')
+            raise RuntimeError("scales must have type OrderedDict")
         if scales.keys() != self.rs_ord.keys():
-            raise RuntimeError('scales should have same keys as self.rs_ord')
+            raise RuntimeError("scales should have same keys as self.rs_ord")
         # Make the new dictionary of rescaling factors
         if multiply == False:
             rsord_out = deepcopy(scales)
         else:
-            rsord_out = OrderedDict([(k, scales[k]*self.rs_ord[k]) for k in scales.keys()])
+            rsord_out = OrderedDict(
+                [(k, scales[k] * self.rs_ord[k]) for k in scales.keys()]
+            )
         answer = OrderedDict()
-        answer['rs_ord'] = rsord_out
+        answer["rs_ord"] = rsord_out
         # Make the new array of rescaling factors
         rs_out = np.array([rsord_out[self.rs_type[p]] for p in range(self.np)])
-        answer['rs'] = rs_out
+        answer["rs"] = rs_out
         if mvals is not None:
             if mvals.shape != (self.np,):
-                raise RuntimeError('mvals has the wrong shape')
+                raise RuntimeError("mvals has the wrong shape")
             mvals_out = deepcopy(mvals)
             for p in range(self.np):
                 # Remember that for the same physical parameters, the mathematical
                 # parameters are inversely proportional to scale factors
-                mvals_out[p] *= (float(self.rs[p])/float(rs_out[p]))
-            answer['mvals'] = mvals_out
+                mvals_out[p] *= float(self.rs[p]) / float(rs_out[p])
+            answer["mvals"] = mvals_out
         if G is not None:
             if G.shape != (self.np,):
-                raise RuntimeError('G has the wrong shape')
+                raise RuntimeError("G has the wrong shape")
             G_out = deepcopy(G)
             for p in range(self.np):
                 # The gradient should be proportional to the scale factors
-                G_out[p] *= (float(rs_out[p])/float(self.rs[p]))
-            answer['G'] = G_out
+                G_out[p] *= float(rs_out[p]) / float(self.rs[p])
+            answer["G"] = G_out
         if H is not None:
-            if H.shape != (self.np,self.np):
-                raise RuntimeError('H has the wrong shape')
+            if H.shape != (self.np, self.np):
+                raise RuntimeError("H has the wrong shape")
             H_out = deepcopy(H)
             for p in range(self.np):
                 # The Hessian should be proportional to the product of two scale factors
-                H_out[p, :] *= (float(rs_out[p])/float(self.rs[p]))
+                H_out[p, :] *= float(rs_out[p]) / float(self.rs[p])
             for p in range(self.np):
-                H_out[:, p] *= (float(rs_out[p])/float(self.rs[p]))
-            answer['H'] = H_out
+                H_out[:, p] *= float(rs_out[p]) / float(self.rs[p])
+            answer["H"] = H_out
         # The final parameters, gradient and Hessian should be consistent with the
         # returned scale factors.
         return answer
 
     def mktransmat(self):
-        """ Create the transformation matrix to rescale and rotate the mathematical parameters.
+        """Create the transformation matrix to rescale and rotate the mathematical parameters.
 
         For point charge parameters, project out perturbations that
         change the total charge.
@@ -1250,11 +1446,11 @@ class FF(forcebalance.BaseClass):
         fragments of molecules or other types of parameters.
         @todo The AMOEBA selection of charge depends not only on the atom type, but what that atom is bonded to.
         """
-        self.qmap   = []
-        self.qid    = []
-        self.qid2   = []
-        qnr    = 1
-        concern= ['COUL','c0','charge']
+        self.qmap = []
+        self.qid = []
+        self.qid2 = []
+        qnr = 1
+        concern = ["COUL", "c0", "charge"]
         qmat2 = np.eye(self.np)
 
         def insert_mat(qtrans2, qmap):
@@ -1269,13 +1465,13 @@ class FF(forcebalance.BaseClass):
                     x += 1
 
         def build_qtrans2(tq, qid, qmap):
-            """ Build the matrix that ensures the net charge does not change. """
+            """Build the matrix that ensures the net charge does not change."""
             nq = len(qmap)
             # tq = Total number of atomic charges that are being optimized on the molecule
             # NOTE: This may be greater than the number of charge parameters (nq)
             # The reason for the "one" here is because LP wanted to have multiple charge constraints
             # at some point in the future
-            cons0 = np.ones((1,tq))
+            cons0 = np.ones((1, tq))
             cons = np.zeros((cons0.shape[0], nq))
             # Identity matrix equal to the number of charge parameters
             qtrans2 = np.eye(nq)
@@ -1291,10 +1487,13 @@ class FF(forcebalance.BaseClass):
                 cons[i] /= np.linalg.norm(cons[i])
                 for j in range(i):
                     cons[i] = orthogonalize(cons[i], cons[j])
-                qtrans2[i,:] = 0
-                for j in range(nq-i-1):
-                    qtrans2[i+j+1, :] = orthogonalize(qtrans2[i+j+1, :], cons[i])
+                qtrans2[i, :] = 0
+                for j in range(nq - i - 1):
+                    qtrans2[i + j + 1, :] = orthogonalize(
+                        qtrans2[i + j + 1, :], cons[i]
+                    )
             return qtrans2
+
         # Here we build a charge constraint for each molecule.
         if any(len(r.adict) > 0 for r in self.Readers.values()):
             logger.info("Building charge constraints...\n")
@@ -1307,7 +1506,7 @@ class FF(forcebalance.BaseClass):
                     Adict[k] = v
             nmol = 0
             for molname, molatoms in Adict.items():
-                mol_charge_count = np.zeros(self.np)
+                np.zeros(self.np)
                 tq = 0
                 qmap = []
                 qid = []
@@ -1323,8 +1522,11 @@ class FF(forcebalance.BaseClass):
                     if any([j in self.plist[i] for j in concern]) and qct > 0:
                         qmap.append(i)
                         qid.append(qidx)
-                        logger.info("Parameter %i occurs %i times in molecule %s in locations %s (%s)\n" % (i, qct, molname, str(qidx), self.plist[i]))
-                #Here is where we build the qtrans2 matrix.
+                        logger.info(
+                            "Parameter %i occurs %i times in molecule %s in locations %s (%s)\n"
+                            % (i, qct, molname, str(qidx), self.plist[i])
+                        )
+                # Here is where we build the qtrans2 matrix.
                 if len(qmap) > 0:
                     qtrans2 = build_qtrans2(tq, qid, qmap)
                     if self.constrain_charge:
@@ -1337,40 +1539,63 @@ class FF(forcebalance.BaseClass):
                 #     logger.info("Note: ESP fitting will be performed assuming that molecule id %s is the FIRST molecule and the only one being fitted.\n" % molname)
                 nmol += 1
         elif self.constrain_charge:
-            warn_press_key("'adict' {molecule:atomnames} was not found.\n This isn't a big deal if we only have one molecule, but might cause problems if we want multiple charge neutrality constraints.")
+            warn_press_key(
+                "'adict' {molecule:atomnames} was not found.\n This isn't a big deal if we only have one molecule, but might cause problems if we want multiple charge neutrality constraints."
+            )
             qnr = 0
             if any([self.Readers[i].pdict == "XML_Override" for i in self.fnms]):
                 # Hack to count the number of atoms for each atomic charge parameter, when the force field is an XML file.
                 # This needs to be changed to Chain or Molecule
                 logger.info(str([determine_fftype(k) for k in self.ffdata]))
-                ListOfAtoms = list(itertools.chain(*[[e.get('type') for e in self.ffdata[k].getroot().xpath('//Residue/Atom')] for k in self.ffdata if determine_fftype(k) == "openmm"]))
+                ListOfAtoms = list(
+                    itertools.chain(
+                        *[
+                            [
+                                e.get("type")
+                                for e in self.ffdata[k]
+                                .getroot()
+                                .xpath("//Residue/Atom")
+                            ]
+                            for k in self.ffdata
+                            if determine_fftype(k) == "openmm"
+                        ]
+                    )
+                )
             for i in range(self.np):
                 if any([j in self.plist[i] for j in concern]):
                     self.qmap.append(i)
-                    if 'Multipole/c0' in self.plist[i] or 'Atom/charge' in self.plist[i]:
-                        AType = self.plist[i].split('/')[-1].split('.')[0]
+                    if (
+                        "Multipole/c0" in self.plist[i]
+                        or "Atom/charge" in self.plist[i]
+                    ):
+                        AType = self.plist[i].split("/")[-1].split(".")[0]
                         nq = ListOfAtoms.count(AType)
                     else:
                         thisq = []
                         for k in self.plist[i].split():
                             for j in concern:
                                 if j in k:
-                                    thisq.append(k.split('-')[-1])
+                                    thisq.append(k.split("-")[-1])
                                     break
                         try:
-                            self.qid2.append(np.array([self.atomnames.index(k) for k in thisq]))
-                        except: pass
+                            self.qid2.append(
+                                np.array([self.atomnames.index(k) for k in thisq])
+                            )
+                        except:
+                            pass
                         nq = sum(np.array([self.plist[i].count(j) for j in concern]))
-                    self.qid.append(qnr+np.arange(nq))
+                    self.qid.append(qnr + np.arange(nq))
                     qnr += nq
             if len(self.qid2) == 0:
-                sys.stderr.write('Unable to match atom numbers up with atom names (minor issue, unless doing ESP fitting).  \nAre atom names implemented in the force field parser?\n')
+                sys.stderr.write(
+                    "Unable to match atom numbers up with atom names (minor issue, unless doing ESP fitting).  \nAre atom names implemented in the force field parser?\n"
+                )
             else:
                 self.qid = self.qid2
             tq = qnr - 1
-            #Here is where we build the qtrans2 matrix.
+            # Here is where we build the qtrans2 matrix.
             if len(self.qmap) > 0:
-                cons0 = np.ones((1,tq))
+                np.ones((1, tq))
                 qtrans2 = build_qtrans2(tq, self.qid, self.qmap)
                 # Insert qtrans2 into qmat2.
                 if self.constrain_charge:
@@ -1379,16 +1604,28 @@ class FF(forcebalance.BaseClass):
         ## Some customized constraints here.
         # Quadrupoles must be traceless
         if self.constrain_charge:
-            MultipoleAtoms = set([p.split('/')[-1] for p in self.plist if 'Multipole' in p])
-            QuadrupoleGrps = [[i for i, p in enumerate(self.plist) if 'Multipole' in p and p.split('/')[-1] == A and p.split('/')[1] in ['q11','q22','q33']] for A in MultipoleAtoms]
+            MultipoleAtoms = {p.split("/")[-1] for p in self.plist if "Multipole" in p}
+            QuadrupoleGrps = [
+                [
+                    i
+                    for i, p in enumerate(self.plist)
+                    if "Multipole" in p
+                    and p.split("/")[-1] == A
+                    and p.split("/")[1] in ["q11", "q22", "q33"]
+                ]
+                for A in MultipoleAtoms
+            ]
             for Grp in QuadrupoleGrps:
                 qid = [np.array([i]) for i in range(3)]
                 tq = 3
                 qtrans2 = build_qtrans2(tq, qid, Grp)
-                logger.info("Making sure that quadrupoles are traceless (for parameter IDs %s)\n" % str(Grp))
+                logger.info(
+                    "Making sure that quadrupoles are traceless (for parameter IDs %s)\n"
+                    % str(Grp)
+                )
                 insert_mat(qtrans2, Grp)
 
-        #ListOfAtoms = list(itertools.chain(*[[e.get('type') for e in self.ffdata[k].getroot().xpath('//Multipole')] for k in self.ffdata]))
+        # ListOfAtoms = list(itertools.chain(*[[e.get('type') for e in self.ffdata[k].getroot().xpath('//Multipole')] for k in self.ffdata]))
 
         # print "Charge parameter constraint matrix - feel free to check it"
         # for i in qmat2:
@@ -1404,18 +1641,20 @@ class FF(forcebalance.BaseClass):
         transmat1 = np.zeros((self.np, self.np))
         for i in range(self.np):
             for k in range(self.np):
-                transmat1[i,k] = qmat2[i,k] * self.rs[k]
+                transmat1[i, k] = qmat2[i, k] * self.rs[k]
 
         # This prints out the difference between the result of matrix multiplication
         # and the manual multiplication.
-        #print transmat1
-        #print transmat
+        # print transmat1
+        # print transmat
         if len(transmat) > 0 and np.max(np.abs(transmat1 - transmat)) > 0.0:
-            logger.warning('The difference between the numpy multiplication and the manual multiplication is \x1b[1;91m%f\x1b[0m, '
-                           'but it should be zero.\n' % np.max(np.abs(transmat1 - transmat)))
+            logger.warning(
+                "The difference between the numpy multiplication and the manual multiplication is \x1b[1;91m%f\x1b[0m, "
+                "but it should be zero.\n" % np.max(np.abs(transmat1 - transmat))
+            )
 
             transmat = np.array(transmat1, copy=True)
-        transmatNS = np.array(transmat,copy=True)
+        transmatNS = np.array(transmat, copy=True)
         self.excision = []
         for i in range(self.np):
             if abs(transmatNS[i, i]) < 1e-8:
@@ -1428,32 +1667,62 @@ class FF(forcebalance.BaseClass):
         self.tmI = transmat.T
 
     def list_map(self):
-        """ Create the plist, which is like a reversed version of the parameter map.  More convenient for printing. """
+        """Create the plist, which is like a reversed version of the parameter map.  More convenient for printing."""
         if len(self.map) == 0:
-            warn_press_key('The parameter map has no elements (Okay if we are not actually tuning any parameters.)')
+            warn_press_key(
+                "The parameter map has no elements (Okay if we are not actually tuning any parameters.)"
+            )
         else:
-            self.plist = [[] for j in range(max([self.map[i] for i in self.map])+1)]
+            self.plist = [[] for j in range(max([self.map[i] for i in self.map]) + 1)]
             for i in self.map:
                 self.plist[self.map[i]].append(i)
             for i in range(self.np):
-                self.plist[i] = ' '.join(natural_sort(self.plist[i]))
+                self.plist[i] = " ".join(natural_sort(self.plist[i]))
 
-    def print_map(self,vals = None,precision=4):
+    def print_map(self, vals=None, precision=4):
         """Prints out the (physical or mathematical) parameter indices, IDs and values in a visually appealing way."""
         if vals is None:
             vals = self.pvals0
-        logger.info('\n'.join(["%4i [ %s ]" % (self.plist.index(i), "%% .%ie" % precision % float(vals[self.plist.index(i)]) if isfloat(str(vals[self.plist.index(i)])) else (str(vals[self.plist.index(i)]))) + " : " + "%s" % i.split()[0] for i in self.plist]))
-        logger.info('\n')
+        logger.info(
+            "\n".join(
+                [
+                    "%4i [ %s ]"
+                    % (
+                        self.plist.index(i),
+                        "%% .%ie" % precision % float(vals[self.plist.index(i)])
+                        if isfloat(str(vals[self.plist.index(i)]))
+                        else (str(vals[self.plist.index(i)])),
+                    )
+                    + " : "
+                    + "%s" % i.split()[0]
+                    for i in self.plist
+                ]
+            )
+        )
+        logger.info("\n")
 
-    def sprint_map(self,vals = None,precision=4):
+    def sprint_map(self, vals=None, precision=4):
         """Prints out the (physical or mathematical) parameter indices, IDs and values to a string."""
         if vals is None:
             vals = self.pvals0
-        out = '\n'.join(["%4i [ %s ]" % (self.plist.index(i), "%% .%ie" % precision % float(vals[self.plist.index(i)]) if isfloat(str(vals[self.plist.index(i)])) else (str(vals[self.plist.index(i)]))) + " : " + "%s" % i.split()[0] for i in self.plist])
+        out = "\n".join(
+            [
+                "%4i [ %s ]"
+                % (
+                    self.plist.index(i),
+                    "%% .%ie" % precision % float(vals[self.plist.index(i)])
+                    if isfloat(str(vals[self.plist.index(i)]))
+                    else (str(vals[self.plist.index(i)])),
+                )
+                + " : "
+                + "%s" % i.split()[0]
+                for i in self.plist
+            ]
+        )
         return out
 
-    def assign_p0(self,idx,val):
-        """ Assign physical parameter values to the 'pvals0' array.
+    def assign_p0(self, idx, val):
+        """Assign physical parameter values to the 'pvals0' array.
 
         @param[in] idx The index to which we assign the parameter value.
         @param[in] val The parameter value to be inserted.
@@ -1463,8 +1732,8 @@ class FF(forcebalance.BaseClass):
         else:
             self.pvals0[idx] = val
 
-    def assign_field(self,idx,pid,fnm,ln,pfld,mult,cmd=None):
-        """ Record the locations of a parameter in a txt file; [[file name, line number, field number, and multiplier]].
+    def assign_field(self, idx, pid, fnm, ln, pfld, mult, cmd=None):
+        """Record the locations of a parameter in a txt file; [[file name, line number, field number, and multiplier]].
 
         Note that parameters can have multiple locations because of the repetition functionality.
 
@@ -1480,34 +1749,48 @@ class FF(forcebalance.BaseClass):
         @param[in] mult The multiplier (this is usually 1.0)
 
         """
-        self.pTree.add_node(pid, param_mathid=idx, file_name=fnm, line_number=ln, field_number=pfld, multiplier=mult, evalcmd=cmd)
+        self.pTree.add_node(
+            pid,
+            param_mathid=idx,
+            file_name=fnm,
+            line_number=ln,
+            field_number=pfld,
+            multiplier=mult,
+            evalcmd=cmd,
+        )
 
         if cmd:
-            # Matches dictionary keys in a string like this: 
+            # Matches dictionary keys in a string like this:
             # Given string: PRM['Bonds/Bond/k/[#6X3:1]-[#6X3:2]']*np.arccos(PRM["[*:1]~[#7X3$(*~[#6X3]):2](~[*:3])~[*:4]"])
             # Returns: (['Bonds/Bond/k/[#6X3:1]-[#6X3:2]'], ["[*:1]~[#7X3$(*~[#6X3]):2](~[*:3])~[*:4]"])
-            matches = re.findall("\[['\"][^'\"]*['\"]\]", cmd)
+            matches = re.findall("\\[['\"][^'\"]*['\"]\\]", cmd)
             for word in matches:
-                src_param_name = re.sub("\[['\"]|['\"]\]", "", word)
-                src_nodes = [x for x in self.pTree.nodes() if x==src_param_name]
+                src_param_name = re.sub("\\[['\"]|['\"]\\]", "", word)
+                src_nodes = [x for x in self.pTree.nodes() if x == src_param_name]
                 if len(src_nodes) > 1:
-                    raise RuntimeError('Detected multiple nodes in pTree with the same name; this should not happen')
+                    raise RuntimeError(
+                        "Detected multiple nodes in pTree with the same name; this should not happen"
+                    )
                 elif src_nodes:
                     if src_nodes[0] == pid:
-                        raise RuntimeError('Evaluated parameter depends on itself')
+                        raise RuntimeError("Evaluated parameter depends on itself")
                     # This makes a graph where the evaluated parameter is called the "successor"
                     # and the original parameter is called the "predecessor"
                     # Arrows point from successors to predecessors in the plot representation
                     self.pTree.add_edge(pid, src_nodes[0])
                 else:
-                    raise RuntimeError('Evaluated parameter refers to a source parameter that does not exist:\n%s'%cmd)
-                
-        self.pfields.append([pid,fnm,ln,pfld,mult,cmd])
+                    raise RuntimeError(
+                        "Evaluated parameter refers to a source parameter that does not exist:\n%s"
+                        % cmd
+                    )
+
+        self.pfields.append([pid, fnm, ln, pfld, mult, cmd])
 
     def plot_parameter_tree(fnm):
         ## Save the force field network graph to a PDF file.
         import matplotlib.pyplot as plt
-        plt.switch_backend('agg')
+
+        plt.switch_backend("agg")
         fig, ax = plt.subplots()
         fig.set_size_inches(12, 8)
         plt.sca(ax)
@@ -1519,12 +1802,12 @@ class FF(forcebalance.BaseClass):
         For a given unique parameter identifier, return all of the mvals that it is connected to.
         """
         mathids = []
-        if nx.get_node_attributes(self.pTree, 'param_mathid')[pid] is not None:
-            mathids.append(nx.get_node_attributes(self.pTree, 'param_mathid')[pid])
-        
+        if nx.get_node_attributes(self.pTree, "param_mathid")[pid] is not None:
+            mathids.append(nx.get_node_attributes(self.pTree, "param_mathid")[pid])
+
         for node in nx.dfs_predecessors(self.pTree, pid).keys():
-            if nx.get_node_attributes(self.pTree, 'param_mathid')[node] is not None:
-                mathids.append(nx.get_node_attributes(self.pTree, 'param_mathid')[node])
+            if nx.get_node_attributes(self.pTree, "param_mathid")[node] is not None:
+                mathids.append(nx.get_node_attributes(self.pTree, "param_mathid")[node])
         return mathids
 
     def __eq__(self, other):
@@ -1532,17 +1815,21 @@ class FF(forcebalance.BaseClass):
         if isinstance(other, FF):
             # list comprehension removes pid/filename element of pfields since we don't care about filename uniqueness
             self_pfields = [p[2:] for p in self.pfields]
-            other_pfields= [p[2:] for p in other.pfields]
+            other_pfields = [p[2:] for p in other.pfields]
 
-            return  self_pfields == other_pfields and\
-                        self.map == other.map and\
-                        (self.pvals0 == other.pvals0).all()
+            return (
+                self_pfields == other_pfields
+                and self.map == other.map
+                and (self.pvals0 == other.pvals0).all()
+            )
 
         # we only compare two forcefield objects
-        else: return NotImplemented
+        else:
+            return NotImplemented
 
-def rs_override(rsfactors,termtype,Temperature=298.15):
-    """ This function takes in a dictionary (rsfactors) and a string (termtype).
+
+def rs_override(rsfactors, termtype, Temperature=298.15):
+    """This function takes in a dictionary (rsfactors) and a string (termtype).
 
     If termtype matches any of the strings below, rsfactors[termtype] is assigned
     to one of the numbers below.
@@ -1554,28 +1841,30 @@ def rs_override(rsfactors,termtype,Temperature=298.15):
     @param[in] Temperature The temperature for computing the kT energy scale
 
     """
-    if match('PIMPDIHS[1-6]K|PDIHMULS[1-6]K|PDIHS[1-6]K|RBDIHSK[1-5]|MORSEC',termtype):
+    if match("PIMPDIHS[1-6]K|PDIHMULS[1-6]K|PDIHS[1-6]K|RBDIHSK[1-5]|MORSEC", termtype):
         # eV or eV rad^-2
         rsfactors[termtype] = 96.4853
-    elif match('UREY_BRADLEYK1|ANGLESK',termtype):
+    elif match("UREY_BRADLEYK1|ANGLESK", termtype):
         rsfactors[termtype] = 96.4853 * 6.28
-    elif match('COUL|VPAIR_BHAMC|QTPIEA',termtype):
+    elif match("COUL|VPAIR_BHAMC|QTPIEA", termtype):
         # elementary charge, or unitless, or already in atomic unit
         rsfactors[termtype] = 1.0
-    elif match('QTPIEC|QTPIEH',termtype):
+    elif match("QTPIEC|QTPIEH", termtype):
         # eV to atomic unit
         rsfactors[termtype] = 27.2114
-    elif match('BONDSB|UREY_BRADLEYB|MORSEB|VDWS|VPAIRS|VSITE|VDW_BHAMA|VPAIR_BHAMA',termtype):
+    elif match(
+        "BONDSB|UREY_BRADLEYB|MORSEB|VDWS|VPAIRS|VSITE|VDW_BHAMA|VPAIR_BHAMA", termtype
+    ):
         # nm to atomic unit
         rsfactors[termtype] = 0.05291772
-    elif match('BONDSK|UREY_BRADLEYK2',termtype):
+    elif match("BONDSK|UREY_BRADLEYK2", termtype):
         # au bohr^-2
         rsfactors[termtype] = 34455.5275 * 27.2114
-    elif match('PDIHS[1-6]B|ANGLESB|UREY_BRADLEYB',termtype):
+    elif match("PDIHS[1-6]B|ANGLESB|UREY_BRADLEYB", termtype):
         # radian
         rsfactors[termtype] = 57.295779513
-    elif match('VDWT|VDW_BHAMB|VPAIR_BHAMB',termtype):
+    elif match("VDWT|VDW_BHAMB|VPAIR_BHAMB", termtype):
         # VdW well depth; using kT.  This was a tough one because the energy scale is so darn small.
-        rsfactors[termtype] = kb*Temperature
-    elif match('MORSEE',termtype):
+        rsfactors[termtype] = kb * Temperature
+    elif match("MORSEE", termtype):
         rsfactors[termtype] = 18.897261

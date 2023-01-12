@@ -39,14 +39,14 @@ for mol in $(awk '/molecule/ {print $2}' objective.dat) ; do
         else
             echo "Running psi4 build.dat since $PSISCRATCH/$mol.dat does not exist"
             psi4 build.dat
-        fi 
+        fi
     fi
-done 
+done
 
 #if [ ! -f $PSISCRATCH/$1.dat ] ; then
 #    if [ -f $cache/$1.dat ] ; then
 #        cp $cache/$1.dat .
-#    else 
+#    else
 #        echo "Running psi4 build.dat since $PSISCRATCH/$1.dat does not exist"
 #        psi4 build.dat
 #    fi

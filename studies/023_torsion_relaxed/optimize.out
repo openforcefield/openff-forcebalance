@@ -8,18 +8,18 @@
 #| [1m           Arthur Vigil, Erik G. Brandt, Johnny Israeli           [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -38,19 +38,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: optimize.in
 #========================================================#
@@ -1092,24 +1092,24 @@ Reading force field from file: param_valence.offxml
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['param_valence.offxml'] 
-priors                    OrderedDict([('Bonds/Bond/k', 100.0), ('Bonds/Bond/length', 0.1), ('Angles/Angle/k', 100.0), ('Angles/Angle/angle', 20.0), ('ProperTorsions/Proper/k', 1.0)]) 
+fnms                      ['param_valence.offxml']
+priors                    OrderedDict([('Bonds/Bond/k', 100.0), ('Bonds/Bond/length', 0.1), ('Angles/Angle/k', 100.0), ('Angles/Angle/angle', 20.0), ('ProperTorsions/Proper/k', 1.0)])
 ----------------------------------------------------------
 Backing up: optimize.tmp/td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3 to: optimize.bak/td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3_9.tar.bz2
 Referencing all energies to the snapshot 7 (minimum energy structure in QM)
 #======================================================================#
 #| [92m Setup for target td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3 : [0m |#
 #======================================================================#
-mol2                      ['input.mol2'] 
-precision                 double 
-platname                  Reference 
-name                      td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3 
-type                      TORSIONPROFILE_SMIRNOFF 
-h                         0.01 
-tgtdir                    targets/td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3 
-writelevel                2 
-attenuate                 True 
-energy_upper              5.0 
+mol2                      ['input.mol2']
+precision                 double
+platname                  Reference
+name                      td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3
+type                      TORSIONPROFILE_SMIRNOFF
+h                         0.01
+tgtdir                    targets/td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3
+writelevel                2
+attenuate                 True
+energy_upper              5.0
 ------------------------------------------------------------------------
 #========================================================#
 #| [92m        SMIRNOFF Parameter Coverage Analysis        [0m |#
@@ -1627,21 +1627,21 @@ Using parabolic regularization (Gaussian prior) with strength 1.0e+00 (+), 0.0e+
 #========================================================#
 #| [92m           Setup for objective function :           [0m |#
 #========================================================#
-penalty_additive          1.0 
-normalize_weights         False 
+penalty_additive          1.0
+normalize_weights         False
 ----------------------------------------------------------
 #========================================================#
 #| [92m                Setup for optimizer                 [0m |#
 #========================================================#
-jobtype                   OPTIMIZE 
-eps                       0.01 
-h                         0.01 
-h0                        0.01 
-convergence_objective     0.01 
-convergence_step          0.01 
-convergence_gradient      0.01 
-input_file                optimize.in 
-criteria                  2 
+jobtype                   OPTIMIZE
+eps                       0.01
+h                         0.01
+h0                        0.01
+convergence_objective     0.01
+convergence_step          0.01
+convergence_gradient      0.01
+input_file                optimize.in
+criteria                  2
 ----------------------------------------------------------
 Calculation started at 2019-08-02 03:48 PM
 #========================================================#
@@ -1669,15 +1669,15 @@ Calculation started at 2019-08-02 03:48 PM
 #| [92m             Torsion Profile: td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3, Objective =  3.98848e-01, Units = kcal/mol, Angstrom             [0m |#
 #| [92m System                                             Min(QM)    Min(MM)      Range(QM)          Range(MM)    Max-RMSD   Ene-RMSE    Obj-Fn     [0m |#
 #==================================================================================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.369      0.108     0.6315    0.3988 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.369      0.108     0.6315    0.3988
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 #====================================================================#
 #| [94m                  Objective Function Breakdown                  [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution [0m |#
 #====================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.39885      1.000 [94m     3.98848e-01[0m 
-Regularization                 0.00000      1.000 [94m     0.00000e+00[0m 
-Total                                             [94m     3.98848e-01[0m 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.39885      1.000 [94m     3.98848e-01[0m
+Regularization                 0.00000      1.000 [94m     0.00000e+00[0m
+Total                                             [94m     3.98848e-01[0m
 ----------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual
@@ -3236,15 +3236,15 @@ Input file with saved parameters: optimize.sav
 #| [92m             Torsion Profile: td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3, Objective =  2.74384e-01, Units = kcal/mol, Angstrom             [0m |#
 #| [92m System                                             Min(QM)    Min(MM)      Range(QM)          Range(MM)    Max-RMSD   Ene-RMSE    Obj-Fn     [0m |#
 #==================================================================================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.755      0.111     0.5238    0.2744 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.755      0.111     0.5238    0.2744
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.27438      1.000 [92m     2.74384e-01[0m ( -1.245e-01 ) 
-Regularization                 0.01000      1.000 [91m     9.99999e-03[0m ( +1.000e-02 ) 
-Total                                             [92m     2.84384e-01[0m ( -1.145e-01 ) 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.27438      1.000 [92m     2.74384e-01[0m ( -1.245e-01 )
+Regularization                 0.01000      1.000 [91m     9.99999e-03[0m ( +1.000e-02 )
+Total                                             [92m     2.84384e-01[0m ( -1.145e-01 )
 -------------------------------------------------------------------------------------
 Backing up result/optimize/param_valence.offxml -> result/optimize/param_valence_13.offxml
 #========================================================================#
@@ -4808,15 +4808,15 @@ Input file with saved parameters: optimize.sav
 #| [92m             Torsion Profile: td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3, Objective =  1.92394e-01, Units = kcal/mol, Angstrom             [0m |#
 #| [92m System                                             Min(QM)    Min(MM)      Range(QM)          Range(MM)    Max-RMSD   Ene-RMSE    Obj-Fn     [0m |#
 #==================================================================================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.971      0.111     0.4386    0.1924 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.971      0.111     0.4386    0.1924
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.19239      1.000 [92m     1.92394e-01[0m ( -8.199e-02 ) 
-Regularization                 0.04725      1.000 [91m     4.72484e-02[0m ( +3.725e-02 ) 
-Total                                             [92m     2.39642e-01[0m ( -4.474e-02 ) 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.19239      1.000 [92m     1.92394e-01[0m ( -8.199e-02 )
+Regularization                 0.04725      1.000 [91m     4.72484e-02[0m ( +3.725e-02 )
+Total                                             [92m     2.39642e-01[0m ( -4.474e-02 )
 -------------------------------------------------------------------------------------
 Backing up result/optimize/param_valence.offxml -> result/optimize/param_valence_14.offxml
 #========================================================================#
@@ -6364,15 +6364,15 @@ Input file with saved parameters: optimize.sav
 #| [92m             Torsion Profile: td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3, Objective =  1.80773e-01, Units = kcal/mol, Angstrom             [0m |#
 #| [92m System                                             Min(QM)    Min(MM)      Range(QM)          Range(MM)    Max-RMSD   Ene-RMSE    Obj-Fn     [0m |#
 #==================================================================================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.993      0.111     0.4252    0.1808 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3             -60        -60     0.000 - 5.041     0.000 - 4.993      0.111     0.4252    0.1808
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.18077      1.000 [92m     1.80773e-01[0m ( -1.162e-02 ) 
-Regularization                 0.05747      1.000 [91m     5.74742e-02[0m ( +1.023e-02 ) 
-Total                                             [92m     2.38247e-01[0m ( -1.395e-03 ) 
+td_SMIRNOFF_Coverage_Torsion_Set_1_000_C3H8O3      0.18077      1.000 [92m     1.80773e-01[0m ( -1.162e-02 )
+Regularization                 0.05747      1.000 [91m     5.74742e-02[0m ( +1.023e-02 )
+Total                                             [92m     2.38247e-01[0m ( -1.395e-03 )
 -------------------------------------------------------------------------------------
 Backing up result/optimize/param_valence.offxml -> result/optimize/param_valence_15.offxml
 #========================================================================#

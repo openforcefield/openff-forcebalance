@@ -104,7 +104,7 @@ elif [[ $HOSTNAME =~ "nid" ]] ; then
     export OPENMM_PLUGIN_DIR=$HOME/opt/openmm/lib/plugins
     export OPENMM_CUDA_COMPILER=$CUDA_HOME/bin/nvcc
     export LD_LIBRARY_PATH=$HOME/opt/openmm/lib:$OPENMM_PLUGIN_DIR:$LD_LIBRARY_PATH
-    export CRAY_CUDA_PROXY=1 
+    export CRAY_CUDA_PROXY=1
     export BAK=/scratch/sciteam/leeping/runcuda-backups
     numactl --hardware
 elif [[ `env | grep -i tacc | wc -l` -gt 0 ]] ; then

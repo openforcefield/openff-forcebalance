@@ -54,7 +54,7 @@ priors
    Angles/Angle/k           :  5.0e+01
    Angles/Angle/angle       :  1.0e+01
    ProperTorsions/Proper/k  :  2.0e+00
-/priors      
+/priors
 
 $end
 
@@ -67,6 +67,3 @@ weight 500.0
 hess_normalize_type 0
 writelevel 1
 $end
-
-
-

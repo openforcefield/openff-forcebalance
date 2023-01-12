@@ -9,43 +9,41 @@ Changed by Lee-Ping from dict to OrderedDict.
 
 mol2_set:
   A class to manage multipe mol2 files
-mol2: 
+mol2:
   A class to manage simple mol2 data
 """
-from __future__ import print_function
 
-from builtins import range
-from builtins import object
 import sys
-import types
 from collections import OrderedDict
 
-#=====================================================================
+# =====================================================================
 #
 # The mol2 atom line class
 #
-#=====================================================================
+# =====================================================================
 
-class mol2_atom(object):
+
+class mol2_atom:
     """
     This is to manage mol2 atomic lines on the form:
       1 C1          5.4790   42.2880   49.5910 C.ar    1  <1>         0.0424
     """
+
     def __init__(self, data=None):
         """
         if data is passed, it will be installed
         """
-        self.atom_id    = None
-        self.atom_name  = None
-        self.x          = None
-        self.y          = None
-        self.z          = None
-        self.atom_type  = None
-        self.subst_id   = None
+        self.atom_id = None
+        self.atom_name = None
+        self.x = None
+        self.y = None
+        self.z = None
+        self.atom_type = None
+        self.subst_id = None
         self.subst_name = None
-        self.charge     = None
+        self.charge = None
         self.status_bit = None
-        
+
         if data is not None:
             self.parse(data)
 
@@ -56,27 +54,37 @@ class mol2_atom(object):
         it = data.split()
         self.set_atom_id(it[0])
         self.set_atom_name(it[1])
-        self.set_crds(it[2],it[3],it[4])
+        self.set_crds(it[2], it[3], it[4])
         self.set_atom_type(it[5])
         self.set_subst_id(it[6])
         self.set_subst_name(it[7])
         try:
             self.set_charge(it[8])
         except:
-            self.set_charge(0.)
+            self.set_charge(0.0)
         try:
             self.set_status_bit(it[9])
         except:
             self.status_bit = None
         # self.__repr__()
-    
+
     def __repr__(self):
         """
         assemble the properties as a text line, and return it
         """
         # print "mol2_atom.__repr__()"
         # print self.atom_id, self.atom_name, self.x, self.y, self.z, self.atom_type, self.subst_id, self.subst_name, self.charge
-        rs = "%7d %-5s    %9.4f %9.4f %9.4f %-7s %2d %4s  %12.6f" % (self.atom_id, self.atom_name, self.x, self.y, self.z, self.atom_type, self.subst_id, self.subst_name, self.charge)
+        rs = "%7d %-5s    %9.4f %9.4f %9.4f %-7s %2d %4s  %12.6f" % (
+            self.atom_id,
+            self.atom_name,
+            self.x,
+            self.y,
+            self.z,
+            self.atom_type,
+            self.subst_id,
+            self.subst_name,
+            self.charge,
+        )
         if self.status_bit is not None:
             rs = rs + " %s" % self.status_bit
         return rs
@@ -96,8 +104,8 @@ class mol2_atom(object):
         if atom_name is not None:
             self.atom_name = atom_name
         return self.atom_name
-        
-    def set_crds(self, x = None, y = None, z = None):
+
+    def set_crds(self, x=None, y=None, z=None):
         """
         the coordinates of the atom
         """
@@ -114,7 +122,7 @@ class mol2_atom(object):
         if atom_type is not None:
             self.atom_type = atom_type
         return self.atom_type
-        
+
     def set_subst_id(self, subst_id=None):
         """
         substructure identifier
@@ -122,7 +130,7 @@ class mol2_atom(object):
         if subst_id is not None:
             self.subst_id = int(subst_id)
         return self.subst_id
-        
+
     def set_subst_name(self, subst_name=None):
         """
         substructure name
@@ -130,7 +138,7 @@ class mol2_atom(object):
         if subst_name is not None:
             self.subst_name = subst_name
         return self.subst_name
-        
+
     def set_charge(self, charge=None):
         """
         atomic charge
@@ -138,7 +146,7 @@ class mol2_atom(object):
         if charge is not None:
             self.charge = float(charge)
         return self.charge
-        
+
     def set_status_bit(self, status_bit=None):
         """
         Never to use (in theory)
@@ -146,54 +154,60 @@ class mol2_atom(object):
         if status_bit is not None:
             self.status_bit = status_bit
         return self.status_bit
-        
 
-#=====================================================================
+
+# =====================================================================
 #
 # The mol2 bond line class
 #
-#=====================================================================
+# =====================================================================
 
-class mol2_bond(object):
+
+class mol2_bond:
     """
     This is to manage mol2 bond lines on the form:
      1     1     2   ar
     """
+
     def __init__(self, data=None):
         """
         if data is passed, it will be installed
         """
-        self.bond_id         = None
-        self.origin_atom_id  = None
-        self.target_atom_id  = None
-        self.bond_type       = None
-        
+        self.bond_id = None
+        self.origin_atom_id = None
+        self.target_atom_id = None
+        self.bond_type = None
+
         if data is not None:
             self.parse(data)
 
     def __repr__(self):
         # print "mol2_bond.__repr__()", self.bond_id, self.origin_atom_id, self.target_atom_id, self.bond_type
-        rs = "%6d %5d %5d %4s" % (self.bond_id, self.origin_atom_id, self.target_atom_id, self.bond_type)
+        rs = "%6d %5d %5d %4s" % (
+            self.bond_id,
+            self.origin_atom_id,
+            self.target_atom_id,
+            self.bond_type,
+        )
         if self.status_bit is not None:
             rs = rs + " %s" % self.status_bit
-        return rs        
+        return rs
 
     def parse(self, data):
         """
         split the text line into a series of properties
         """
         it = data.split()
-        self.bond_id        = int(it[0])
+        self.bond_id = int(it[0])
         self.origin_atom_id = int(it[1])
         self.target_atom_id = int(it[2])
-        self.bond_type      = it[3]
+        self.bond_type = it[3]
         try:
             self.set_status_bit(it[4])
         except:
             self.status_bit = None
         # print "mol2_bond.__repr__():", self.__repr__()
 
- 
     def set_bond_id(self, bond_id=None):
         """
         bond identifier (integer, starting from 1)
@@ -220,8 +234,8 @@ class mol2_bond(object):
 
     def set_bond_type(self, bond_type=None):
         """
-        bond type (string) 
-        one of: 
+        bond type (string)
+        one of:
         1 = single
         2 = double
         3 = triple
@@ -243,41 +257,44 @@ class mol2_bond(object):
             self.status_bit = status_bit
         return self.status_bit
 
-#=====================================================================
+
+# =====================================================================
 #
 # The one mol2 class
 #
-#=====================================================================
+# =====================================================================
 
-class mol2(object):
+
+class mol2:
     """
-    This is to manage one mol2 series of lines on the form: @verbatim
-@<TRIPOS>MOLECULE
-CDK2.xray.inh1.1E9H
- 34 37 0 0 0
-SMALL
-GASTEIGER
-Energy = 0
+        This is to manage one mol2 series of lines on the form: @verbatim
+    @<TRIPOS>MOLECULE
+    CDK2.xray.inh1.1E9H
+     34 37 0 0 0
+    SMALL
+    GASTEIGER
+    Energy = 0
 
-@<TRIPOS>ATOM
-      1 C1          5.4790   42.2880   49.5910 C.ar    1  <1>         0.0424
-      2 C2          4.4740   42.6430   50.5070 C.ar    1  <1>         0.0447
-@<TRIPOS>BOND
-     1     1     2   ar
-     2     1     6   ar
+    @<TRIPOS>ATOM
+          1 C1          5.4790   42.2880   49.5910 C.ar    1  <1>         0.0424
+          2 C2          4.4740   42.6430   50.5070 C.ar    1  <1>         0.0447
+    @<TRIPOS>BOND
+         1     1     2   ar
+         2     1     6   ar
 
-    @endverbatim"""
+        @endverbatim"""
+
     def __init__(self, data):
-        self.mol_name  = None
+        self.mol_name = None
         self.num_atoms = 0
         self.num_bonds = 0
         self.num_subst = 0
-        self.num_feat  = 0
-        self.num_sets  = 0
-        self.mol_type  = None
+        self.num_feat = 0
+        self.num_sets = 0
+        self.mol_type = None
         self.charge_type = None
-        self.comments  = ""
-        
+        self.comments = ""
+
         self.atoms = []
         self.bonds = []
 
@@ -288,22 +305,28 @@ Energy = 0
         rs = ""
         rs = rs + "%s\n" % "@<TRIPOS>MOLECULE"
         rs = rs + "%s\n" % self.mol_name
-        rs = rs + "%d %d %d %d %d\n" % (self.num_atoms, self.num_bonds, self.num_subst, self.num_feat, self.num_sets)
+        rs = rs + "%d %d %d %d %d\n" % (
+            self.num_atoms,
+            self.num_bonds,
+            self.num_subst,
+            self.num_feat,
+            self.num_sets,
+        )
         rs = rs + "%s\n" % self.mol_type
         rs = rs + "%s\n" % self.charge_type
         rs = rs + "%s" % self.comments
         rs = rs + "%s\n" % "@<TRIPOS>ATOM"
-        
+
         for atom in self.atoms:
             rs = rs + "%s\n" % atom.__repr__()
         rs = rs + "%s\n" % "@<TRIPOS>BOND"
         for bond in self.bonds:
             rs = rs + "%s\n" % bond.__repr__()
         rs = rs + "\n"
-        
+
         return rs
 
-    def out(self, f = sys.stdout):
+    def out(self, f=sys.stdout):
         f.write(self.__repr__())
 
     def set_mol_name(self, mol_name=None):
@@ -372,7 +395,7 @@ Energy = 0
 
     def parse(self, data):
         """
-        Parse a series of text lines, 
+        Parse a series of text lines,
         and setup compound information
         """
         for l in data:
@@ -413,9 +436,9 @@ Energy = 0
                     status = 7
                     continue
                 self.atoms.append(mol2_atom(l))
-#                 if len(self.atoms) == self.num_atoms:
-#                     status = 7
-#                     continue
+            #                 if len(self.atoms) == self.num_atoms:
+            #                     status = 7
+            #                     continue
             if status == 7:
                 if l.count("@<TRIPOS>"):
                     status = 8
@@ -430,21 +453,21 @@ Energy = 0
         """
         return the atom instance given its atom identifier
         """
-        if self.atoms[id-1].set_atom_id() == id:
-            return self.atoms[id-1]
+        if self.atoms[id - 1].set_atom_id() == id:
+            return self.atoms[id - 1]
         else:
-            for i in range(0,len(self.atoms)):
+            for i in range(0, len(self.atoms)):
                 if self.atoms[i].set_atom_id() == id:
                     return self.atoms[i]
             else:
                 return None
-            
+
     def get_bonded_atoms(self, id):
         """
         return a dictionnary of atom instances bonded to the atom, and their types
         """
         rs = []
-        for i in range(0,len(self.bonds)):
+        for i in range(0, len(self.bonds)):
             if self.bonds[i].set_origin_atom_id() == id:
                 # print id, "connected to",self.bonds[i].set_target_atom_id(),"(target)"
                 rs.append(self.get_atom(self.bonds[i].set_target_atom_id()))
@@ -452,14 +475,14 @@ Energy = 0
                 # print id, "connected to",self.bonds[i].set_origin_atom_id(),"(origin)"
                 rs.append(self.get_atom(self.bonds[i].set_origin_atom_id()))
         return rs
-            
-    def set_donnor_acceptor_atoms(self, verbose = 0):
+
+    def set_donnor_acceptor_atoms(self, verbose=0):
         """
         modify atom types to specify donnor, acceptor, or both
         """
         # print "set_donnor_acceptor_atoms", len(self.atoms)
-        for i in range(0,len(self.atoms)):
-        # for i in range(8,12):
+        for i in range(0, len(self.atoms)):
+            # for i in range(8,12):
             # print self.atoms[i]
             bonds = self.get_bonded_atoms(self.atoms[i].set_atom_id())
             atmType = self.atoms[i].set_atom_type()
@@ -478,9 +501,9 @@ Energy = 0
                 else:
                     self.atoms[i].set_atom_type("S.acc")
                 continue
-            
+
             # oxygen
-            if atmType in ["O.3","O.2","O.co2"]:
+            if atmType in ["O.3", "O.2", "O.co2"]:
                 isAcceptor = 1
                 isDonnor = 0
                 if atmType in ["O.3"]:
@@ -489,26 +512,26 @@ Energy = 0
                             isDonnor = 1
                             break
                 if isDonnor:
-                    self.atoms[i].set_atom_type("O.da") # donnor acceptor
+                    self.atoms[i].set_atom_type("O.da")  # donnor acceptor
                 else:
                     self.atoms[i].set_atom_type("O.acc")
                 continue
-            
+
             # nitrogen
-            if atmType in ["N.1","N.2","N.ar","N.3","N.4"]:
+            if atmType in ["N.1", "N.2", "N.ar", "N.3", "N.4"]:
                 hasH = 0
                 for j in bonds:
                     if j.set_atom_type()[0] == "H":
                         hasH = 1
                         break
                 isDonnor = 0
-                if (atmType in ["N.2","N.ar","N.3","N.4"]) and hasH:
+                if (atmType in ["N.2", "N.ar", "N.3", "N.4"]) and hasH:
                     isDonnor = 1
                 isAcceptor = 0
-                if (atmType in ["N.1","N.2","N.ar"]) and (not hasH):
+                if (atmType in ["N.1", "N.2", "N.ar"]) and (not hasH):
                     isAcceptor = 1
                 if isDonnor and isAcceptor:
-                    self.atoms[i].set_atom_type("N.da") # donnor acceptor
+                    self.atoms[i].set_atom_type("N.da")  # donnor acceptor
                 elif isDonnor:
                     self.atoms[i].set_atom_type("N.don")
                 elif isAcceptor:
@@ -516,7 +539,7 @@ Energy = 0
                 continue
 
             # hydrophobic
-            if atmType in ["C.2","C.3","N.pl3"]:
+            if atmType in ["C.2", "C.3", "N.pl3"]:
                 hasH = 0
                 for j in bonds:
                     if j.set_atom_type()[0] == "H":
@@ -530,12 +553,13 @@ Energy = 0
                 if (atmType in ["N.pl3"]) and (hasH == 0):
                     self.atoms[i].set_atom_type("N.phb")
                     continue
-                if (atmType in ["C.2","C.3"]) and hasH and (not hasONS):
+                if (atmType in ["C.2", "C.3"]) and hasH and (not hasONS):
                     self.atoms[i].set_atom_type("C.phb")
                     continue
-                
-class mol2_set(object):
-    def __init__(self, data = None, subset = None):
+
+
+class mol2_set:
+    def __init__(self, data=None, subset=None):
         """
         A collection is organized as a dictionnary of compounds
         self.num_compounds : the number of compounds
@@ -546,29 +570,29 @@ class mol2_set(object):
         self.num_compounds = 0
         self.comments = ""
         self.compounds = OrderedDict()
-        
+
         # subset management
         if subset is not None:
-            if isinstance(subset,list):
+            if isinstance(subset, list):
                 pass
-            elif isinstance(subset,str):
+            elif isinstance(subset, str):
                 try:
                     f = open(subset)
                     lines = f.readlines()
                     f.close()
                     for i in range(0, len(lines)):
-                        lines[i] = lines[i].replace("\n","")
+                        lines[i] = lines[i].replace("\n", "")
                     subset = lines
                 except:
                     subset = None
 
         # data management
         if data is not None:
-            if isinstance(data,mol2_set):
+            if isinstance(data, mol2_set):
                 self.num_compounds = data.num_compounds
-                self.compounds     = data.compounds
-                self.comments      = data.comments
-            elif isinstance(data,str):
+                self.compounds = data.compounds
+                self.comments = data.comments
+            elif isinstance(data, str):
                 try:
                     f = open(data)
                     lines = f.readlines()
@@ -577,18 +601,18 @@ class mol2_set(object):
                     self.parse(lines, subset)
                 except:
                     pass
-            elif isinstance(data,list):
+            elif isinstance(data, list):
                 self.parse(data, subset)
         # return self
 
-    def parse(self, data, subset = None):
+    def parse(self, data, subset=None):
         """
         parse a list of lines, detect compounds, load them
         only load the subset if specified.
         """
         status = 0
         cmpnds = OrderedDict()
-        for l in range(0,len(data)):
+        for l in range(0, len(data)):
             if (not status) and (data[l][0] == "#"):
                 self.comments = self.comments + l
             if data[l].count("@<TRIPOS>MOLECULE"):
@@ -596,31 +620,33 @@ class mol2_set(object):
                 if len(cmpnds):
                     if (subset is None) or (cmpnd in subset):
                         cmpnds[cmpnd]["to"] = l
-                ffrom = l
-                cmpnd = data[l+1].split()[0]
+                cmpnd = data[l + 1].split()[0]
                 if (subset is None) or (cmpnd in subset):
                     cmpnds[cmpnd] = OrderedDict([("from", l)])
             if (subset is None) or (cmpnd in subset):
-                cmpnds[cmpnd]["to"] = len(data) 
-        
+                cmpnds[cmpnd]["to"] = len(data)
+
         for cmpnd in cmpnds.keys():
             # print cmpnd, cmpnds[cmpnd]["from"],cmpnds[cmpnd]["to"]
             # print data[cmpnds[cmpnd]["from"]:cmpnds[cmpnd]["to"]]
-            self.compounds[cmpnd] = mol2(data[cmpnds[cmpnd]["from"]:cmpnds[cmpnd]["to"]])
+            self.compounds[cmpnd] = mol2(
+                data[cmpnds[cmpnd]["from"] : cmpnds[cmpnd]["to"]]
+            )
             self.num_compounds += 1
             # break
+
 
 if __name__ == "__main__":
 
     import sys
 
     # data = mol2_set(sys.argv[1], subset=["CDK2.xray.inh1.1E9H", 'RNAse.xray.inh4.1O0F']) # , 'RNAse.xray.inh4.1O0F'
-    data = mol2_set(sys.argv[1], subset=["RNAse.xray.inh8.1QHC"]) # No subset
+    data = mol2_set(sys.argv[1], subset=["RNAse.xray.inh8.1QHC"])  # No subset
 
     sys.stderr.write("Loaded %d compounds\n" % data.num_compounds)
 
     for cmpnd in data.compounds.keys():
         # print data.compounds[cmpnd],
         data.compounds[cmpnd].set_donnor_acceptor_atoms()
-        print(data.compounds[cmpnd], end=' ')
+        print(data.compounds[cmpnd], end=" ")
         break

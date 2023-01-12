@@ -67,7 +67,7 @@ forceCustomNonBonded.setCutoffDistance(coDist)
 
 width_H = 0.03 # PRM 2
 width_O = 0.03 # PRM 2
- 
+
 forceCustomNonBonded.addGlobalParameter("COULOMB_CONSTANT", COULOMB_CONSTANT)
 forceCustomNonBonded.addPerParticleParameter("q")
 forceCustomNonBonded.addPerParticleParameter("w")

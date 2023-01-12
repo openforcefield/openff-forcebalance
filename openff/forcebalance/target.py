@@ -1,25 +1,45 @@
 """ Target base class from which all ForceBalance fitting targets are derived. """
-from __future__ import print_function
 
-from builtins import str
-from builtins import range
 import abc
 import os
-import subprocess
 import shutil
-import numpy as np
+import subprocess
+import tarfile
 import time
 from collections import OrderedDict
-import tarfile
-import forcebalance
-from forcebalance.nifty import row, col, printcool_dictionary, link_dir_contents, createWorkQueue, getWorkQueue, wq_wait1, getWQIds, wopen, warn_press_key, _exec, lp_load, LinkFile
-from forcebalance.finite_difference import fdwrap_G, fdwrap_H, f1d2p, f12d3p, in_fd
-from forcebalance.optimizer import Counter
-from forcebalance.output import getLogger
-from future.utils import with_metaclass
+
+import numpy as np
+
+from openff.forcebalance import BaseClass
+from openff.forcebalance.finite_difference import (
+    f1d2p,
+    f12d3p,
+    fdwrap_G,
+    fdwrap_H,
+    in_fd,
+)
+from openff.forcebalance.nifty import (
+    LinkFile,
+    _exec,
+    col,
+    createWorkQueue,
+    getWorkQueue,
+    getWQIds,
+    link_dir_contents,
+    lp_load,
+    printcool_dictionary,
+    row,
+    warn_press_key,
+    wopen,
+    wq_wait1,
+)
+from openff.forcebalance.optimizer import Counter
+from openff.forcebalance.output import getLogger
+
 logger = getLogger(__name__)
 
-class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
+
+class Target(abc.ABCMeta, BaseClass):
 
     """
     Base class for all fitting targets.
@@ -77,7 +97,7 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
 
     """
 
-    def __init__(self,options,tgt_opts,forcefield):
+    def __init__(self, options, tgt_opts, forcefield):
         """
         All options here are intended to be usable by every
         conceivable type of target (in other words, only
@@ -89,123 +109,142 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         Target.
 
         """
-        super(Target, self).__init__(options)
-        #======================================#
+        super().__init__(options)
+        # ======================================#
         # Options that are given by the parser #
-        #======================================#
+        # ======================================#
         ## Root directory of the whole project
-        self.set_option(options, 'root')
+        self.set_option(options, "root")
         ## Name of the target
-        self.set_option(tgt_opts, 'name')
+        self.set_option(tgt_opts, "name")
         if self.name in ["forcefield-remote"]:
             logger.error("forcefield-remote is not an allowed target name (reserved)")
             raise RuntimeError
         ## Type of target
-        self.set_option(tgt_opts, 'type')
+        self.set_option(tgt_opts, "type")
         ## Relative weight of the target
-        self.set_option(tgt_opts, 'weight')
+        self.set_option(tgt_opts, "weight")
         ## Switch for finite difference gradients
-        self.set_option(tgt_opts, 'fdgrad')
+        self.set_option(tgt_opts, "fdgrad")
         ## Switch for finite difference Hessians
-        self.set_option(tgt_opts, 'fdhess')
+        self.set_option(tgt_opts, "fdhess")
         ## Switch for FD gradients + Hessian diagonals
-        self.set_option(tgt_opts, 'fdhessdiag')
+        self.set_option(tgt_opts, "fdhessdiag")
         ## How many seconds to sleep (if any)
-        self.set_option(tgt_opts, 'sleepy')
+        self.set_option(tgt_opts, "sleepy")
         ## Parameter types that trigger FD gradient elements
-        self.set_option(None, None, 'fd1_pids', [i.upper() for i in tgt_opts['fd_ptypes']], default = [])
-        self.set_option(None, None, 'fd2_pids', [i.upper() for i in tgt_opts['fd_ptypes']], default = [])
+        self.set_option(
+            None,
+            None,
+            "fd1_pids",
+            [i.upper() for i in tgt_opts["fd_ptypes"]],
+            default=[],
+        )
+        self.set_option(
+            None,
+            None,
+            "fd2_pids",
+            [i.upper() for i in tgt_opts["fd_ptypes"]],
+            default=[],
+        )
         ## Parameter types that trigger FD Hessian elements
         ## Finite difference step size
-        self.set_option(options, 'finite_difference_h', 'h')
+        self.set_option(options, "finite_difference_h", "h")
         ## Whether to make backup files
-        self.set_option(options, 'backup')
+        self.set_option(options, "backup")
         ## Directory to read data from.
-        self.set_option(tgt_opts, 'read', 'rd')
-        if self.rd is not None: self.rd = self.rd.strip("/")
+        self.set_option(tgt_opts, "read", "rd")
+        if self.rd is not None:
+            self.rd = self.rd.strip("/")
         ## Iteration where we turn on zero-gradient skipping.
-        self.set_option(options, 'zerograd')
+        self.set_option(options, "zerograd")
         ## Gradient norm below which we skip.
-        self.set_option(tgt_opts, 'epsgrad')
+        self.set_option(tgt_opts, "epsgrad")
         ## Dictionary of whether to call the derivatives.
         self.pgrad = list(range(forcefield.np))
-        self.OptionDict['pgrad'] = self.pgrad
+        self.OptionDict["pgrad"] = self.pgrad
 
-        #======================================#
+        # ======================================#
         #     Variables which are set here     #
-        #======================================#
+        # ======================================#
         ## Relative directory of target
-        if os.path.exists('targets'):
-            tgtdir = 'targets'
-        elif os.path.exists('simulations'):
-            tgtdir = 'simulations'
-        elif os.path.exists('targets.tar.bz2'):
+        if os.path.exists("targets"):
+            tgtdir = "targets"
+        elif os.path.exists("simulations"):
+            tgtdir = "simulations"
+        elif os.path.exists("targets.tar.bz2"):
             logger.info("Extracting targets folder from archive.\n")
             _exec("tar xvjf targets.tar.bz2")
-            tgtdir = 'targets'
-        elif os.path.exists('targets.tar.gz'):
+            tgtdir = "targets"
+        elif os.path.exists("targets.tar.gz"):
             logger.info("Extracting targets folder from archive.\n")
             _exec("tar xvzf targets.tar.gz")
-            tgtdir = 'targets'
+            tgtdir = "targets"
         else:
-            logger.error('\x1b[91mThe targets directory is missing!\x1b[0m\nDid you finish setting up the target data?\nPlace the data in a directory called "targets" or "simulations"\n')
+            logger.error(
+                '\x1b[91mThe targets directory is missing!\x1b[0m\nDid you finish setting up the target data?\nPlace the data in a directory called "targets" or "simulations"\n'
+            )
             raise RuntimeError
-        self.set_option(None, None, 'tgtdir', os.path.join(tgtdir,self.name))
+        self.set_option(None, None, "tgtdir", os.path.join(tgtdir, self.name))
         ## Temporary (working) directory; it is temp/(target_name)
         ## Used for storing temporary variables that don't change through the course of the optimization
-        if 'input_file' in options and options['input_file'] is not None:
-            self.tempbase    = os.path.splitext(options['input_file'])[0]+'.tmp'
+        if "input_file" in options and options["input_file"] is not None:
+            self.tempbase = os.path.splitext(options["input_file"])[0] + ".tmp"
         else:
-            self.tempbase    = "temp"
-        self.tempdir     = os.path.join(self.tempbase, self.name)
+            self.tempbase = "temp"
+        self.tempdir = os.path.join(self.tempbase, self.name)
         ## self.tempdir     = os.path.join('temp',self.name)
         ## The directory in which the simulation is running - this can be updated.
-        self.rundir      = self.tempdir
+        self.rundir = self.tempdir
         ## Need the forcefield (here for now)
-        self.FF          = forcefield
+        self.FF = forcefield
         ## mol2 files that are stored in the forcefield folder
         ## need to be included in the list of mol2 files for the target
-        if hasattr(self, 'mol2'):
+        if hasattr(self, "mol2"):
             for fnm in self.FF.fnms:
-                if fnm.endswith('.mol2'):
+                if fnm.endswith(".mol2"):
                     self.mol2.append(fnm)
 
         ## Counts how often the objective function was computed
-        self.xct         = 0
+        self.xct = 0
         ## Counts how often the gradient was computed
-        self.gct         = 0
+        self.gct = 0
         ## Counts how often the Hessian was computed
-        self.hct         = 0
+        self.hct = 0
         ## Whether to read indicate.log from file when restarting an aborted run.
-        self.read_indicate    = True
+        self.read_indicate = True
         ## Whether to write indicate.log at every iteration (true for all but remote.)
-        self.write_indicate   = True
+        self.write_indicate = True
         ## Whether to read objective.p from file when restarting an aborted run.
-        self.read_objective       = True
+        self.read_objective = True
         ## Whether to write objective.p at every iteration (true for all but remote.)
-        self.write_objective      = True
+        self.write_objective = True
         ## Create a new temp directory.
-        if not options['continue']:
+        if not options["continue"]:
             self.refresh_temp_directory()
         else:
-            if not os.path.exists(os.path.join(self.root,self.tempdir)):
-                os.makedirs(os.path.join(self.root,self.tempdir))
+            if not os.path.exists(os.path.join(self.root, self.tempdir)):
+                os.makedirs(os.path.join(self.root, self.tempdir))
         ## This flag specifies whether the target has been evaluated yet.
         self.evaluated = False
         ## This flag specifies whether the previous optimization step was good.
         self.goodstep = False
 
-    def get_X(self,mvals=None,customdir=None):
+    def get_X(self, mvals=None, customdir=None):
         """Computes the objective function contribution without any parametric derivatives"""
-        Ans = self.meta_get(mvals,0,0,customdir=customdir)
+        Ans = self.meta_get(mvals, 0, 0, customdir=customdir)
         self.xct += 1
-        if Ans['X'] != Ans['X']:
-            return {'X':1e10, 'G':np.zeros(self.FF.np), 'H':np.zeros((self.FF.np,self.FF.np))}
+        if Ans["X"] != Ans["X"]:
+            return {
+                "X": 1e10,
+                "G": np.zeros(self.FF.np),
+                "H": np.zeros((self.FF.np, self.FF.np)),
+            }
         return Ans
 
     def read_0grads(self):
 
-        """ Read a file from the target directory containing names of
+        """Read a file from the target directory containing names of
         parameters that don't contribute to the gradient.
 
         *Note* that we are checking the derivatives of the objective
@@ -219,9 +258,9 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         function Hessian elements, so we cannot use the same mechanism
         for excluding the calculation of property Hessians.  This is
         mostly fine since we rarely if ever calculate an explicit
-        property Hessian. """
+        property Hessian."""
 
-        zero_prm = os.path.join(self.root, self.tgtdir, 'zerograd.txt')
+        zero_prm = os.path.join(self.root, self.tgtdir, "zerograd.txt")
         # If the 'zero parameters' text file exists, then we load
         # the parameter names from the file for exclusion.
         pgrad0 = self.pgrad[:]
@@ -239,43 +278,43 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
                 # logger.info("Parameter %s was deactivated in %s\n" % (i, self.name))
         for i in self.pgrad:
             if i not in pgrad0:
-                logger.info("Parameter %s was reactivated in %s\n" % (i, self.name))
+                logger.info(f"Parameter {i} was reactivated in {self.name}\n")
         # Set pgrad in the OptionDict so remote targets may use it.
-        self.OptionDict['pgrad'] = self.pgrad
+        self.OptionDict["pgrad"] = self.pgrad
 
     def write_0grads(self, Ans):
 
-        """ Write a file to the target directory containing names of
-        parameters that don't contribute to the gradient. """
+        """Write a file to the target directory containing names of
+        parameters that don't contribute to the gradient."""
 
-        zero_prm = os.path.join(self.root, self.tgtdir, 'zerograd.txt')
+        zero_prm = os.path.join(self.root, self.tgtdir, "zerograd.txt")
         if os.path.exists(zero_prm):
             zero_pids = [i.strip() for i in open(zero_prm).readlines()]
         else:
             zero_pids = []
         for i in range(self.FF.np):
             # Check whether this parameter number has a nonzero gradient.
-            if abs(Ans['G'][i]) <= self.epsgrad:
+            if abs(Ans["G"][i]) <= self.epsgrad:
                 # Write parameter names corresponding to this parameter number.
                 for pid in self.FF.map:
                     if self.FF.map[pid] == i and pid not in zero_pids:
-                        logger.info("Adding %s to zero_pids in %s\n" % (i, self.name))
+                        logger.info(f"Adding {i} to zero_pids in {self.name}\n")
                         zero_pids.append(pid)
             # If a parameter number has a nonzero gradient, then the parameter
             # names associated with this parameter number are removed from the list.
             # (Not sure if this will ever happen.)
-            if abs(Ans['G'][i]) > self.epsgrad:
+            if abs(Ans["G"][i]) > self.epsgrad:
                 for pid in self.FF.map:
                     if self.FF.map[pid] == i and pid in zero_pids:
-                        logger.info("Removing %s from zero_pids in %s\n" % (i, self.name))
+                        logger.info(f"Removing {i} from zero_pids in {self.name}\n")
                         zero_pids.remove(pid)
         if len(zero_pids) > 0:
-            fout = open(zero_prm, 'w')
+            fout = open(zero_prm, "w")
             for pid in zero_pids:
                 print(pid, file=fout)
             fout.close()
 
-    def get_G(self,mvals=None,customdir=None):
+    def get_G(self, mvals=None, customdir=None):
         """Computes the objective function contribution and its gradient.
 
         First the low-level 'get' method is called with the analytic gradient
@@ -292,19 +331,24 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         recorded in a text file in the targets directory.
 
         """
-        Ans = self.meta_get(mvals,1,0,customdir=customdir)
+        Ans = self.meta_get(mvals, 1, 0, customdir=customdir)
         for i in self.pgrad:
-            if any([j in self.FF.plist[i] for j in self.fd1_pids]) or 'ALL' in self.fd1_pids:
+            if (
+                any([j in self.FF.plist[i] for j in self.fd1_pids])
+                or "ALL" in self.fd1_pids
+            ):
                 if self.fdhessdiag:
-                    Ans['G'][i], Ans['H'][i,i] = f12d3p(fdwrap_G(self,mvals,i),self.h,f0 = Ans['X'])
+                    Ans["G"][i], Ans["H"][i, i] = f12d3p(
+                        fdwrap_G(self, mvals, i), self.h, f0=Ans["X"]
+                    )
                 elif self.fdgrad:
-                    Ans['G'][i] = f1d2p(fdwrap_G(self,mvals,i),self.h,f0 = Ans['X'])
+                    Ans["G"][i] = f1d2p(fdwrap_G(self, mvals, i), self.h, f0=Ans["X"])
         self.gct += 1
         if Counter() == self.zerograd and self.zerograd >= 0:
             self.write_0grads(Ans)
         return Ans
 
-    def get_H(self,mvals=None,customdir=None):
+    def get_H(self, mvals=None, customdir=None):
         """Computes the objective function contribution and its gradient / Hessian.
 
         First the low-level 'get' method is called with the analytic gradient
@@ -316,68 +360,91 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         Hessian elements by finite difference.  Forward finite difference is used
         throughout for the sake of speed.
         """
-        Ans = self.meta_get(mvals,1,1,customdir=customdir)
+        Ans = self.meta_get(mvals, 1, 1, customdir=customdir)
         if self.fdhess:
             for i in self.pgrad:
-                if any([j in self.FF.plist[i] for j in self.fd1_pids]) or 'ALL' in self.fd1_pids:
-                    Ans['G'][i] = f1d2p(fdwrap_G(self,mvals,i),self.h,f0 = Ans['X'])
+                if (
+                    any([j in self.FF.plist[i] for j in self.fd1_pids])
+                    or "ALL" in self.fd1_pids
+                ):
+                    Ans["G"][i] = f1d2p(fdwrap_G(self, mvals, i), self.h, f0=Ans["X"])
             for i in self.pgrad:
-                if any([j in self.FF.plist[i] for j in self.fd2_pids]) or 'ALL' in self.fd2_pids:
-                    FDSlice = f1d2p(fdwrap_H(self,mvals,i),self.h,f0 = Ans['G'])
-                    Ans['H'][i,:] = FDSlice
-                    Ans['H'][:,i] = FDSlice
+                if (
+                    any([j in self.FF.plist[i] for j in self.fd2_pids])
+                    or "ALL" in self.fd2_pids
+                ):
+                    FDSlice = f1d2p(fdwrap_H(self, mvals, i), self.h, f0=Ans["G"])
+                    Ans["H"][i, :] = FDSlice
+                    Ans["H"][:, i] = FDSlice
         elif self.fdhessdiag:
             for i in self.pgrad:
-                if any([j in self.FF.plist[i] for j in self.fd2_pids]) or 'ALL' in self.fd2_pids:
-                    Ans['G'][i], Ans['H'][i,i] = f12d3p(fdwrap_G(self,mvals,i),self.h, f0 = Ans['X'])
+                if (
+                    any([j in self.FF.plist[i] for j in self.fd2_pids])
+                    or "ALL" in self.fd2_pids
+                ):
+                    Ans["G"][i], Ans["H"][i, i] = f12d3p(
+                        fdwrap_G(self, mvals, i), self.h, f0=Ans["X"]
+                    )
         if Counter() == self.zerograd and self.zerograd >= 0:
             self.write_0grads(Ans)
         self.hct += 1
         return Ans
 
-    def link_from_tempdir(self,absdestdir):
-        link_dir_contents(os.path.join(self.root,self.tempdir), absdestdir)
+    def link_from_tempdir(self, absdestdir):
+        link_dir_contents(os.path.join(self.root, self.tempdir), absdestdir)
 
     def refresh_temp_directory(self):
-        """ Back up the temporary directory if desired, delete it
+        """Back up the temporary directory if desired, delete it
         and then create a new one."""
         cwd = os.getcwd()
-        abstempdir = os.path.join(self.root,self.tempdir)
+        abstempdir = os.path.join(self.root, self.tempdir)
         if self.backup:
-            bakdir = os.path.join(os.path.splitext(self.tempbase)[0]+'.bak')
+            bakdir = os.path.join(os.path.splitext(self.tempbase)[0] + ".bak")
             if not os.path.exists(bakdir):
                 os.makedirs(bakdir)
             if os.path.exists(abstempdir):
                 os.chdir(self.tempbase)
                 FileCount = 0
                 while True:
-                    CandFile = os.path.join(self.root,bakdir,"%s_%i.tar.bz2" % (self.name,FileCount))
+                    CandFile = os.path.join(
+                        self.root, bakdir, "%s_%i.tar.bz2" % (self.name, FileCount)
+                    )
                     if os.path.exists(CandFile):
                         FileCount += 1
                     else:
                         # I could use the tarfile module here
-                        logger.info("Backing up: " + self.tempdir + ' to: ' + "%s/%s_%i.tar.bz2\n" % (bakdir,self.name,FileCount))
-                        subprocess.call(["tar","cjf",CandFile,self.name])
+                        logger.info(
+                            "Backing up: "
+                            + self.tempdir
+                            + " to: "
+                            + "%s/%s_%i.tar.bz2\n" % (bakdir, self.name, FileCount)
+                        )
+                        subprocess.call(["tar", "cjf", CandFile, self.name])
                         shutil.rmtree(self.name)
                         break
                 os.chdir(cwd)
         # Delete the temporary directory
-        shutil.rmtree(abstempdir,ignore_errors=True)
+        shutil.rmtree(abstempdir, ignore_errors=True)
         # Create a new temporary directory from scratch
         os.makedirs(abstempdir)
         # QYD: Potential bug:
         # this function may be skipped when continue=True, causing mol2 file missing in temp folder
-        if hasattr(self, 'mol2'):
+        if hasattr(self, "mol2"):
             for f in self.mol2:
                 if os.path.exists(os.path.join(self.root, self.tgtdir, f)):
-                    LinkFile(os.path.join(self.root, self.tgtdir, f), os.path.join(abstempdir, f))
+                    LinkFile(
+                        os.path.join(self.root, self.tgtdir, f),
+                        os.path.join(abstempdir, f),
+                    )
                 elif f not in self.FF.fnms:
-                    logger.error("%s doesn't exist and it's not in the force field directory either" % f)
+                    logger.error(
+                        "%s doesn't exist and it's not in the force field directory either"
+                        % f
+                    )
                     raise RuntimeError
 
-
     @abc.abstractmethod
-    def get(self,mvals,AGrad=False,AHess=False):
+    def get(self, mvals, AGrad=False, AHess=False):
 
         """
 
@@ -388,19 +455,24 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
 
         """
 
-        logger.error('The get method is not implemented in the Target base class\n')
+        logger.error("The get method is not implemented in the Target base class\n")
         raise NotImplementedError
 
     def check_files(self, there):
 
-        """ Check this directory for the presence of readable files when the 'read' option is set. """
+        """Check this directory for the presence of readable files when the 'read' option is set."""
 
         there = os.path.abspath(there)
-        if all([any([i == j for j in os.listdir(there)]) for i in ["objective.p", "indicate.log"]]):
+        if all(
+            [
+                any([i == j for j in os.listdir(there)])
+                for i in ["objective.p", "indicate.log"]
+            ]
+        ):
             return True
         return False
 
-    def read(self,mvals,AGrad=False,AHess=False):
+    def read(self, mvals, AGrad=False, AHess=False):
 
         """
 
@@ -408,12 +480,16 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         user has provided the directory to the "read" option.
 
         """
-        mvals1 = np.loadtxt('mvals.txt')
+        mvals1 = np.loadtxt("mvals.txt")
 
         if len(mvals) > 0 and (np.max(np.abs(mvals1 - mvals)) > 1e-3):
-            warn_press_key("mvals from mvals.txt does not match up with get! (Are you reading data from a previous run?)\nmvals(call)=%s mvals(disk)=%s" % (mvals, mvals1))
+            warn_press_key(
+                "mvals from mvals.txt does not match up with get! (Are you reading data from a previous run?)\nmvals(call)={} mvals(disk)={}".format(
+                    mvals, mvals1
+                )
+            )
 
-        return lp_load('objective.p')
+        return lp_load("objective.p")
 
     def absrd(self, inum=None):
 
@@ -422,14 +498,16 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         """
 
         if self.evaluated:
-            logger.error("Tried to read from disk, but not allowed because this target is evaluated already\n")
+            logger.error(
+                "Tried to read from disk, but not allowed because this target is evaluated already\n"
+            )
             raise RuntimeError
         if self.rd is None:
             logger.error("The directory for reading is not set\n")
             raise RuntimeError
 
         # Current directory. Move back into here after reading data.
-        here = os.getcwd()
+        os.getcwd()
         # Absolute path for the directory to read data from.
         if os.path.isabs(self.rd):
             abs_rd = self.rd
@@ -442,29 +520,43 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         # Figure out which directory to go into.
         s = os.path.split(self.rd)
         have_data = 0
-        if s[-1].startswith('iter_'):
+        if s[-1].startswith("iter_"):
             # Case 1: User has provided a specific directory to read from.
             there = abs_rd
             if not self.check_files(there):
-                logger.error("Provided path %s does not contain remote target output\n" % self.rd)
+                logger.error(
+                    "Provided path %s does not contain remote target output\n" % self.rd
+                )
                 raise RuntimeError
             have_data = 1
         elif s[-1] == self.name:
             # Case 2: User has provided the target name.
-            iterints = [int(d.replace('iter_','')) for d in os.listdir(abs_rd) if os.path.isdir(os.path.join(abs_rd, d))]
+            iterints = [
+                int(d.replace("iter_", ""))
+                for d in os.listdir(abs_rd)
+                if os.path.isdir(os.path.join(abs_rd, d))
+            ]
             for i in sorted(iterints)[::-1]:
-                there = os.path.join(abs_rd, 'iter_%04i' % i)
+                there = os.path.join(abs_rd, "iter_%04i" % i)
                 if self.check_files(there):
                     have_data = 1
                     break
         else:
             # Case 3: User has provided something else (must contain the target name in the next directory down.)
             if not os.path.exists(os.path.join(abs_rd, self.name)):
-                logger.error("Target directory %s does not exist in %s\n" % (self.name, self.rd))
+                logger.error(
+                    "Target directory {} does not exist in {}\n".format(
+                        self.name, self.rd
+                    )
+                )
                 raise RuntimeError
-            iterints = [int(d.replace('iter_','')) for d in os.listdir(os.path.join(abs_rd, self.name)) if os.path.isdir(os.path.join(abs_rd, self.name, d))]
+            iterints = [
+                int(d.replace("iter_", ""))
+                for d in os.listdir(os.path.join(abs_rd, self.name))
+                if os.path.isdir(os.path.join(abs_rd, self.name, d))
+            ]
             for i in sorted(iterints)[::-1]:
-                there = os.path.join(abs_rd, self.name, 'iter_%04i' % i)
+                there = os.path.join(abs_rd, self.name, "iter_%04i" % i)
                 if self.check_files(there):
                     have_data = 1
                     break
@@ -473,18 +565,22 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
             raise RuntimeError
 
         if inum is not None:
-            there = os.path.join(os.path.split(there)[0],'iter_%04i' % inum)
+            there = os.path.join(os.path.split(there)[0], "iter_%04i" % inum)
         return there
 
     def maxrd(self):
 
-        """ Supply the latest existing temp-directory containing valid data. """
+        """Supply the latest existing temp-directory containing valid data."""
 
         abs_rd = os.path.join(self.root, self.tempdir)
 
-        iterints = [int(d.replace('iter_','')) for d in os.listdir(abs_rd) if os.path.isdir(os.path.join(abs_rd, d))]
+        iterints = [
+            int(d.replace("iter_", ""))
+            for d in os.listdir(abs_rd)
+            if os.path.isdir(os.path.join(abs_rd, d))
+        ]
         for i in sorted(iterints)[::-1]:
-            there = os.path.join(abs_rd, 'iter_%04i' % i)
+            there = os.path.join(abs_rd, "iter_%04i" % i)
             if self.check_files(there):
                 return i
 
@@ -492,11 +588,15 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
 
     def maxid(self):
 
-        """ Supply the latest existing temp-directory. """
+        """Supply the latest existing temp-directory."""
 
         abs_rd = os.path.join(self.root, self.tempdir)
 
-        iterints = [int(d.replace('iter_','')) for d in os.listdir(abs_rd) if os.path.isdir(os.path.join(abs_rd, d))]
+        iterints = [
+            int(d.replace("iter_", ""))
+            for d in os.listdir(abs_rd)
+            if os.path.isdir(os.path.join(abs_rd, d))
+        ]
         return sorted(iterints)[-1]
 
     def meta_indicate(self, customdir=None):
@@ -512,11 +612,16 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         # Using the module level logger
         logger = getLogger(__name__)
         # Note that reading information is not supported for custom folders (e.g. microiterations during search)
-        if self.rd is not None and (not self.evaluated) and self.read_indicate and customdir is None:
+        if (
+            self.rd is not None
+            and (not self.evaluated)
+            and self.read_indicate
+            and customdir is None
+        ):
             # Move into the directory for reading data,
             cwd = os.getcwd()
             os.chdir(self.absrd())
-            logger.info(open('indicate.log').read())
+            logger.info(open("indicate.log").read())
             os.chdir(cwd)
         else:
             if self.write_indicate:
@@ -524,12 +629,15 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
                 cwd = os.getcwd()
                 os.chdir(os.path.join(self.root, self.rundir))
                 # If indicate.log already exists then we've made some kind of mistake.
-                if os.path.exists('indicate.log'):
-                    logger.error('indicate.log should not exist yet in this directory: %s\n' % os.getcwd())
+                if os.path.exists("indicate.log"):
+                    logger.error(
+                        "indicate.log should not exist yet in this directory: %s\n"
+                        % os.getcwd()
+                    )
                     raise RuntimeError
                 # Add a handler for printing to screen and file
                 logger = getLogger("forcebalance")
-                hdlr = forcebalance.output.RawFileHandler('indicate.log')
+                hdlr = forcebalance.output.RawFileHandler("indicate.log")
                 logger.addHandler(hdlr)
             # Execute the indicate function
             self.indicate()
@@ -539,7 +647,7 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
                 # Return to the module level logger
                 logger = getLogger(__name__)
                 # The module level logger now prints the indicator
-                logger.info(open('indicate.log').read())
+                logger.info(open("indicate.log").read())
                 # Go back to the directory where we were
                 os.chdir(cwd)
 
@@ -556,34 +664,43 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         ## The 'customdir' is customizable and can go below anything
         cwd = os.getcwd()
 
-        absgetdir = os.path.join(self.root,self.tempdir)
+        absgetdir = os.path.join(self.root, self.tempdir)
         if Counter() is not None:
             # Not expecting more than ten thousand iterations
             if Counter() > 10000:
-                logger.error('Cannot handle more than 10000 iterations due to current directory structure.  Consider revising code.\n')
+                logger.error(
+                    "Cannot handle more than 10000 iterations due to current directory structure.  Consider revising code.\n"
+                )
                 raise RuntimeError
             iterdir = "iter_%04i" % Counter()
-            absgetdir = os.path.join(absgetdir,iterdir)
+            absgetdir = os.path.join(absgetdir, iterdir)
         if customdir is not None:
-            absgetdir = os.path.join(absgetdir,customdir)
+            absgetdir = os.path.join(absgetdir, customdir)
 
         if not os.path.exists(absgetdir):
             os.makedirs(absgetdir)
         os.chdir(absgetdir)
         self.link_from_tempdir(absgetdir)
-        self.rundir = absgetdir.replace(self.root+'/','')
+        self.rundir = absgetdir.replace(self.root + "/", "")
         ## Read existing information from disk (i.e. when recovering an aborted run)
         # Note that reading information is not supported for custom folders (e.g. microiterations during search)
-        if self.rd is not None and (not self.evaluated) and self.read_objective and customdir is None:
+        if (
+            self.rd is not None
+            and (not self.evaluated)
+            and self.read_objective
+            and customdir is None
+        ):
             os.chdir(self.absrd())
-            logger.info("Reading objective function information from %s\n" % os.getcwd())
+            logger.info(
+                "Reading objective function information from %s\n" % os.getcwd()
+            )
             Answer = self.read(mvals, AGrad, AHess)
             os.chdir(absgetdir)
         else:
             ## Evaluate the objective function.
             Answer = self.get(mvals, AGrad, AHess)
             if self.write_objective:
-                forcebalance.nifty.lp_dump(Answer, 'objective.p')
+                forcebalance.nifty.lp_dump(Answer, "objective.p")
 
         ## Save the force field files to this directory, so that it
         ## reflects the objective function and properties that were
@@ -598,7 +715,15 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
     def submit_jobs(self, mvals, AGrad=False, AHess=False):
         return
 
-    def stage(self, mvals, AGrad=False, AHess=False, use_iterdir=True, customdir=None, firstIteration=False):
+    def stage(
+        self,
+        mvals,
+        AGrad=False,
+        AHess=False,
+        use_iterdir=True,
+        customdir=None,
+        firstIteration=False,
+    ):
         """
 
         Stages the directory for the target, and then launches Work Queue processes if any.
@@ -613,13 +738,13 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         ## The 'customdir' is customizable and can go below anything
         cwd = os.getcwd()
 
-        absgetdir = os.path.join(self.root,self.tempdir)
+        absgetdir = os.path.join(self.root, self.tempdir)
         if use_iterdir and Counter() is not None:
             ## Not expecting more than ten thousand iterations
             iterdir = "iter_%04i" % Counter()
-            absgetdir = os.path.join(absgetdir,iterdir)
+            absgetdir = os.path.join(absgetdir, iterdir)
         if customdir is not None:
-            absgetdir = os.path.join(absgetdir,customdir)
+            absgetdir = os.path.join(absgetdir, customdir)
         ## Go into the directory where get() will be executed.
         if not os.path.exists(absgetdir):
             os.makedirs(absgetdir)
@@ -627,11 +752,11 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         self.link_from_tempdir(absgetdir)
         ## Write mathematical parameters to file; will be used to checkpoint calculation.
         if not in_fd():
-            np.savetxt('mvals.txt', mvals)
+            np.savetxt("mvals.txt", mvals)
         ## Read in file that specifies which derivatives may be skipped.
         if Counter() >= self.zerograd and self.zerograd >= 0:
             self.read_0grads()
-        self.rundir = absgetdir.replace(self.root+'/','')
+        self.rundir = absgetdir.replace(self.root + "/", "")
         ## Submit jobs to the Work Queue.
         if self.rd is None or (not firstIteration):
             self.submit_jobs(mvals, AGrad, AHess)
@@ -643,7 +768,7 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         return
 
     def wq_complete(self):
-        """ This method determines whether the Work Queue tasks for the current target have completed. """
+        """This method determines whether the Work Queue tasks for the current target have completed."""
         wq = getWorkQueue()
         WQIds = getWQIds()
         if wq is None:
@@ -660,8 +785,10 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
             else:
                 return False
 
-    def printcool_table(self, data=OrderedDict([]), headings=[], banner=None, footnote=None, color=0):
-        """ Print target information in an organized table format.  Implemented 6/30 because
+    def printcool_table(
+        self, data=OrderedDict([]), headings=[], banner=None, footnote=None, color=0
+    ):
+        """Print target information in an organized table format.  Implemented 6/30 because
         multiple targets are already printing out tabulated information in very similar ways.
         This method is a simple wrapper around printcool_dictionary.
 
@@ -679,7 +806,9 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         @param footnote Optional footnote line, which will be printed at the bottom.
 
         """
-        tline="Target: %s  Type: %s  Objective = %.5e" % (self.name, self.__class__.__name__, self.objective)
+        tline = "Target: {}  Type: {}  Objective = {:.5e}".format(
+            self.name, self.__class__.__name__, self.objective
+        )
         nc = len(headings)
         if banner is not None:
             tlines = [banner, tline]
@@ -687,16 +816,19 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
             tlines = [tline]
         # Sanity check.
         for val in data.values():
-            if (len(val)+1) != nc:
-                logger.error('There are %i column headings, so the values in the data dictionary must be lists of length %i (currently %i)\n' % (nc, nc-1, len(val)))
+            if (len(val) + 1) != nc:
+                logger.error(
+                    "There are %i column headings, so the values in the data dictionary must be lists of length %i (currently %i)\n"
+                    % (nc, nc - 1, len(val))
+                )
                 raise RuntimeError
         cwidths = [0 for i in range(nc)]
         # Figure out maximum column width.
         # First look at all of the column headings...
         crows = []
         for cnum, cname in enumerate(headings):
-            crows.append(len(cname.split('\n')))
-            for l in cname.split('\n'):
+            crows.append(len(cname.split("\n")))
+            for l in cname.split("\n"):
                 cwidths[cnum] = max(cwidths[cnum], len(l))
         # Then look at the row names to stretch out the first column width...
         for k in data.keys():
@@ -704,23 +836,39 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         # Then look at the data values to stretch out the other column widths.
         for v in data.values():
             for n, f in enumerate(v):
-                cwidths[n+1] = max(cwidths[n+1], len(str(f)))
+                cwidths[n + 1] = max(cwidths[n + 1], len(str(f)))
         for i in range(1, len(cwidths)):
             cwidths[i] += 2
         if cwidths[0] < 15:
             cwidths[0] = 15
-        cblocks = [['' for i in range(max(crows) - len(cname.split('\n')))] + cname.split('\n') for cnum, cname in enumerate(headings)]
+        cblocks = [
+            ["" for i in range(max(crows) - len(cname.split("\n")))] + cname.split("\n")
+            for cnum, cname in enumerate(headings)
+        ]
         # The formatting line consisting of variable column widths
-        fline = ' '.join("%%%s%is" % (("-" if i==0 else ""), j) for i, j in enumerate(cwidths))
-        vline = ' '.join(["%%%is" % j for i, j in enumerate(cwidths) if i > 0])
-        clines = [fline % (tuple(cblocks[j][i] for j in range(nc))) for i in range(max(crows))]
+        fline = " ".join(
+            "%%%s%is" % (("-" if i == 0 else ""), j) for i, j in enumerate(cwidths)
+        )
+        vline = " ".join(["%%%is" % j for i, j in enumerate(cwidths) if i > 0])
+        clines = [
+            fline % (tuple(cblocks[j][i] for j in range(nc))) for i in range(max(crows))
+        ]
         tlines += clines
-        PrintDict = OrderedDict([(key, vline % (tuple(val))) for key, val in data.items()])
+        PrintDict = OrderedDict(
+            [(key, vline % (tuple(val))) for key, val in data.items()]
+        )
         if len(clines[0]) > len(tlines[0]):
             centers = [0, 1]
         else:
             centers = [0]
-        printcool_dictionary(PrintDict, title='\n'.join(tlines), keywidth=cwidths[0], center=[i in centers for i in range(len(tlines))], leftpad=4, color=color)
+        printcool_dictionary(
+            PrintDict,
+            title="\n".join(tlines),
+            keywidth=cwidths[0],
+            center=[i in centers for i in range(len(tlines))],
+            leftpad=4,
+            color=color,
+        )
 
     def serialize_ff(self, mvals, outside=None):
         """
@@ -734,13 +882,17 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
         """
         cwd = os.getcwd()
         if outside is not None:
-            self.ffpd = cwd.replace(os.path.join(self.root, self.tempdir), os.path.join(self.root, self.tempbase, outside))
+            self.ffpd = cwd.replace(
+                os.path.join(self.root, self.tempdir),
+                os.path.join(self.root, self.tempbase, outside),
+            )
         else:
             self.ffpd = os.path.abspath(os.path.join(self.root, self.rundir))
-        if not os.path.exists(self.ffpd): os.makedirs(self.ffpd)
+        if not os.path.exists(self.ffpd):
+            os.makedirs(self.ffpd)
         os.chdir(self.ffpd)
         makeffp = False
-        if (os.path.exists("mvals.txt") and os.path.exists("forcefield.p")):
+        if os.path.exists("mvals.txt") and os.path.exists("forcefield.p"):
             mvalsf = np.loadtxt("mvals.txt")
             if len(mvalsf) > 0 and np.max(np.abs(mvals - mvalsf)) != 0.0:
                 makeffp = True
@@ -750,29 +902,37 @@ class Target(with_metaclass(abc.ABCMeta, forcebalance.BaseClass)):
             # logger.info("Writing force field to: %s\n" % self.ffpd)
             self.FF.make(mvals)
             np.savetxt("mvals.txt", mvals)
-            forcebalance.nifty.lp_dump((self.FF, mvals), 'forcefield.p')
+            forcebalance.nifty.lp_dump((self.FF, mvals), "forcefield.p")
         os.chdir(cwd)
-        forcebalance.nifty.LinkFile(os.path.join(self.ffpd, 'forcefield.p'), 'forcefield.p')
+        forcebalance.nifty.LinkFile(
+            os.path.join(self.ffpd, "forcefield.p"), "forcefield.p"
+        )
+
 
 class RemoteTarget(Target):
-    def __init__(self,options,tgt_opts,forcefield):
-        super(RemoteTarget, self).__init__(options,tgt_opts,forcefield)
+    def __init__(self, options, tgt_opts, forcefield):
+        super().__init__(options, tgt_opts, forcefield)
 
         self.r_options = options.copy()
-        self.r_options["type"]="single"
+        self.r_options["type"] = "single"
         self.set_option(tgt_opts, "remote_prefix", "rpfx")
         self.set_option(tgt_opts, "remote_backup", "rbak")
 
         self.r_tgt_opts = tgt_opts.copy()
-        self.r_tgt_opts["remote"]=False
+        self.r_tgt_opts["remote"] = False
 
-        tar = tarfile.open(name="%s/target.tar.bz2" % (self.tempdir), mode='w:bz2', dereference=True)
-        tar.add("%s/targets/%s" % (self.root, self.name), arcname = "targets/%s" % self.name)
+        tar = tarfile.open(
+            name="%s/target.tar.bz2" % (self.tempdir), mode="w:bz2", dereference=True
+        )
+        tar.add(
+            f"{self.root}/targets/{self.name}",
+            arcname="targets/%s" % self.name,
+        )
         tar.close()
 
         self.remote_indicate = ""
 
-        if options['wq_port'] == 0:
+        if options["wq_port"] == 0:
             logger.error("Please set the Work Queue port to use Remote Targets.\n")
             raise RuntimeError
 
@@ -787,13 +947,22 @@ class RemoteTarget(Target):
         id_string = "%s_iter%04i" % (self.name, Counter())
 
         self.serialize_ff(mvals, outside="forcefield-remote")
-        forcebalance.nifty.lp_dump((AGrad, AHess, id_string, self.r_options, self.r_tgt_opts, self.pgrad),'options.p')
+        forcebalance.nifty.lp_dump(
+            (AGrad, AHess, id_string, self.r_options, self.r_tgt_opts, self.pgrad),
+            "options.p",
+        )
 
         # Link in the rpfx script.
         if len(self.rpfx) > 0:
-            forcebalance.nifty.LinkFile(os.path.join(os.path.split(__file__)[0],"data",self.rpfx),self.rpfx)
-        forcebalance.nifty.LinkFile(os.path.join(os.path.split(__file__)[0],"data","rtarget.py"),"rtarget.py")
-        forcebalance.nifty.LinkFile(os.path.join(self.root, self.tempdir, "target.tar.bz2"),"target.tar.bz2")
+            forcebalance.nifty.LinkFile(
+                os.path.join(os.path.split(__file__)[0], "data", self.rpfx), self.rpfx
+            )
+        forcebalance.nifty.LinkFile(
+            os.path.join(os.path.split(__file__)[0], "data", "rtarget.py"), "rtarget.py"
+        )
+        forcebalance.nifty.LinkFile(
+            os.path.join(self.root, self.tempdir, "target.tar.bz2"), "target.tar.bz2"
+        )
 
         wq = getWorkQueue()
 
@@ -809,23 +978,31 @@ class RemoteTarget(Target):
         # if len(self.rpfx) > 0 and self.rpfx not in ['rungmx.sh', 'runcuda.sh']:
         #     logger.error('Unsupported prefix script for launching remote target')
         #     raise RuntimeError
-        forcebalance.nifty.queue_up(wq, "%spython rtarget.py > rtarget.out 2>&1" % (("sh %s%s " % (self.rpfx, " -b" if self.rbak else ""))
-                                                                                    if len(self.rpfx) > 0 else ""),
-                                    ["forcefield.p", "options.p", "rtarget.py", "target.tar.bz2"] + ([self.rpfx] if len(self.rpfx) > 0 else []),
-                                    ['target_result.tar.bz2'],
-                                    tgt=self, tag=self.name, verbose=False)
+        forcebalance.nifty.queue_up(
+            wq,
+            "%spython rtarget.py > rtarget.out 2>&1"
+            % (
+                ("sh {}{} ".format(self.rpfx, " -b" if self.rbak else ""))
+                if len(self.rpfx) > 0
+                else ""
+            ),
+            ["forcefield.p", "options.p", "rtarget.py", "target.tar.bz2"]
+            + ([self.rpfx] if len(self.rpfx) > 0 else []),
+            ["target_result.tar.bz2"],
+            tgt=self,
+            tag=self.name,
+            verbose=False,
+        )
 
-    def read(self,mvals,AGrad=False,AHess=False):
+    def read(self, mvals, AGrad=False, AHess=False):
         return self.get(mvals, AGrad, AHess)
 
-    def get(self,mvals,AGrad=False,AHess=False):
+    def get(self, mvals, AGrad=False, AHess=False):
         with tarfile.open("target_result.tar.bz2", "r") as tar:
             tar.extractall()
-        with open('indicate.log', 'r') as f:
+        with open("indicate.log") as f:
             self.remote_indicate = f.read()
-        return lp_load('objective.p')
+        return lp_load("objective.p")
 
     def indicate(self):
         logger.info(self.remote_indicate)
-
-

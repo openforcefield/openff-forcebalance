@@ -5,28 +5,32 @@ field format is supported) against electrostatic potential data.
 author Simon Boothroyd
 @date 07/2020
 """
-from __future__ import division, print_function
 
 import json
 import os
 
 import numpy as np
 
-from forcebalance.nifty import printcool_dictionary, warn_once
-from forcebalance.output import getLogger
-from forcebalance.target import Target
+from openff.forcebalance.nifty import printcool_dictionary, warn_once
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.target import Target
 
 try:
     from openff.recharge.charges import ChargeSettings
-    from openff.recharge.esp.storage import MoleculeESPStore
-    from openff.recharge.optimize import ElectricFieldObjective, ESPObjective # ElectricFieldOptimization, ESPOptimization
     from openff.recharge.charges.bcc import BCCCollection
+    from openff.recharge.esp.storage import MoleculeESPStore
+    from openff.recharge.optimize import (  # ElectricFieldOptimization, ESPOptimization
+        ElectricFieldObjective,
+        ESPObjective,
+    )
+
     recharge_import_success = True
 except ImportError:
     recharge_import_success = False
 
 try:
     from openff.toolkit.typing.engines import smirnoff
+
     toolkit_import_success = True
 except ImportError:
     toolkit_import_success = False
@@ -42,12 +46,16 @@ class Recharge_SMIRNOFF(Target):
     def __init__(self, options, tgt_opts, forcefield):
 
         if not recharge_import_success:
-            warn_once("Note: Failed to import the OpenFF Recharge package - FB Recharge_SMIRNOFF target will not work. ")
+            warn_once(
+                "Note: Failed to import the OpenFF Recharge package - FB Recharge_SMIRNOFF target will not work. "
+            )
 
         if not toolkit_import_success:
-            warn_once("Note: Failed to import the OpenFF Toolkit - FB Recharge_SMIRNOFF target will not work. ")
+            warn_once(
+                "Note: Failed to import the OpenFF Toolkit - FB Recharge_SMIRNOFF target will not work. "
+            )
 
-        super(Recharge_SMIRNOFF, self).__init__(options, tgt_opts, forcefield)
+        super().__init__(options, tgt_opts, forcefield)
 
         # Store a mapping between the FB pval parameters and the expected recharge
         # ordering.
@@ -85,7 +93,7 @@ class Recharge_SMIRNOFF(Target):
         force_field = smirnoff.ForceField(
             os.path.join(self.FF.ffdir, self.FF.offxml),
             allow_cosmetic_attributes=True,
-            load_plugins=True
+            load_plugins=True,
         )
 
         bcc_handler = force_field.get_parameter_handler("ChargeIncrementModel")

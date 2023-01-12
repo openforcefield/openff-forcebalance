@@ -3,28 +3,40 @@
 @author Lee-Ping Wang
 @date 05/2012
 """
-from __future__ import division
-from __future__ import print_function
 
-from builtins import zip
-from builtins import range
-import os
-import shutil
-from forcebalance.nifty import col, eqcgmx, flat, floatornan, fqcgmx, invert_svd, kb, printcool, bohr2ang, warn_press_key, warn_once, pvec1d, commadash, uncommadash, isint
-import numpy as np
-from forcebalance.target import Target
-from forcebalance.molecule import Molecule, format_xyz_coord
-from re import match, sub
-import subprocess
-from subprocess import PIPE
-from forcebalance.finite_difference import fdwrap, f1d2p, f12d3p, in_fd
-from collections import defaultdict, OrderedDict
 import itertools
-#from IPython import embed
-#from _increment import AbInitio_Build
+import os
+from collections import OrderedDict
 
-from forcebalance.output import getLogger
+import numpy as np
+
+from openff.forcebalance.finite_difference import f1d2p, f12d3p, fdwrap, in_fd
+from openff.forcebalance.molecule import Molecule, format_xyz_coord
+from openff.forcebalance.nifty import (
+    bohr2ang,
+    col,
+    commadash,
+    eqcgmx,
+    flat,
+    floatornan,
+    fqcgmx,
+    invert_svd,
+    isint,
+    kb,
+    printcool,
+    pvec1d,
+    uncommadash,
+    warn_once,
+    warn_press_key,
+)
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.target import Target
+
+# from IPython import embed
+# from _increment import AbInitio_Build
+
 logger = getLogger(__name__)
+
 
 def norm2(arr, a=0, n=None, step=3):
     """
@@ -46,21 +58,26 @@ def norm2(arr, a=0, n=None, step=3):
     if len(arr.shape) != 1:
         raise RuntimeError("Please only pass a one-dimensional array")
     if n is not None:
-        if arr.shape[0] < a+step*n:
-            raise RuntimeError("Please provide an array of length >= %i" % (a+step*n))
+        if arr.shape[0] < a + step * n:
+            raise RuntimeError(
+                "Please provide an array of length >= %i" % (a + step * n)
+            )
     else:
-        if ((arr.shape[0]-a)%step != 0):
-            raise RuntimeError("Please provide an array with (length-%i) divisible by %i" % (a, step))
-        n = int((arr.shape[0]-a)/step)
+        if (arr.shape[0] - a) % step != 0:
+            raise RuntimeError(
+                "Please provide an array with (length-%i) divisible by %i" % (a, step)
+            )
+        n = int((arr.shape[0] - a) / step)
     answer = []
     for j in range(n):
-        d = arr[a+step*j:a+step*j+step]
-        answer.append(np.dot(d,d))
+        d = arr[a + step * j : a + step * j + step]
+        answer.append(np.dot(d, d))
     return np.array(answer)
+
 
 class AbInitio(Target):
 
-    """ Subclass of Target for fitting force fields to ab initio data.
+    """Subclass of Target for fitting force fields to ab initio data.
 
     Currently Gromacs-X2, Gromacs, Tinker, OpenMM and AMBER are supported.
 
@@ -81,7 +98,7 @@ class AbInitio(Target):
     read output is still required).  The 'get' method can be overridden
     by subclasses like AbInitio_GMX."""
 
-    def __init__(self,options,tgt_opts,forcefield):
+    def __init__(self, options, tgt_opts, forcefield):
         """
         Initialization; define a few core concepts.
 
@@ -90,91 +107,105 @@ class AbInitio(Target):
         """
 
         ## Initialize the base class
-        super(AbInitio,self).__init__(options,tgt_opts,forcefield)
+        super().__init__(options, tgt_opts, forcefield)
 
-        #======================================#
+        # ======================================#
         # Options that are given by the parser #
-        #======================================#
+        # ======================================#
 
         ## Number of snapshots
-        self.set_option(tgt_opts,'shots','ns')
+        self.set_option(tgt_opts, "shots", "ns")
         ## Number of atoms that we are fitting
-        self.set_option(tgt_opts,'fitatoms','fitatoms_in')
+        self.set_option(tgt_opts, "fitatoms", "fitatoms_in")
         ## Whether to fit Energies.
-        self.set_option(tgt_opts,'energy','energy')
+        self.set_option(tgt_opts, "energy", "energy")
         ## Whether to fit Forces.
-        self.set_option(tgt_opts,'force','force')
+        self.set_option(tgt_opts, "force", "force")
         ## Whether to fit Electrostatic Potential.
-        self.set_option(tgt_opts,'resp','resp')
-        self.set_option(tgt_opts,'resp_a','resp_a')
-        self.set_option(tgt_opts,'resp_b','resp_b')
+        self.set_option(tgt_opts, "resp", "resp")
+        self.set_option(tgt_opts, "resp_a", "resp_a")
+        self.set_option(tgt_opts, "resp_b", "resp_b")
         ## Weights for the three components.
-        self.set_option(tgt_opts,'w_energy','w_energy')
-        self.set_option(tgt_opts,'w_force','w_force')
+        self.set_option(tgt_opts, "w_energy", "w_energy")
+        self.set_option(tgt_opts, "w_force", "w_force")
         if not self.force:
             self.w_force = 0.0
-        self.set_option(tgt_opts,'energy_rms_override','energy_rms_override')
-        self.set_option(tgt_opts,'force_rms_override','force_rms_override')
-        self.set_option(tgt_opts,'force_map','force_map')
-        self.set_option(tgt_opts,'w_netforce','w_netforce')
-        self.set_option(tgt_opts,'w_torque','w_torque')
-        self.set_option(tgt_opts,'w_resp','w_resp')
+        self.set_option(tgt_opts, "energy_rms_override", "energy_rms_override")
+        self.set_option(tgt_opts, "force_rms_override", "force_rms_override")
+        self.set_option(tgt_opts, "force_map", "force_map")
+        self.set_option(tgt_opts, "w_netforce", "w_netforce")
+        self.set_option(tgt_opts, "w_torque", "w_torque")
+        self.set_option(tgt_opts, "w_resp", "w_resp")
         # Normalize the contributions to the objective function
-        self.set_option(tgt_opts,'w_normalize')
+        self.set_option(tgt_opts, "w_normalize")
         ## Option for how much data to write to disk.
-        self.set_option(tgt_opts,'writelevel','writelevel')
+        self.set_option(tgt_opts, "writelevel", "writelevel")
         ## Whether to do energy and force calculations for the whole trajectory, or to do
         ## one calculation per snapshot.
-        self.set_option(tgt_opts,'all_at_once','all_at_once')
+        self.set_option(tgt_opts, "all_at_once", "all_at_once")
         ## OpenMM-only option - whether to run the energies and forces internally.
-        self.set_option(tgt_opts,'run_internal','run_internal')
+        self.set_option(tgt_opts, "run_internal", "run_internal")
         ## Whether we have virtual sites (set at the global option level)
-        self.set_option(options,'have_vsite','have_vsite')
+        self.set_option(options, "have_vsite", "have_vsite")
         ## Choose how the energy gap between MM and QM energies is treated.
-        self.set_option(tgt_opts,'energy_mode')
-        if self.energy_mode == 'average':
-            logger.info("Relative energy fitting: Subtracting (MM - QM) energy gap from all relative energy calculations - this is the default.\n")
-        elif self.energy_mode == 'qm_minimum':
-            logger.info("Relative energy fitting: MM and QM relative energies are referenced to the minimum energy QM structure.\n")
-        elif self.energy_mode == 'absolute':
-            logger.info("Relative energy fitting: Using absolute energies - make sure you know what you're doing!\n")
+        self.set_option(tgt_opts, "energy_mode")
+        if self.energy_mode == "average":
+            logger.info(
+                "Relative energy fitting: Subtracting (MM - QM) energy gap from all relative energy calculations - this is the default.\n"
+            )
+        elif self.energy_mode == "qm_minimum":
+            logger.info(
+                "Relative energy fitting: MM and QM relative energies are referenced to the minimum energy QM structure.\n"
+            )
+        elif self.energy_mode == "absolute":
+            logger.info(
+                "Relative energy fitting: Using absolute energies - make sure you know what you're doing!\n"
+            )
         else:
-            raise RuntimeError('Invalid selection of energy_mode : valid options are "average", "qm_minimum", "absolute"')
+            raise RuntimeError(
+                'Invalid selection of energy_mode : valid options are "average", "qm_minimum", "absolute"'
+            )
         ## Assign a greater weight to MM snapshots that underestimate the QM energy (surfaces referenced to QM absolute minimum)
-        self.set_option(tgt_opts,'energy_asymmetry')
+        self.set_option(tgt_opts, "energy_asymmetry")
         if self.energy_asymmetry != 1.0:
-            if self.energy_mode != 'qm_minimum':
-                raise RuntimeError('energy_asymmetry can only be used when energy_mode is set to qm_minimum')
+            if self.energy_mode != "qm_minimum":
+                raise RuntimeError(
+                    "energy_asymmetry can only be used when energy_mode is set to qm_minimum"
+                )
             if not self.all_at_once:
-                raise RuntimeError("energy_asymmetry can only be used when all_at_once is enabled")
+                raise RuntimeError(
+                    "energy_asymmetry can only be used when all_at_once is enabled"
+                )
             if self.energy_asymmetry < 1.0:
                 warn_press_key("energy_asymmetry is intended to be greater than 1.0")
         ## Attenuate the weights as a function of QM relative energy.
-        self.set_option(tgt_opts,'attenuate')
+        self.set_option(tgt_opts, "attenuate")
         ## Energy lower cutoff for starting to attenuate weights.
-        self.set_option(tgt_opts,'energy_denom')
+        self.set_option(tgt_opts, "energy_denom")
         ## Energy upper cutoff for setting weights to zero.
-        self.set_option(tgt_opts,'energy_upper')
+        self.set_option(tgt_opts, "energy_upper")
         if not self.attenuate and self.energy_denom != 1.0:
-            warn_press_key("To override the normalization of the energy objective function, please use energy_rms_override.")
-        #======================================#
+            warn_press_key(
+                "To override the normalization of the energy objective function, please use energy_rms_override."
+            )
+        # ======================================#
         #     Variables which are set here     #
-        #======================================#
+        # ======================================#
         ## LPW 2018-02-11: This is set to True if the target calculates
         ## a single-point property over several existing snapshots.
         self.loop_over_snapshots = True
         ## Boltzmann weights
         self.boltz_wts = []
         ## Reference (QM) energies
-        self.eqm           = []
+        self.eqm = []
         ## Reference (QM) forces
-        self.fqm           = []
+        self.fqm = []
         ## ESP grid points
-        self.espxyz        = []
+        self.espxyz = []
         ## ESP values
-        self.espval        = []
+        self.espval = []
         ## The qdata.txt file that contains the QM energies and forces
-        self.qfnm = os.path.join(self.tgtdir,"qdata.txt")
+        self.qfnm = os.path.join(self.tgtdir, "qdata.txt")
         ## Qualitative Indicator: average energy error (in kJ/mol)
         self.e_err = 0.0
         self.e_err_pct = None
@@ -187,22 +218,24 @@ class AbInitio(Target):
         self.nf_err_pct = 0.0
         self.tq_err_pct = 0.0
         ## Whether to compute net forces and torques, or not.
-        self.use_nft       = self.w_netforce > 0 or self.w_torque > 0
+        self.use_nft = self.w_netforce > 0 or self.w_torque > 0
         ## Read in the trajectory file
-        if hasattr(self, 'pdb') and self.pdb is not None:
-            self.mol = Molecule(os.path.join(self.root,self.tgtdir,self.coords),
-                                top=(os.path.join(self.root,self.tgtdir,self.pdb)))
+        if hasattr(self, "pdb") and self.pdb is not None:
+            self.mol = Molecule(
+                os.path.join(self.root, self.tgtdir, self.coords),
+                top=(os.path.join(self.root, self.tgtdir, self.pdb)),
+            )
         else:
-            self.mol = Molecule(os.path.join(self.root,self.tgtdir,self.coords))
+            self.mol = Molecule(os.path.join(self.root, self.tgtdir, self.coords))
         ## Set the number of snapshots
         if self.ns != -1:
-            self.mol = self.mol[:self.ns]
+            self.mol = self.mol[: self.ns]
         self.ns = len(self.mol)
         ## The number of (atoms + drude particles + virtual sites)
-        self.nparticles  = len(self.mol.elem)
+        self.nparticles = len(self.mol.elem)
         ## Build keyword dictionaries to pass to engine.
         engine_args = OrderedDict(list(self.OptionDict.items()) + list(options.items()))
-        engine_args.pop('name', None)
+        engine_args.pop("name", None)
         ## Create engine object.
         self.engine = self.engine_(target=self, mol=self.mol, **engine_args)
         ## Lists of atoms to do net force/torque fitting and excluding virtual sites.
@@ -215,34 +248,47 @@ class AbInitio(Target):
         self.buildx = True
         ## Save the mvals from the last time we updated the vsites.
         self.save_vmvals = {}
-        self.set_option(None, 'shots', val=self.ns)
+        self.set_option(None, "shots", val=self.ns)
         self.M_orig = None
 
     def build_invdist(self, mvals):
         for i in self.pgrad:
-            if 'VSITE' in self.FF.plist[i]:
+            if "VSITE" in self.FF.plist[i]:
                 if i in self.save_vmvals and mvals[i] != self.save_vmvals[i]:
                     self.buildx = True
                     break
-        if not self.buildx: return self.invdists
-        if any(['VSITE' in i for i in self.FF.map.keys()]) or self.have_vsite:
-            logger.info("\rGenerating virtual site positions.%s" % (" "*30))
-            pvals = self.FF.make(mvals)
+        if not self.buildx:
+            return self.invdists
+        if any(["VSITE" in i for i in self.FF.map.keys()]) or self.have_vsite:
+            logger.info("\rGenerating virtual site positions.%s" % (" " * 30))
+            self.FF.make(mvals)
             self.mol.xyzs = self.engine.generate_positions()
         # prepare the distance matrix for esp computations
         if len(self.espxyz) > 0:
             invdists = []
-            logger.info("\rPreparing the distance matrix... it will have %i * %i * %i = %i elements" % (self.ns, self.nesp, self.nparticles, self.ns * self.nesp * self.nparticles))
+            logger.info(
+                "\rPreparing the distance matrix... it will have %i * %i * %i = %i elements"
+                % (
+                    self.ns,
+                    self.nesp,
+                    self.nparticles,
+                    self.ns * self.nesp * self.nparticles,
+                )
+            )
             sn = 0
             for espset, xyz in zip(self.espxyz, self.mol.xyzs):
-                logger.info("\rGenerating ESP distances for snapshot %i%s\r" % (sn, " "*50))
-                esparr = np.array(espset).reshape(-1,3)
+                logger.info(
+                    "\rGenerating ESP distances for snapshot %i%s\r" % (sn, " " * 50)
+                )
+                esparr = np.array(espset).reshape(-1, 3)
                 # Create a matrix with Nesp rows and Natoms columns.
-                DistMat = np.array([[np.linalg.norm(i - j) for j in xyz] for i in esparr])
-                invdists.append(1. / (DistMat / bohr2ang))
+                DistMat = np.array(
+                    [[np.linalg.norm(i - j) for j in xyz] for i in esparr]
+                )
+                invdists.append(1.0 / (DistMat / bohr2ang))
                 sn += 1
         for i in self.pgrad:
-            if 'VSITE' in self.FF.plist[i]:
+            if "VSITE" in self.FF.plist[i]:
                 self.save_vmvals[i] = mvals[i]
         self.buildx = False
         return np.array(invdists)
@@ -253,22 +299,31 @@ class AbInitio(Target):
         # This code is rather slow.  It requires the system to have a list
         # of masses and blocking numbers.
 
-        kwds = {"MoleculeNumber" : "molecule",
-                "ResidueNumber" : "residue",
-                "ChargeGroupNumber" : "chargegroup"}
-        if self.force_map == 'molecule' and 'MoleculeNumber' in self.AtomLists:
-            Block = self.AtomLists['MoleculeNumber']
-        elif self.force_map == 'residue' and 'ResidueNumber' in self.AtomLists:
-            Block = self.AtomLists['ResidueNumber']
-        elif self.force_map == 'chargegroup' and 'ChargeGroupNumber' in self.AtomLists:
-            Block = self.AtomLists['ChargeGroupNumber']
+        kwds = {
+            "MoleculeNumber": "molecule",
+            "ResidueNumber": "residue",
+            "ChargeGroupNumber": "chargegroup",
+        }
+        if self.force_map == "molecule" and "MoleculeNumber" in self.AtomLists:
+            Block = self.AtomLists["MoleculeNumber"]
+        elif self.force_map == "residue" and "ResidueNumber" in self.AtomLists:
+            Block = self.AtomLists["ResidueNumber"]
+        elif self.force_map == "chargegroup" and "ChargeGroupNumber" in self.AtomLists:
+            Block = self.AtomLists["ChargeGroupNumber"]
         else:
-            logger.error('force_map keyword "%s" is invalid. Please choose from: %s\n' % (self.force_map, ', '.join(['"%s"' % kwds[k] for k in self.AtomLists.keys() if k in kwds])))
+            logger.error(
+                'force_map keyword "{}" is invalid. Please choose from: {}\n'.format(
+                    self.force_map,
+                    ", ".join(
+                        ['"%s"' % kwds[k] for k in self.AtomLists.keys() if k in kwds]
+                    ),
+                )
+            )
             raise RuntimeError
 
         nft = len(self.fitatoms)
         # Number of particles that the force is acting on
-        nfp = force.reshape(-1,3).shape[0]
+        nfp = force.reshape(-1, 3).shape[0]
         # Number of particles in the XYZ coordinates
         nxp = xyz.shape[0]
         # Number of particles in self.AtomLists
@@ -279,15 +334,20 @@ class AbInitio(Target):
         mask = np.array([i for i in range(npr) if self.AtomMask[i]])
 
         if nfp not in [npr, nat]:
-            logger.error('Force contains %i particles but expected %i or %i\n' % (nfp, npr, nat))
+            logger.error(
+                "Force contains %i particles but expected %i or %i\n" % (nfp, npr, nat)
+            )
             raise RuntimeError
         elif nfp == nat:
-            frc1 = force.reshape(-1,3)[:nft].flatten()
+            frc1 = force.reshape(-1, 3)[:nft].flatten()
         elif nfp == npr:
-            frc1 = force.reshape(-1,3)[mask][:nft].flatten()
+            frc1 = force.reshape(-1, 3)[mask][:nft].flatten()
 
         if nxp not in [npr, nat]:
-            logger.error('Coordinates contains %i particles but expected %i or %i\n' % (nxp, npr, nat))
+            logger.error(
+                "Coordinates contains %i particles but expected %i or %i\n"
+                % (nxp, npr, nat)
+            )
             raise RuntimeError
         elif nxp == nat:
             xyz1 = xyz[:nft]
@@ -295,15 +355,21 @@ class AbInitio(Target):
             xyz1 = xyz[mask][:nft]
 
         Block = list(np.array(Block)[mask])[:nft]
-        Mass = np.array(self.AtomLists['Mass'])[mask][:nft]
+        Mass = np.array(self.AtomLists["Mass"])[mask][:nft]
 
         NetForces = []
         Torques = []
         for b in sorted(set(Block)):
             AtomBlock = np.array([i for i in range(len(Block)) if Block[i] == b])
-            CrdBlock = np.array(list(itertools.chain(*[list(range(3*i, 3*i+3)) for i in AtomBlock])))
-            com = np.sum(xyz1[AtomBlock]*np.outer(Mass[AtomBlock],np.ones(3)), axis=0) / np.sum(Mass[AtomBlock])
-            frc = frc1[CrdBlock].reshape(-1,3)
+            CrdBlock = np.array(
+                list(
+                    itertools.chain(*[list(range(3 * i, 3 * i + 3)) for i in AtomBlock])
+                )
+            )
+            com = np.sum(
+                xyz1[AtomBlock] * np.outer(Mass[AtomBlock], np.ones(3)), axis=0
+            ) / np.sum(Mass[AtomBlock])
+            frc = frc1[CrdBlock].reshape(-1, 3)
             NetForce = np.sum(frc, axis=0)
             xyzb = xyz1[AtomBlock]
             Torque = np.zeros(3)
@@ -317,13 +383,13 @@ class AbInitio(Target):
             if len(xyzb) > 1:
                 Torques += [i for i in Torque]
         netfrc_torque = np.array(NetForces + Torques)
-        self.nnf = int(len(NetForces)/3)
-        self.ntq = int(len(Torques)/3)
+        self.nnf = int(len(NetForces) / 3)
+        self.ntq = int(len(Torques) / 3)
         return netfrc_torque
 
     def read_reference_data(self):
 
-        """ Read the reference ab initio data from a file such as qdata.txt.
+        """Read the reference ab initio data from a file such as qdata.txt.
 
         @todo Add an option for picking any slice out of
         qdata.txt, helpful for cross-validation
@@ -364,42 +430,48 @@ class AbInitio(Target):
 
         """
         # Parse the qdata.txt file
-        for line in open(os.path.join(self.root,self.qfnm)):
+        for line in open(os.path.join(self.root, self.qfnm)):
             sline = line.split()
-            if len(sline) == 0: continue
-            elif sline[0] == 'ENERGY':
+            if len(sline) == 0:
+                continue
+            elif sline[0] == "ENERGY":
                 self.eqm.append(float(sline[1]))
-            elif sline[0] in ['FORCES', 'GRADIENT']:
+            elif sline[0] in ["FORCES", "GRADIENT"]:
                 self.fqm.append([float(i) for i in sline[1:]])
-            elif sline[0] == 'ESPXYZ':
+            elif sline[0] == "ESPXYZ":
                 self.espxyz.append([float(i) for i in sline[1:]])
-            elif sline[0] == 'ESPVAL':
+            elif sline[0] == "ESPVAL":
                 self.espval.append([float(i) for i in sline[1:]])
 
         # Ensure that all lists are of length self.ns
-        self.eqm = self.eqm[:self.ns]
-        self.fqm = self.fqm[:self.ns]
-        self.espxyz = self.espxyz[:self.ns]
-        self.espval = self.espval[:self.ns]
+        self.eqm = self.eqm[: self.ns]
+        self.fqm = self.fqm[: self.ns]
+        self.espxyz = self.espxyz[: self.ns]
+        self.espval = self.espval[: self.ns]
 
         # Turn everything into arrays, convert to kJ/mol, and subtract the mean energy from the energy arrays
         self.eqm = np.array(self.eqm)
         self.eqm *= eqcgmx
-        if self.energy_mode == 'qm_minimum':
-            self.eqm  -= np.min(self.eqm)
-            self.smin  = np.argmin(self.eqm)
-            logger.info("Referencing all energies to structure number %i (minimum energy structure in QM)\n" % self.smin)
-        elif self.energy_mode == 'average':
+        if self.energy_mode == "qm_minimum":
+            self.eqm -= np.min(self.eqm)
+            self.smin = np.argmin(self.eqm)
+            logger.info(
+                "Referencing all energies to structure number %i (minimum energy structure in QM)\n"
+                % self.smin
+            )
+        elif self.energy_mode == "average":
             self.eqm -= np.mean(self.eqm)
-        elif self.energy_mode == 'absolute':
+        elif self.energy_mode == "absolute":
             pass
         else:
-            raise RuntimeError('Not sure what to do with energy_mode %s' % self.energy_mode)
+            raise RuntimeError(
+                "Not sure what to do with energy_mode %s" % self.energy_mode
+            )
 
         if len(self.fqm) > 0:
             self.fqm = np.array(self.fqm)
             self.fqm *= fqcgmx
-            self.qmatoms = list(range(int(self.fqm.shape[1]/3)))
+            self.qmatoms = list(range(int(self.fqm.shape[1] / 3)))
         else:
             logger.info("QM forces are not present, only fitting energies.\n")
             self.force = 0
@@ -412,23 +484,35 @@ class AbInitio(Target):
                 if int(self.fitatoms_in) == 0:
                     self.fitatoms = self.qmatoms
                 else:
-                    warn_press_key("Provided an integer for fitatoms; will assume this means the first %i atoms" % int(self.fitatoms_in))
+                    warn_press_key(
+                        "Provided an integer for fitatoms; will assume this means the first %i atoms"
+                        % int(self.fitatoms_in)
+                    )
                     self.fitatoms = list(range(int(self.fitatoms_in)))
             else:
                 # If provided a "comma and dash" list, then expand the list.
                 self.fitatoms = uncommadash(self.fitatoms_in)
 
             if len(self.fitatoms) > len(self.qmatoms):
-                warn_press_key("There are more fitting atoms than the total number of atoms in the QM calculation (something is probably wrong)")
+                warn_press_key(
+                    "There are more fitting atoms than the total number of atoms in the QM calculation (something is probably wrong)"
+                )
             else:
                 if self.w_force > 0:
                     if len(self.fitatoms) == len(self.qmatoms):
                         logger.info("Fitting the forces on all atoms\n")
                     else:
-                        logger.info("Fitting the forces on atoms %s\n" % commadash(self.fitatoms))
+                        logger.info(
+                            "Fitting the forces on atoms %s\n"
+                            % commadash(self.fitatoms)
+                        )
                         logger.info("Pruning the quantum force matrix...\n")
-                selct = list(itertools.chain(*[[3*i+j for j in range(3)] for i in self.fitatoms]))
-                self.fqm  = self.fqm[:, selct]
+                selct = list(
+                    itertools.chain(
+                        *[[3 * i + j for j in range(3)] for i in self.fitatoms]
+                    )
+                )
+                self.fqm = self.fqm[:, selct]
         else:
             self.fitatoms = []
 
@@ -438,8 +522,8 @@ class AbInitio(Target):
             # Attenuate energies by an amount proportional to their
             # value above the minimum.
             eqm1 = self.eqm - np.min(self.eqm)
-            lower = self.energy_denom * 4.184 # kcal/mol to kJ/mol
-            upper = self.energy_upper * 4.184 # kcal/mol to kJ/mol
+            lower = self.energy_denom * 4.184  # kcal/mol to kJ/mol
+            upper = self.energy_upper * 4.184  # kcal/mol to kJ/mol
             self.boltz_wts = np.ones(self.ns)
             for i in range(self.ns):
                 if eqm1[i] > upper:
@@ -447,8 +531,14 @@ class AbInitio(Target):
                 elif eqm1[i] < lower:
                     self.boltz_wts[i] = 1.0 / lower
                 else:
-                    self.boltz_wts[i] = 1.0 / np.sqrt(lower**2 + (eqm1[i]-lower)**2)
-            logger.info('Energy lower/upper limit for attenuating/cutting off weights is set to %.1f/%.1f kcal/mol.\n' % (lower, upper))
+                    self.boltz_wts[i] = 1.0 / np.sqrt(
+                        lower**2 + (eqm1[i] - lower) ** 2
+                    )
+            logger.info(
+                "Energy lower/upper limit for attenuating/cutting off weights is set to {:.1f}/{:.1f} kcal/mol.\n".format(
+                    lower, upper
+                )
+            )
         else:
             self.boltz_wts = np.ones(self.ns)
 
@@ -457,7 +547,9 @@ class AbInitio(Target):
         if self.use_nft:
             self.nftqm = []
             for i in range(len(self.fqm)):
-                self.nftqm.append(self.compute_netforce_torque(self.mol.xyzs[i], self.fqm[i]))
+                self.nftqm.append(
+                    self.compute_netforce_torque(self.mol.xyzs[i], self.fqm[i])
+                )
             self.nftqm = np.array(self.nftqm)
             self.fref = np.hstack((self.fqm, self.nftqm))
         else:
@@ -469,55 +561,81 @@ class AbInitio(Target):
         self.boltz_wts /= sum(self.boltz_wts)
 
     def indicate(self):
-        Headings = ["Observable", "Difference\n(Calc-Ref)", "Denominator\n RMS (Ref)", " Percent \nDifference", "Term", "x Wt =", "Contrib."]
+        Headings = [
+            "Observable",
+            "Difference\n(Calc-Ref)",
+            "Denominator\n RMS (Ref)",
+            " Percent \nDifference",
+            "Term",
+            "x Wt =",
+            "Contrib.",
+        ]
         Data = OrderedDict([])
         if self.energy:
-            Data['Energy (kJ/mol)'] = ["%8.4f" % self.e_err,
-                                       "%8.4f" % self.e_ref,
-                                       "%.4f%%" % (self.e_err_pct*100),
-                                       "%8.4f" % self.e_trm,
-                                       "%.3f" % self.w_energy,
-                                       "%8.4f" % self.e_ctr]
+            Data["Energy (kJ/mol)"] = [
+                "%8.4f" % self.e_err,
+                "%8.4f" % self.e_ref,
+                "%.4f%%" % (self.e_err_pct * 100),
+                "%8.4f" % self.e_trm,
+                "%.3f" % self.w_energy,
+                "%8.4f" % self.e_ctr,
+            ]
         if self.force:
-            Data['Gradient (kJ/mol/A)'] = ["%8.4f" % (self.f_err/10),
-                                           "%8.4f" % (self.f_ref/10),
-                                           "%.4f%%" % (self.f_err_pct*100),
-                                           "%8.4f" % self.f_trm,
-                                           "%.3f" % self.w_force,
-                                           "%8.4f" % self.f_ctr]
+            Data["Gradient (kJ/mol/A)"] = [
+                "%8.4f" % (self.f_err / 10),
+                "%8.4f" % (self.f_ref / 10),
+                "%.4f%%" % (self.f_err_pct * 100),
+                "%8.4f" % self.f_trm,
+                "%.3f" % self.w_force,
+                "%8.4f" % self.f_ctr,
+            ]
             if self.use_nft:
-                Data['Net Force (kJ/mol/A)'] = ["%8.4f" % (self.nf_err/10),
-                                                "%8.4f" % (self.nf_ref/10),
-                                                "%.4f%%" % (self.nf_err_pct*100),
-                                                "%8.4f" % self.nf_trm,
-                                                "%.3f" % self.w_netforce,
-                                                "%8.4f" % self.nf_ctr]
-                Data['Torque (kJ/mol/rad)'] = ["%8.4f" % self.tq_err,
-                                               "%8.4f" % self.tq_ref,
-                                               "%.4f%%" % (self.tq_err_pct*100),
-                                               "%8.4f" % self.tq_trm,
-                                               "%.3f" % self.w_torque,
-                                               "%8.4f" % self.tq_ctr]
+                Data["Net Force (kJ/mol/A)"] = [
+                    "%8.4f" % (self.nf_err / 10),
+                    "%8.4f" % (self.nf_ref / 10),
+                    "%.4f%%" % (self.nf_err_pct * 100),
+                    "%8.4f" % self.nf_trm,
+                    "%.3f" % self.w_netforce,
+                    "%8.4f" % self.nf_ctr,
+                ]
+                Data["Torque (kJ/mol/rad)"] = [
+                    "%8.4f" % self.tq_err,
+                    "%8.4f" % self.tq_ref,
+                    "%.4f%%" % (self.tq_err_pct * 100),
+                    "%8.4f" % self.tq_trm,
+                    "%.3f" % self.w_torque,
+                    "%8.4f" % self.tq_ctr,
+                ]
         if self.resp:
-            Data['Potential (a.u.'] = ["%8.4f" % (self.esp_err/10),
-                                       "%8.4f" % (self.esp_ref/10),
-                                       "%.4f%%" % (self.esp_err_pct*100),
-                                       "%8.4f" % self.esp_trm,
-                                       "%.3f" % self.w_resp,
-                                       "%8.4f" % self.esp_ctr]
+            Data["Potential (a.u."] = [
+                "%8.4f" % (self.esp_err / 10),
+                "%8.4f" % (self.esp_ref / 10),
+                "%.4f%%" % (self.esp_err_pct * 100),
+                "%8.4f" % self.esp_trm,
+                "%.3f" % self.w_resp,
+                "%8.4f" % self.esp_ctr,
+            ]
         self.printcool_table(data=Data, headings=Headings, color=0)
         if self.force:
-            logger.info("Maximum force difference on atom %i (%s), frame %i, %8.4f kJ/mol/A\n" % (self.maxfatom, self.mol.elem[self.fitatoms[self.maxfatom]], self.maxfshot, self.maxdf/10))
+            logger.info(
+                "Maximum force difference on atom %i (%s), frame %i, %8.4f kJ/mol/A\n"
+                % (
+                    self.maxfatom,
+                    self.mol.elem[self.fitatoms[self.maxfatom]],
+                    self.maxfshot,
+                    self.maxdf / 10,
+                )
+            )
 
     def energy_all(self):
-        if hasattr(self, 'engine'):
-            return self.engine.energy().reshape(-1,1)
+        if hasattr(self, "engine"):
+            return self.engine.energy().reshape(-1, 1)
         else:
             logger.error("Target must contain an engine object\n")
             raise NotImplementedError
 
     def energy_force_all(self):
-        if hasattr(self, 'engine'):
+        if hasattr(self, "engine"):
             return self.engine.energy_force()
         else:
             logger.error("Target must contain an engine object\n")
@@ -526,12 +644,16 @@ class AbInitio(Target):
     def energy_force_transform(self):
         if self.force:
             M = self.energy_force_all()
-            selct = [0] + list(itertools.chain(*[[1+3*i+j for j in range(3)] for i in self.fitatoms]))
+            selct = [0] + list(
+                itertools.chain(
+                    *[[1 + 3 * i + j for j in range(3)] for i in self.fitatoms]
+                )
+            )
             M = M[:, selct]
             if self.use_nft:
                 Nfts = []
                 for i in range(len(M)):
-                    Fm  = M[i][1:]
+                    Fm = M[i][1:]
                     Nft = self.compute_netforce_torque(self.mol.xyzs[i], Fm)
                     Nfts.append(Nft)
                 Nfts = np.array(Nfts)
@@ -542,26 +664,30 @@ class AbInitio(Target):
             return self.energy_all()
 
     def energy_one(self, i):
-        if hasattr(self, 'engine'):
+        if hasattr(self, "engine"):
             return self.engine.energy_one(i)
         else:
             logger.error("Target must contain an engine object\n")
             raise NotImplementedError
 
     def energy_force_one(self, i):
-        if hasattr(self, 'engine'):
+        if hasattr(self, "engine"):
             return self.engine.energy_force_one(i)
         else:
             logger.error("Target must contain an engine object\n")
             raise NotImplementedError
 
-    def energy_force_transform_one(self,i):
+    def energy_force_transform_one(self, i):
         if self.force:
             M = self.energy_force_one(i)
-            selct = [0] + list(itertools.chain(*[[1+3*i+j for j in range(3)] for i in self.fitatoms]))
+            selct = [0] + list(
+                itertools.chain(
+                    *[[1 + 3 * i + j for j in range(3)] for i in self.fitatoms]
+                )
+            )
             M = M[:, selct]
             if self.use_nft:
-                Fm  = M[1:]
+                Fm = M[1:]
                 Nft = self.compute_netforce_torque(self.mol.xyzs[i], Fm)
                 return np.hstack((M, Nft))
             else:
@@ -606,15 +732,15 @@ class AbInitio(Target):
 
         In equation form, the objective function is given by:
 
-        \[ = {W_E}\left[ {\frac{{\left( {\sum\limits_{i \in {N_s}}
-        {{w_i}{{\left( {E_i^{MM} - E_i^{QM}} \right)}^2}} } \right) -
-        {{\left( {{{\bar E}^{MM}} - {{\bar E}^{QM}}} \right)}^2}}}
-        {{\sum\limits_{i \in {N_s}} {{w_i}{{\left(
+        \\[ = {W_E}\\left[ {\frac{{\\left( {\\sum\\limits_{i \\in {N_s}}
+        {{w_i}{{\\left( {E_i^{MM} - E_i^{QM}} \right)}^2}} } \right) -
+        {{\\left( {{{\bar E}^{MM}} - {{\bar E}^{QM}}} \right)}^2}}}
+        {{\\sum\\limits_{i \\in {N_s}} {{w_i}{{\\left(
         {E_i^{QM} - {{\bar E}^{QM}}} \right)}^2}} }}} \right] +
-        {W_F}\left[ {\frac{{\sum\limits_{i \in {N_s}} {{w_i}\sum\limits_{a \in {N_a}}
-        {{{\left| {{\bf{F}}_{i,a}^{MM} - {\bf{F}}_{i,a}^{QM}} \right|}^2}} } }}
-        {{\sum\limits_{i \in {N_s}} {{w_i}\sum\limits_{a \in {N_a}}
-        {{{\left| {{\bf{F}}_{i,a}^{QM}} \right|}^2}} } }}} \right]\]
+        {W_F}\\left[ {\frac{{\\sum\\limits_{i \\in {N_s}} {{w_i}\\sum\\limits_{a \\in {N_a}}
+        {{{\\left| {{\bf{F}}_{i,a}^{MM} - {\bf{F}}_{i,a}^{QM}} \right|}^2}} } }}
+        {{\\sum\\limits_{i \\in {N_s}} {{w_i}\\sum\\limits_{a \\in {N_a}}
+        {{{\\left| {{\bf{F}}_{i,a}^{QM}} \right|}^2}} } }}} \right]\\]
 
         In the previous code (ForTune, 2011 and previous)
         this subroutine used analytic first derivatives of the
@@ -635,80 +761,89 @@ class AbInitio(Target):
         pvals = self.FF.make(mvals)
 
         # Number of atoms containing forces being fitted
-        nat  = len(self.fitatoms)
+        nat = len(self.fitatoms)
         # Number of net forces on molecules
-        nnf  = self.nnf
+        nnf = self.nnf
         # Number of torques on molecules
-        ntq  = self.ntq
+        ntq = self.ntq
         # Basically the size of the matrix
-        NC   = 3*nat
-        NCP1 = 3*nat+1
+        3 * nat
+        NCP1 = 3 * nat + 1
         NParts = 1
         if self.force:
             NParts += 1
         if self.use_nft:
             NParts += 2
-            NCP1 += 3*(nnf + ntq)
-        NP   = self.FF.np
-        NS   = self.ns
-        #==============================================================#
+            NCP1 += 3 * (nnf + ntq)
+        NP = self.FF.np
+        NS = self.ns
+        # ==============================================================#
         #            STEP 1: Form all of the arrays.                   #
-        #==============================================================#
-        if (self.w_energy == 0.0 and self.w_force == 0.0 and self.w_netforce == 0.0 and self.w_torque == 0.0):
+        # ==============================================================#
+        if (
+            self.w_energy == 0.0
+            and self.w_force == 0.0
+            and self.w_netforce == 0.0
+            and self.w_torque == 0.0
+        ):
             AGrad = False
             AHess = False
         # Sum of all the weights
-        Z       = 0.0
+        Z = 0.0
         # All vectors with NCP1 elements are ordered as
         # [E F_1x F_1y F_1z F_2x ... NF_1x NF_1y ... TQ_1x TQ_1y ... ]
         # Vector of QM-quantities
         Q = np.zeros(NCP1)
         # Mean quantities over the trajectory
-        M0    = np.zeros(NCP1)
-        Q0    = np.zeros(NCP1)
-        X0    = np.zeros(NCP1)
+        M0 = np.zeros(NCP1)
+        Q0 = np.zeros(NCP1)
+        X0 = np.zeros(NCP1)
         # The mean squared QM-quantities
-        QQ0    = np.zeros(NCP1)
+        QQ0 = np.zeros(NCP1)
         # Derivatives of the MM-quantity
-        M_p     = np.zeros((NP,NCP1))
-        M_pp    = np.zeros((NP,NCP1))
+        M_p = np.zeros((NP, NCP1))
+        M_pp = np.zeros((NP, NCP1))
         # Means of gradients
-        M0_p  = np.zeros((NP,NCP1))
-        M0_pp = np.zeros((NP,NCP1))
+        M0_p = np.zeros((NP, NCP1))
+        M0_pp = np.zeros((NP, NCP1))
         # Vector of objective function terms
         SPX = np.zeros(NCP1)
         if AGrad:
-            SPX_p = np.zeros((NP,NCP1))
+            SPX_p = np.zeros((NP, NCP1))
             # Derivatives of "parts" of objective functions - i.e.
             # the sum is taken over the components of force, net force, torque
             # but the components haven't been weighted and summed.
-            X2_Parts_p = np.zeros((NP,NParts))
+            X2_Parts_p = np.zeros((NP, NParts))
         if AHess:
-            SPX_pq = np.zeros((NP,NP,NCP1))
-            X2_Parts_pq = np.zeros((NP,NP,NParts))
+            SPX_pq = np.zeros((NP, NP, NCP1))
+            X2_Parts_pq = np.zeros((NP, NP, NParts))
         # Storage of the MM-quantities and derivatives for all snapshots.
         # This saves time because we don't need to execute the external program
         # once per snapshot, but requires memory.
-        M_all = np.zeros((NS,NCP1))
+        M_all = np.zeros((NS, NCP1))
         if AGrad and self.all_at_once:
-            dM_all = np.zeros((NS,NP,NCP1))
-            ddM_all = np.zeros((NS,NP,NCP1))
-        #==============================================================#
+            dM_all = np.zeros((NS, NP, NCP1))
+            ddM_all = np.zeros((NS, NP, NCP1))
+        # ==============================================================#
         #             STEP 2: Loop through the snapshots.              #
-        #==============================================================#
+        # ==============================================================#
         if self.all_at_once:
             logger.debug("\rExecuting\r")
             M_all = self.energy_force_transform()
-            if self.energy_mode == 'qm_minimum':
+            if self.energy_mode == "qm_minimum":
                 M_all[:, 0] -= M_all[self.smin, 0]
             if AGrad or AHess:
+
                 def callM(mvals_):
                     logger.debug("\r")
-                    pvals = self.FF.make(mvals_)
+                    self.FF.make(mvals_)
                     return self.energy_force_transform()
+
                 for p in self.pgrad:
-                    dM_all[:,p,:], ddM_all[:,p,:] = f12d3p(fdwrap(callM, mvals, p), h = self.h, f0 = M_all)
-                    if self.energy_mode == 'qm_minimum':
+                    dM_all[:, p, :], ddM_all[:, p, :] = f12d3p(
+                        fdwrap(callM, mvals, p), h=self.h, f0=M_all
+                    )
+                    if self.energy_mode == "qm_minimum":
                         dM_all[:, p, 0] -= dM_all[self.smin, p, 0]
                         ddM_all[:, p, 0] -= ddM_all[self.smin, p, 0]
         if self.force and not in_fd():
@@ -719,13 +854,13 @@ class AbInitio(Target):
             if i % 100 == 0:
                 logger.debug("\rIncrementing quantities for snapshot %i\r" % i)
             # Build Boltzmann weights and increment partition function.
-            P   = self.boltz_wts[i]
-            Z  += P
+            P = self.boltz_wts[i]
+            Z += P
             # Load reference (QM) data
             Q[0] = self.eqm[i]
             if self.force:
-                Q[1:] = self.fref[i,:].copy()
-            QQ     = Q*Q
+                Q[1:] = self.fref[i, :].copy()
+            QQ = Q * Q
             # Call the simulation software to get the MM quantities
             # (or load from M_all array)
             if self.all_at_once:
@@ -734,15 +869,15 @@ class AbInitio(Target):
                 if i % 100 == 0:
                     logger.debug("Shot %i\r" % i)
                 M = self.energy_force_transform_one(i)
-                M_all[i,:] = M.copy()
+                M_all[i, :] = M.copy()
             # MM - QM difference
-            X     = M-Q
+            X = M - Q
             # For asymmetric fit, MM energies lower than QM are given a boost factor
             boost = self.energy_asymmetry if X[0] < 0.0 else 1.0
             # Save information about forces
             if self.force:
                 # Norm-squared of force differences for each atom
-                dfrc2 = norm2(M-Q, 1, nat)
+                dfrc2 = norm2(M - Q, 1, nat)
                 if not in_fd() and np.max(dfrc2) > self.maxdf:
                     self.maxdf = np.sqrt(np.max(dfrc2))
                     self.maxfatom = np.argmax(dfrc2)
@@ -751,82 +886,102 @@ class AbInitio(Target):
             # The [0] indicates that we are fitting the RMS force and not the RMSD
             # (without the covariance, subtracting a mean force doesn't make sense.)
             # The rest of the array is empty.
-            M0[0] += P*M[0]
-            Q0[0] += P*Q[0]
-            X0[0] += P*X[0]
+            M0[0] += P * M[0]
+            Q0[0] += P * Q[0]
+            X0[0] += P * X[0]
             # We store all elements of the mean-squared QM quantities.
-            QQ0 += P*QQ
+            QQ0 += P * QQ
             # Increment the objective function.
-            Xi     = X**2
+            Xi = X**2
             Xi[0] *= boost
             # SPX contains the sum over snapshots
             SPX += P * Xi
-            #==============================================================#
+            # ==============================================================#
             #      STEP 2a: Increment gradients and mean quantities.       #
-            #==============================================================#
+            # ==============================================================#
             for p in self.pgrad:
-                if not AGrad: continue
+                if not AGrad:
+                    continue
                 if self.all_at_once:
                     M_p[p] = dM_all[i, p]
                     M_pp[p] = ddM_all[i, p]
                 else:
+
                     def callM(mvals_):
                         if i % 100 == 0:
                             logger.debug("\r")
-                        pvals = self.FF.make(mvals_)
+                        self.FF.make(mvals_)
                         return self.energy_force_transform_one(i)
-                    M_p[p],M_pp[p] = f12d3p(fdwrap(callM, mvals, p), h = self.h, f0 = M)
-                if all(M_p[p] == 0): continue
-                M0_p[p][0]  += P * M_p[p][0]
-                Xi_p        = 2 * X * M_p[p]
-                Xi_p[0]    *= boost
+
+                    M_p[p], M_pp[p] = f12d3p(fdwrap(callM, mvals, p), h=self.h, f0=M)
+                if all(M_p[p] == 0):
+                    continue
+                M0_p[p][0] += P * M_p[p][0]
+                Xi_p = 2 * X * M_p[p]
+                Xi_p[0] *= boost
                 SPX_p[p] += P * Xi_p
-                if not AHess: continue
+                if not AHess:
+                    continue
                 if self.all_at_once:
                     M_pp[p] = ddM_all[i, p]
                 # This formula is more correct, but perhapsively convergence is slower.
-                #Xi_pq       = 2 * (M_p[p] * M_p[p] + X * M_pp[p])
+                # Xi_pq       = 2 * (M_p[p] * M_p[p] + X * M_pp[p])
                 # Gauss-Newton formula for approximate Hessian
-                Xi_pq       = 2 * (M_p[p] * M_p[p])
-                Xi_pq[0]   *= boost
-                SPX_pq[p,p] += P * Xi_pq
+                Xi_pq = 2 * (M_p[p] * M_p[p])
+                Xi_pq[0] *= boost
+                SPX_pq[p, p] += P * Xi_pq
                 for q in range(p):
-                    if all(M_p[q] == 0): continue
-                    if q not in self.pgrad: continue
-                    Xi_pq          = 2 * M_p[p] * M_p[q]
-                    Xi_pq[0]      *= boost
-                    SPX_pq[p,q] += P * Xi_pq
+                    if all(M_p[q] == 0):
+                        continue
+                    if q not in self.pgrad:
+                        continue
+                    Xi_pq = 2 * M_p[p] * M_p[q]
+                    Xi_pq[0] *= boost
+                    SPX_pq[p, q] += P * Xi_pq
 
-        #==============================================================#
+        # ==============================================================#
         #         STEP 2b: Write energies and forces to disk.          #
-        #==============================================================#
+        # ==============================================================#
         M_all_print = M_all.copy()
         if self.force:
-            Q_all_print = np.hstack((col(self.eqm),self.fref))
+            Q_all_print = np.hstack((col(self.eqm), self.fref))
         else:
             Q_all_print = col(self.eqm)
-        if self.energy_mode == 'average':
-            M_all_print[:,0] -= np.average(M_all_print[:,0], weights=self.boltz_wts)
-            Q_all_print[:,0] -= np.average(Q_all_print[:,0], weights=self.boltz_wts)
-        elif self.energy_mode == 'qm_minimum':
-            M_all_print[:,0] -= M_all_print[self.smin,0]
-            Q_all_print[:,0] -= Q_all_print[self.smin,0]
+        if self.energy_mode == "average":
+            M_all_print[:, 0] -= np.average(M_all_print[:, 0], weights=self.boltz_wts)
+            Q_all_print[:, 0] -= np.average(Q_all_print[:, 0], weights=self.boltz_wts)
+        elif self.energy_mode == "qm_minimum":
+            M_all_print[:, 0] -= M_all_print[self.smin, 0]
+            Q_all_print[:, 0] -= Q_all_print[self.smin, 0]
         if self.writelevel > 1:
-            np.savetxt('M.txt',M_all_print)
-            np.savetxt('Q.txt',Q_all_print)
+            np.savetxt("M.txt", M_all_print)
+            np.savetxt("Q.txt", Q_all_print)
         if self.writelevel > 1:
-            np.savetxt('M.txt',M_all_print)
-            np.savetxt('Q.txt',Q_all_print)
+            np.savetxt("M.txt", M_all_print)
+            np.savetxt("Q.txt", Q_all_print)
         if self.writelevel > 0:
-            EnergyComparison = np.hstack((col(Q_all_print[:,0]),
-                                          col(M_all_print[:,0]),
-                                          col(M_all_print[:,0])-col(Q_all_print[:,0]),
-                                          col(self.boltz_wts)))
-            np.savetxt("EnergyCompare.txt", EnergyComparison, header="%11s  %12s  %12s  %12s" % ("QMEnergy", "MMEnergy", "Delta(MM-QM)", "Weight"), fmt="% 12.6e")
+            EnergyComparison = np.hstack(
+                (
+                    col(Q_all_print[:, 0]),
+                    col(M_all_print[:, 0]),
+                    col(M_all_print[:, 0]) - col(Q_all_print[:, 0]),
+                    col(self.boltz_wts),
+                )
+            )
+            np.savetxt(
+                "EnergyCompare.txt",
+                EnergyComparison,
+                header="%11s  %12s  %12s  %12s"
+                % ("QMEnergy", "MMEnergy", "Delta(MM-QM)", "Weight"),
+                fmt="% 12.6e",
+            )
             if self.writelevel > 1:
-                plot_qm_vs_mm(Q_all_print[:,0], M_all_print[:,0],
-                              M_orig=self.M_orig[:,0] if self.M_orig is not None else None,
-                              title='Abinitio '+self.name)
+                plot_qm_vs_mm(
+                    Q_all_print[:, 0],
+                    M_all_print[:, 0],
+                    M_orig=self.M_orig[:, 0] if self.M_orig is not None else None,
+                    title="Abinitio " + self.name,
+                )
             if self.M_orig is None:
                 self.M_orig = M_all_print.copy()
         if self.force and self.writelevel > 1:
@@ -834,14 +989,14 @@ class AbInitio(Target):
             QMTraj = self.mol[:].atom_select(self.fitatoms)
             Mforce_obj = QMTraj[:]
             Qforce_obj = QMTraj[:]
-            Mforce_print = np.array(M_all_print[:,1:3*nat+1])
-            Qforce_print = np.array(Q_all_print[:,1:3*nat+1])
-            MaxComp = np.max(np.abs(np.vstack((Mforce_print,Qforce_print)).flatten()))
+            Mforce_print = np.array(M_all_print[:, 1 : 3 * nat + 1])
+            Qforce_print = np.array(Q_all_print[:, 1 : 3 * nat + 1])
+            MaxComp = np.max(np.abs(np.vstack((Mforce_print, Qforce_print)).flatten()))
             Mforce_print /= MaxComp
             Qforce_print /= MaxComp
             for i in range(NS):
-                Mforce_obj.xyzs[i] = Mforce_print[i, :].reshape(-1,3)
-                Qforce_obj.xyzs[i] = Qforce_print[i, :].reshape(-1,3)
+                Mforce_obj.xyzs[i] = Mforce_print[i, :].reshape(-1, 3)
+                Qforce_obj.xyzs[i] = Qforce_print[i, :].reshape(-1, 3)
             # if nat < len(self.qmatoms):
             #     Fpad = np.zeros((len(self.qmatoms) - nat, 3))
             #     Mforce_obj.xyzs[i] = np.vstack((Mforce_obj.xyzs[i], Fpad))
@@ -849,18 +1004,20 @@ class AbInitio(Target):
             if Mforce_obj.na != Mforce_obj.xyzs[0].shape[0]:
                 print(Mforce_obj.na)
                 print(Mforce_obj.xyzs[0].shape[0])
-                warn_once('\x1b[91mThe printing of forces is not set up correctly.  Not printing forces.  Please report this issue.\x1b[0m')
+                warn_once(
+                    "\x1b[91mThe printing of forces is not set up correctly.  Not printing forces.  Please report this issue.\x1b[0m"
+                )
             else:
                 if self.writelevel > 1:
-                    QMTraj.write('coords.xyz')
-                    Mforce_obj.elem = ['H' for i in range(Mforce_obj.na)]
-                    Mforce_obj.write('MMforce.xyz')
-                    Qforce_obj.elem = ['H' for i in range(Qforce_obj.na)]
-                    Qforce_obj.write('QMforce.xyz')
+                    QMTraj.write("coords.xyz")
+                    Mforce_obj.elem = ["H" for i in range(Mforce_obj.na)]
+                    Mforce_obj.write("MMforce.xyz")
+                    Qforce_obj.elem = ["H" for i in range(Qforce_obj.na)]
+                    Qforce_obj.write("QMforce.xyz")
 
-        #==============================================================#
+        # ==============================================================#
         #            STEP 3: Build the objective function.             #
-        #==============================================================#
+        # ==============================================================#
 
         logger.debug("Done with snapshots, building objective function now\r")
         W_Components = np.zeros(NParts)
@@ -874,124 +1031,160 @@ class AbInitio(Target):
             W_Components /= np.sum(W_Components)
 
         if self.energy_rms_override != 0.0:
-            QQ0[0] = self.energy_rms_override ** 2
+            QQ0[0] = self.energy_rms_override**2
             Q0[0] = 0.0
 
         if self.force_rms_override != 0.0:
             # x 100 to match unit from kJ/mol/nm to kJ/mol/A
             # / 3 to match the number of force component = 3 * nat
-            QQ0[1:3*nat+1] = self.force_rms_override ** 2 * 100 / 3
-            Q0[1:3*nat+1] = 0.0
+            QQ0[1 : 3 * nat + 1] = self.force_rms_override**2 * 100 / 3
+            Q0[1 : 3 * nat + 1] = 0.0
 
-        def compute_objective(SPX_like,divide=1,L=None,R=None,L2=None,R2=None):
+        def compute_objective(SPX_like, divide=1, L=None, R=None, L2=None, R2=None):
             a = 0
             n = 1
-            X2E = compute_objective_part(SPX_like,QQ0,Q0,Z,a,n,energy=True,subtract_mean=(self.energy_mode=='average'),
-                                         divide=divide,L=L,R=R,L2=L2,R2=R2)
+            X2E = compute_objective_part(
+                SPX_like,
+                QQ0,
+                Q0,
+                Z,
+                a,
+                n,
+                energy=True,
+                subtract_mean=(self.energy_mode == "average"),
+                divide=divide,
+                L=L,
+                R=R,
+                L2=L2,
+                R2=R2,
+            )
             objs = [X2E]
             if self.force:
                 a = 1
-                n = 3*nat
-                X2F = compute_objective_part(SPX_like,QQ0,Q0,Z,a,n,divide=divide)
+                n = 3 * nat
+                X2F = compute_objective_part(SPX_like, QQ0, Q0, Z, a, n, divide=divide)
                 objs.append(X2F)
                 if self.use_nft:
                     a += n
-                    n = 3*nnf
-                    X2N = compute_objective_part(SPX_like,QQ0,Q0,Z,a,n,divide=divide)
+                    n = 3 * nnf
+                    X2N = compute_objective_part(
+                        SPX_like, QQ0, Q0, Z, a, n, divide=divide
+                    )
                     objs.append(X2N)
                     a += n
-                    n = 3*ntq
-                    X2T = compute_objective_part(SPX_like,QQ0,Q0,Z,a,n,divide=divide)
+                    n = 3 * ntq
+                    X2T = compute_objective_part(
+                        SPX_like, QQ0, Q0, Z, a, n, divide=divide
+                    )
                     objs.append(X2T)
             return np.array(objs)
 
         # The objective function components (i.e. energy, force, net force, torque)
-        X2_Components = compute_objective(SPX,L=X0,R=X0)
+        X2_Components = compute_objective(SPX, L=X0, R=X0)
         # The squared residuals before they are normalized
-        X2_Physical = compute_objective(SPX,divide=0,L=X0,R=X0)
+        X2_Physical = compute_objective(SPX, divide=0, L=X0, R=X0)
         # The normalization factors
-        X2_Normalize = compute_objective(SPX,divide=2,L=X0,R=X0)
+        X2_Normalize = compute_objective(SPX, divide=2, L=X0, R=X0)
         # The derivatives of the objective function components
         for p in self.pgrad:
-            if not AGrad: continue
-            X2_Parts_p[p,:] = compute_objective(SPX_p[p],L=2*X0,R=M0_p[p])
-            if not AHess: continue
-            X2_Parts_pq[p,p,:] = compute_objective(SPX_pq[p,p],L=2*M0_p[p],R=M0_p[p],L2=2*X0,R2=M0_pp[p])
+            if not AGrad:
+                continue
+            X2_Parts_p[p, :] = compute_objective(SPX_p[p], L=2 * X0, R=M0_p[p])
+            if not AHess:
+                continue
+            X2_Parts_pq[p, p, :] = compute_objective(
+                SPX_pq[p, p], L=2 * M0_p[p], R=M0_p[p], L2=2 * X0, R2=M0_pp[p]
+            )
             for q in range(p):
-                if q not in self.pgrad: continue
-                X2_Parts_pq[p,q,:] = compute_objective(SPX_pq[p,q],L=2*M0_p[p],R=M0_p[q])
+                if q not in self.pgrad:
+                    continue
+                X2_Parts_pq[p, q, :] = compute_objective(
+                    SPX_pq[p, q], L=2 * M0_p[p], R=M0_p[q]
+                )
                 # Get the other half of the Hessian matrix.
-                X2_Parts_pq[q,p,:] = X2_Parts_pq[p,q,:]
+                X2_Parts_pq[q, p, :] = X2_Parts_pq[p, q, :]
         # The objective function as a weighted sum of the components
-        X2   = np.dot(X2_Components, W_Components)
+        X2 = np.dot(X2_Components, W_Components)
         # Derivatives of the objective function
         G = np.zeros(NP)
-        H = np.zeros((NP,NP))
+        H = np.zeros((NP, NP))
         for p in self.pgrad:
-            if not AGrad: continue
+            if not AGrad:
+                continue
             G[p] = np.dot(X2_Parts_p[p], W_Components)
-            if not AHess: continue
+            if not AHess:
+                continue
             for q in self.pgrad:
-                H[p,q] = np.dot(X2_Parts_pq[p,q], W_Components)
+                H[p, q] = np.dot(X2_Parts_pq[p, q], W_Components)
 
-        #==============================================================#
+        # ==============================================================#
         #                STEP 3a: Build the indicators.                #
-        #==============================================================#
+        # ==============================================================#
         # Save values to qualitative indicator if not inside finite difference code.
         if not in_fd():
             # Contribution from energy and force parts.
-            tw = self.w_energy + self.w_force + self.w_netforce + self.w_torque + self.w_resp
+            tw = (
+                self.w_energy
+                + self.w_force
+                + self.w_netforce
+                + self.w_torque
+                + self.w_resp
+            )
             self.e_trm = X2_Components[0]
-            self.e_ctr = X2_Components[0]*W_Components[0]
-            if self.w_normalize: self.e_ctr /= tw
+            self.e_ctr = X2_Components[0] * W_Components[0]
+            if self.w_normalize:
+                self.e_ctr /= tw
             self.e_ref = np.sqrt(X2_Normalize[0])
             self.e_err = np.sqrt(X2_Physical[0])
-            self.e_err_pct = self.e_err/self.e_ref
+            self.e_err_pct = self.e_err / self.e_ref
             if self.force:
                 self.f_trm = X2_Components[1]
-                self.f_ctr = X2_Components[1]*W_Components[1]
-                if self.w_normalize: self.f_ctr /= tw
-                self.f_ref = np.sqrt(X2_Normalize[1]/nat)
-                self.f_err = np.sqrt(X2_Physical[1]/nat)
-                self.f_err_pct = self.f_err/self.f_ref
+                self.f_ctr = X2_Components[1] * W_Components[1]
+                if self.w_normalize:
+                    self.f_ctr /= tw
+                self.f_ref = np.sqrt(X2_Normalize[1] / nat)
+                self.f_err = np.sqrt(X2_Physical[1] / nat)
+                self.f_err_pct = self.f_err / self.f_ref
             if self.use_nft:
                 self.nf_trm = X2_Components[2]
-                self.nf_ctr = X2_Components[2]*W_Components[2]
-                self.nf_ref = np.sqrt(X2_Normalize[2]/nnf)
-                self.nf_err = np.sqrt(X2_Physical[2]/nnf)
-                self.nf_err_pct = self.nf_err/self.nf_ref
+                self.nf_ctr = X2_Components[2] * W_Components[2]
+                self.nf_ref = np.sqrt(X2_Normalize[2] / nnf)
+                self.nf_err = np.sqrt(X2_Physical[2] / nnf)
+                self.nf_err_pct = self.nf_err / self.nf_ref
                 self.tq_trm = X2_Components[3]
-                self.tq_ctr = X2_Components[3]*W_Components[3]
-                self.tq_ref = np.sqrt(X2_Normalize[3]/ntq)
-                self.tq_err = np.sqrt(X2_Physical[3]/ntq)
-                self.tq_err_pct = self.tq_err/self.tq_ref
+                self.tq_ctr = X2_Components[3] * W_Components[3]
+                self.tq_ref = np.sqrt(X2_Normalize[3] / ntq)
+                self.tq_err = np.sqrt(X2_Physical[3] / ntq)
+                self.tq_err_pct = self.tq_err / self.tq_ref
                 if self.w_normalize:
                     self.nf_ctr /= tw
                     self.tq_ctr /= tw
 
-            pvals = self.FF.make(mvals) # Write a force field that isn't perturbed by finite differences.
-        Answer = {'X':X2, 'G':G, 'H':H}
+            pvals = self.FF.make(
+                mvals
+            )  # Write a force field that isn't perturbed by finite differences.
+        Answer = {"X": X2, "G": G, "H": H}
         return Answer
 
     def get_resp(self, mvals, AGrad=False, AHess=False):
-        """ Electrostatic potential fitting.  Implements the RESP objective function.  (In Python so obviously not optimized.) """
-        if (self.w_resp == 0.0):
+        """Electrostatic potential fitting.  Implements the RESP objective function.  (In Python so obviously not optimized.)"""
+        if self.w_resp == 0.0:
             AGrad = False
             AHess = False
         Answer = {}
-        pvals = self.FF.make(mvals)
+        self.FF.make(mvals)
 
         # Build the distance matrix for ESP fitting.
         self.invdists = self.build_invdist(mvals)
 
-        NS = self.ns
+        self.ns
         NP = self.FF.np
         Z = 0
-        Y = 0
+
         def new_charges(mvals_):
-            """ Return the charges acting on the system. """
+            """Return the charges acting on the system."""
             logger.debug("\r")
-            pvals = self.FF.make(mvals_)
+            self.FF.make(mvals_)
             return self.engine.get_charges()
 
             # Need to update the positions of atoms, if there are virtual sites.
@@ -1011,43 +1204,64 @@ class AbInitio(Target):
             #     print "Now working on parameter number", i
             #     dqPdqM.append(f12d3p(fdwrap(new_charges,mvals,i), h = self.h)[0])
             # dqPdqM = np.matrix(dqPdqM).T
-            dqPdqM = np.array([(f12d3p(fdwrap(new_charges,mvals,i), h = self.h, f0 = charge0)[0] if i in self.pgrad else np.zeros_like(charge0)) for i in range(NP)]).T
-        xyzs = np.array(self.mol.xyzs)
+            dqPdqM = np.array(
+                [
+                    (
+                        f12d3p(fdwrap(new_charges, mvals, i), h=self.h, f0=charge0)[0]
+                        if i in self.pgrad
+                        else np.zeros_like(charge0)
+                    )
+                    for i in range(NP)
+                ]
+            ).T
+        np.array(self.mol.xyzs)
         espqvals = np.array(self.espval)
-        espxyz   = np.array(self.espxyz)
+        np.array(self.espxyz)
 
         ddVdqPdVS = {}
         # Second derivative of the inverse distance matrix with respect to the virtual site position
         dddVdqPdVS2 = {}
         if AGrad:
             for p in self.pgrad:
-                if 'VSITE' in self.FF.plist[p]:
-                    ddVdqPdVS[p], dddVdqPdVS2[p] = f12d3p(fdwrap(self.build_invdist,mvals,p), h = self.h, f0 = self.invdists)
+                if "VSITE" in self.FF.plist[p]:
+                    ddVdqPdVS[p], dddVdqPdVS2[p] = f12d3p(
+                        fdwrap(self.build_invdist, mvals, p), h=self.h, f0=self.invdists
+                    )
         X = 0
         Q = 0
         D = 0
         G = np.zeros(NP)
         H = np.zeros((NP, NP))
         for i in range(self.ns):
-            P   = self.boltz_wts[i]
-            Z  += P
-            dVdqP   = np.array(self.invdists[i])
+            P = self.boltz_wts[i]
+            Z += P
+            dVdqP = np.array(self.invdists[i])
             espqval = espqvals[i]
             espmval = np.dot(dVdqP, col(new_charges(mvals)))
-            desp    = flat(espmval) - espqval
-            X      += P * np.dot(desp, desp) / self.nesp
-            Q      += P * np.dot(espqval, espqval) / self.nesp
-            D      += P * (np.dot(espqval, espqval) / self.nesp - (np.sum(espqval) / self.nesp)**2)
+            desp = flat(espmval) - espqval
+            X += P * np.dot(desp, desp) / self.nesp
+            Q += P * np.dot(espqval, espqval) / self.nesp
+            D += P * (
+                np.dot(espqval, espqval) / self.nesp
+                - (np.sum(espqval) / self.nesp) ** 2
+            )
             if AGrad:
-                dVdqM   = np.dot(dVdqP, dqPdqM).T
+                dVdqM = np.dot(dVdqP, dqPdqM).T
                 for p, vsd in ddVdqPdVS.items():
-                    dVdqM[p,:] += flat(np.dot(vsd[i], col(new_charges(mvals))))
-                G      += flat(P * 2 * np.dot(dVdqM, col(desp))) / self.nesp
+                    dVdqM[p, :] += flat(np.dot(vsd[i], col(new_charges(mvals))))
+                G += flat(P * 2 * np.dot(dVdqM, col(desp))) / self.nesp
                 if AHess:
                     d2VdqM2 = np.zeros(dVdqM.shape)
                     for p, vsd in dddVdqPdVS2.items():
-                        d2VdqM2[p,:] += flat(np.dot(vsd[i], col(new_charges(mvals))))
-                    H      += np.array(P * 2 * (np.dot(dVdqM, dVdqM.T) + np.dot(d2VdqM2, col(desp)))) / self.nesp
+                        d2VdqM2[p, :] += flat(np.dot(vsd[i], col(new_charges(mvals))))
+                    H += (
+                        np.array(
+                            P
+                            * 2
+                            * (np.dot(dVdqM, dVdqM.T) + np.dot(d2VdqM2, col(desp)))
+                        )
+                        / self.nesp
+                    )
         # Redundant but we keep it anyway
         D /= Z
         X /= Z
@@ -1069,9 +1283,9 @@ class AbInitio(Target):
         a = self.resp_a
         b = self.resp_b
         q = new_charges(mvals)
-        R   = a*np.sum((q**2 + b**2)**0.5 - b)
-        dR  = a*q*(q**2 + b**2)**-0.5
-        ddR = a*b**2*(q**2 + b**2)**-1.5
+        R = a * np.sum((q**2 + b**2) ** 0.5 - b)
+        dR = a * q * (q**2 + b**2) ** -0.5
+        ddR = a * b**2 * (q**2 + b**2) ** -1.5
         self.respterm = R
         X += R
         if AGrad:
@@ -1081,16 +1295,28 @@ class AbInitio(Target):
 
         if not in_fd():
             self.esp_trm = X
-            self.esp_ctr = X*self.w_resp
+            self.esp_ctr = X * self.w_resp
             if self.w_normalize:
-                tw = self.w_energy + self.w_force + self.w_netforce + self.w_torque + self.w_resp
+                tw = (
+                    self.w_energy
+                    + self.w_force
+                    + self.w_netforce
+                    + self.w_torque
+                    + self.w_resp
+                )
                 self.esp_ctr /= tw
-        Answer = {'X':X,'G':G,'H':H}
+        Answer = {"X": X, "G": G, "H": H}
         return Answer
 
     def get(self, mvals, AGrad=False, AHess=False):
-        Answer = {'X':0.0, 'G':np.zeros(self.FF.np), 'H':np.zeros((self.FF.np, self.FF.np))}
-        tw = self.w_energy + self.w_force + self.w_netforce + self.w_torque + self.w_resp
+        Answer = {
+            "X": 0.0,
+            "G": np.zeros(self.FF.np),
+            "H": np.zeros((self.FF.np, self.FF.np)),
+        }
+        tw = (
+            self.w_energy + self.w_force + self.w_netforce + self.w_torque + self.w_resp
+        )
         if self.w_normalize:
             w_ef /= tw
             w_resp = self.w_resp / tw
@@ -1106,66 +1332,87 @@ class AbInitio(Target):
             for i in Answer_ESP:
                 Answer[i] += w_resp * Answer_ESP[i]
         if not any([self.energy, self.force, self.resp]):
-            logger.error("Ab initio fitting must have at least one of: Energy, Force, ESP\n")
+            logger.error(
+                "Ab initio fitting must have at least one of: Energy, Force, ESP\n"
+            )
             raise RuntimeError
         if not in_fd():
-            self.objective = Answer['X']
+            self.objective = Answer["X"]
         return Answer
 
-def compute_objective_part(SPX,QQ0,Q0,Z,a,n,energy=False,subtract_mean=False,divide=1,L=None,R=None,L2=None,R2=None):
+
+def compute_objective_part(
+    SPX,
+    QQ0,
+    Q0,
+    Z,
+    a,
+    n,
+    energy=False,
+    subtract_mean=False,
+    divide=1,
+    L=None,
+    R=None,
+    L2=None,
+    R2=None,
+):
     # Divide by Z to normalize
-    XiZ       = SPX[a:a+n]/Z
-    QQ0iZ      = QQ0[a:a+n]/Z
-    Q0iZ      = Q0[a:a+n]/Z
+    XiZ = SPX[a : a + n] / Z
+    QQ0iZ = QQ0[a : a + n] / Z
+    Q0iZ = Q0[a : a + n] / Z
     # Subtract out the product of L and R if provided.
     if subtract_mean:
         if L is not None and R is not None:
-            LiZ       = L[a:a+n]/Z
-            RiZ       = R[a:a+n]/Z
-            XiZ -= LiZ*RiZ
+            LiZ = L[a : a + n] / Z
+            RiZ = R[a : a + n] / Z
+            XiZ -= LiZ * RiZ
         elif L2 is not None and R2 is not None:
-            L2iZ       = L2[a:a+n]/Z
-            R2iZ       = R2[a:a+n]/Z
-            XiZ -= L2iZ*R2iZ
+            L2iZ = L2[a : a + n] / Z
+            R2iZ = R2[a : a + n] / Z
+            XiZ -= L2iZ * R2iZ
         else:
-            raise RuntimeError("subtract_mean is set to True, must provide L/R or L2/R2")
+            raise RuntimeError(
+                "subtract_mean is set to True, must provide L/R or L2/R2"
+            )
     if energy:
-        QQ0iZ -= Q0iZ*Q0iZ
+        QQ0iZ -= Q0iZ * Q0iZ
 
     # Return the answer.
     if divide == 1:
-        X2      = np.sum(XiZ)/np.sum(QQ0iZ)
+        X2 = np.sum(XiZ) / np.sum(QQ0iZ)
     elif divide == 0:
-        X2      = np.sum(XiZ)
+        X2 = np.sum(XiZ)
     elif divide == 2:
-        X2      = np.sum(QQ0iZ)
+        X2 = np.sum(QQ0iZ)
     else:
-        raise RuntimeError('Please pass either 0, 1, 2 to divide')
+        raise RuntimeError("Please pass either 0, 1, 2 to divide")
     return X2
 
-def plot_qm_vs_mm(Q, M, M_orig=None, title=''):
+
+def plot_qm_vs_mm(Q, M, M_orig=None, title=""):
     import matplotlib.pyplot as plt
+
     qm_min_dx = np.argmin(Q)
     e_qm = Q - Q[qm_min_dx]
     e_mm = M - M[qm_min_dx]
     if M_orig is not None:
         e_mm_orig = M_orig - M_orig[qm_min_dx]
-        plt.plot(e_qm, e_mm_orig, 'x', markersize=5, label='Orig.')
-    plt.plot(e_qm, e_mm, '.', markersize=5, label='Current')
-    plt.xlabel('QM Energies (kJ/mol)')
-    plt.ylabel('MM Energies (kJ/mol)')
-    x1,x2,y1,y2 = plt.axis()
+        plt.plot(e_qm, e_mm_orig, "x", markersize=5, label="Orig.")
+    plt.plot(e_qm, e_mm, ".", markersize=5, label="Current")
+    plt.xlabel("QM Energies (kJ/mol)")
+    plt.ylabel("MM Energies (kJ/mol)")
+    x1, x2, y1, y2 = plt.axis()
     x1 = min(x1, y1)
     y1 = x1
     x2 = max(x2, y2)
     y2 = x2
-    rng = x2-x1
-    plt.axis('equal')
-    plt.axis([x1-0.05*rng, x2+0.05*rng, y1-0.05*rng, y2+0.05*rng])
-    plt.plot([x1,x2],[y1,y2], '--' )
-    plt.legend(loc='lower right')
+    rng = x2 - x1
+    plt.axis("equal")
+    plt.axis([x1 - 0.05 * rng, x2 + 0.05 * rng, y1 - 0.05 * rng, y2 + 0.05 * rng])
+    plt.plot([x1, x2], [y1, y2], "--")
+    plt.legend(loc="lower right")
     plt.title(title)
     fig = plt.gcf()
-    fig.set_size_inches(5,5)
-    fig.savefig('e_qm_vs_mm.pdf')
+    fig.set_size_inches(5, 5)
+    fig.savefig("e_qm_vs_mm.pdf")
     plt.close()

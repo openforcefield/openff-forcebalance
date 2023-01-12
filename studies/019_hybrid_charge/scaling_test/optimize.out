@@ -8,18 +8,18 @@
 #| [1m           Arthur Vigil, Erik G. Brandt, Johnny Israeli           [0m |#
 #======================================================================#
 
-                          [44m     [0m                                        
-                       [44m        [0m      [43m     [0m                              
-                    [44m        [0m   [44m  [0m    [43m         [0m                          
-                 [44m       [0m    [44m      [0m      [43m         [0m                       
-             [44m        [0m    [44m        [0m          [43m         [0m                    
-          [44m        [0m    [44m        [0m                 [43m        [0m                 
-       [44m        [0m    [44m       [0m                        [43m        [0m              
-    [44m        [0m   [44m        [0m                              [43m         [0m          
-   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m       
-    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m       
-      [44m        [0m         +################':`                    [43m [0m        
-      [44m     [0m              `.,,...####+.                                  
+                          [44m     [0m
+                       [44m        [0m      [43m     [0m
+                    [44m        [0m   [44m  [0m    [43m         [0m
+                 [44m       [0m    [44m      [0m      [43m         [0m
+             [44m        [0m    [44m        [0m          [43m         [0m
+          [44m        [0m    [44m        [0m                 [43m        [0m
+       [44m        [0m    [44m       [0m                        [43m        [0m
+    [44m        [0m   [44m        [0m                              [43m         [0m
+   [44m      [0m   [44m        [0m               `.:+@@###@'          [43m         [0m
+    [44m [0m    [44m        [0m          ,;'+###############.             [43m     [0m
+      [44m        [0m         +################':`                    [43m [0m
+      [44m     [0m              `.,,...####+.
                                 ,#####      +##.               [44m   [0m   [44m   [0m
  [43m    [0m                            #####      ######             [44m   [0m   [44m   [0m
  [43m    [0m                ###'        ####'     :#####'             [44m   [0m   [44m   [0m
@@ -38,19 +38,19 @@
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
  [43m    [0m                            ####                          [44m   [0m   [44m   [0m
-      [44m    [0m                       ####                                   
-     [44m        [0m                    ####                                   
-    [44m [0m    [44m       [0m                 ####                       [43m     [0m       
-   [44m     [0m    [44m        [0m             ####                    [43m        [0m       
-   [44m        [0m    [44m        [0m          ###                  [43m         [0m         
-      [44m        [0m    [44m        [0m        +`               [43m        [0m             
-          [44m        [0m   [44m        [0m                   [43m        [0m                
-             [44m        [0m   [44m         [0m           [43m         [0m                   
-                [44m        [0m    [44m       [0m      [43m         [0m                      
-                   [44m        [0m    [44m   [0m    [43m        [0m                          
-                      [44m        [0m       [43m      [0m                             
-                          [44m      [0m      [43m  [0m                                
-                             [44m  [0m                                         
+      [44m    [0m                       ####
+     [44m        [0m                    ####
+    [44m [0m    [44m       [0m                 ####                       [43m     [0m
+   [44m     [0m    [44m        [0m             ####                    [43m        [0m
+   [44m        [0m    [44m        [0m          ###                  [43m         [0m
+      [44m        [0m    [44m        [0m        +`               [43m        [0m
+          [44m        [0m   [44m        [0m                   [43m        [0m
+             [44m        [0m   [44m         [0m           [43m         [0m
+                [44m        [0m    [44m       [0m      [43m         [0m
+                   [44m        [0m    [44m   [0m    [43m        [0m
+                      [44m        [0m       [43m      [0m
+                          [44m      [0m      [43m  [0m
+                             [44m  [0m
 
 Reading options from file: optimize.in
 #========================================================#
@@ -79,8 +79,8 @@ Building charge constraints...
 #========================================================#
 #| [92m               Setup for force field                [0m |#
 #========================================================#
-fnms                      ['parameters.txt', 'ETH.mol2', 'smirnoff99Frosst.offxml'] 
-priors                    OrderedDict([('parameters.txt', 1.0)]) 
+fnms                      ['parameters.txt', 'ETH.mol2', 'smirnoff99Frosst.offxml']
+priors                    OrderedDict([('parameters.txt', 1.0)])
 ----------------------------------------------------------
 /home/leeping/src/forcebalance/studies/019_hybrid_charge/scaling_test/targets/ethanol-liquid/ETH.mol2 -> /home/leeping/src/forcebalance/studies/019_hybrid_charge/scaling_test/optimize.tmp/ethanol-liquid/ETH.mol2
 /home/leeping/src/forcebalance/studies/019_hybrid_charge/scaling_test/targets/ethanol-liquid/ETH.mol2 -> /home/leeping/src/forcebalance/studies/019_hybrid_charge/scaling_test/optimize.tmp/ethanol-liquid/ETH.mol2
@@ -88,75 +88,75 @@ Autodetected 256 molecules with 9 atoms each in liquid coordinates
 #========================================================#
 #| [92m         Setup for target ethanol-liquid :          [0m |#
 #========================================================#
-force_cuda                0 
-mts_integrator            0 
-rpmd_beads                0 
-mol2                      ['ETH.mol2', 'ETH.mol2'] 
-liquid_coords             liquid.pdb 
-gas_coords                gas.pdb 
-nvt_coords                surf.pdb 
-name                      ethanol-liquid 
-type                      LIQUID_SMIRNOFF 
-tgtdir                    targets/ethanol-liquid 
-w_rho                     1.0 
-w_hvap                    1.0 
-w_alpha                   1.0 
-w_kappa                   1.0 
-w_cp                      1.0 
-w_eps0                    1.0 
-w_normalize               0 
-liquid_eq_steps           50000 
-liquid_md_steps           500000 
-gas_eq_steps              2000000 
-gas_md_steps              20000000 
-liquid_timestep           2.0 
-liquid_interval           1.0 
-gas_timestep              0.5 
-gas_interval              1.0 
-adapt_errors              0 
-minimize_energy           1 
-self_pol_mu0              0.0 
-self_pol_alpha            0.0 
-anisotropic_box           0 
-w_surf_ten                0.0 
-nvt_eq_steps              10000 
-nvt_md_steps              100000 
-nvt_timestep              1.0 
-nvt_interval              0.1 
-pure_num_grad             0 
-liquid_fdiff_h            0.01 
-rho_denom                 30.0 
-hvap_denom                3.0 
-alpha_denom               1.0 
-kappa_denom               5.0 
-cp_denom                  2.0 
-eps0_denom                2.0 
-use_cvib_intra            False 
-use_cvib_inter            False 
-use_cni                   False 
+force_cuda                0
+mts_integrator            0
+rpmd_beads                0
+mol2                      ['ETH.mol2', 'ETH.mol2']
+liquid_coords             liquid.pdb
+gas_coords                gas.pdb
+nvt_coords                surf.pdb
+name                      ethanol-liquid
+type                      LIQUID_SMIRNOFF
+tgtdir                    targets/ethanol-liquid
+w_rho                     1.0
+w_hvap                    1.0
+w_alpha                   1.0
+w_kappa                   1.0
+w_cp                      1.0
+w_eps0                    1.0
+w_normalize               0
+liquid_eq_steps           50000
+liquid_md_steps           500000
+gas_eq_steps              2000000
+gas_md_steps              20000000
+liquid_timestep           2.0
+liquid_interval           1.0
+gas_timestep              0.5
+gas_interval              1.0
+adapt_errors              0
+minimize_energy           1
+self_pol_mu0              0.0
+self_pol_alpha            0.0
+anisotropic_box           0
+w_surf_ten                0.0
+nvt_eq_steps              10000
+nvt_md_steps              100000
+nvt_timestep              1.0
+nvt_interval              0.1
+pure_num_grad             0
+liquid_fdiff_h            0.01
+rho_denom                 30.0
+hvap_denom                3.0
+alpha_denom               1.0
+kappa_denom               5.0
+cp_denom                  2.0
+eps0_denom                2.0
+use_cvib_intra            False
+use_cvib_inter            False
+use_cni                   False
 ----------------------------------------------------------
 Using parabolic regularization (Gaussian prior) with strength 1.0e-01 (+), 0.0e+00 (x)
 #========================================================#
 #| [92m           Setup for objective function :           [0m |#
 #========================================================#
-penalty_additive          0.1 
-normalize_weights         False 
+penalty_additive          0.1
+normalize_weights         False
 ----------------------------------------------------------
 #========================================================#
 #| [92m                Setup for optimizer                 [0m |#
 #========================================================#
-jobtype                   OPTIMIZE 
-trust0                    1.0 
-mintrust                  0.05 
-eps                       0.01 
-convergence_objective     0.1 
-convergence_step          0.01 
-convergence_gradient      0.1 
-adapt_fac                 0.2 
-adapt_damp                1.0 
-print_hess                True 
-err_tol                   1.0 
-input_file                optimize.in 
+jobtype                   OPTIMIZE
+trust0                    1.0
+mintrust                  0.05
+eps                       0.01
+convergence_objective     0.1
+convergence_step          0.01
+convergence_gradient      0.1
+adapt_fac                 0.2
+adapt_damp                1.0
+print_hess                True
+err_tol                   1.0
+input_file                optimize.in
 ----------------------------------------------------------
 #========================================================#
 #| [1m                  Main Optimizer                    [0m |#
@@ -198,8 +198,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                          ethanol-liquid Density (kg m^-3)                            [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm   785.000      830.833 +- 0.765    45.833   0.50000   1.16702 
-      320.03      1.0 atm   766.000      814.219 +- 0.895    48.219   0.50000   1.29173 
+      298.15      1.0 atm   785.000      830.833 +- 0.765    45.833   0.50000   1.16702
+      320.03      1.0 atm   766.000      814.219 +- 0.895    48.219   0.50000   1.29173
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m  Density objective function:  2.459, Derivative:   [0m |#
@@ -210,8 +210,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                 ethanol-liquid Enthalpy of Vaporization (kJ mol^-1)                  [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm    42.300       58.256 +- 0.202    15.956   0.50000  14.14419 
-      320.03      1.0 atm    41.000       56.656 +- 0.195    15.656   0.50000  13.61802 
+      298.15      1.0 atm    42.300       58.256 +- 0.202    15.956   0.50000  14.14419
+      320.03      1.0 atm    41.000       56.656 +- 0.195    15.656   0.50000  13.61802
 --------------------------------------------------------------------------------------------
 #=======================================================================#
 #| [92m Enthalpy of Vaporization objective function:  27.762, Derivative: [0m |#
@@ -222,17 +222,17 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [94m           ethanol-liquid Condensed Phase Properties:           [0m |#
 #| [94m  Property Name                Residual x Weight = Contribution [0m |#
 #====================================================================#
-Density                            2.45874    1.000    2.45874e+00 
-Enthalpy of Vaporization          27.76222    1.000    2.77622e+01 
-Total                                                  3.02210e+01 
+Density                            2.45874    1.000    2.45874e+00
+Enthalpy of Vaporization          27.76222    1.000    2.77622e+01
+Total                                                  3.02210e+01
 ----------------------------------------------------------------------
 #====================================================================#
 #| [94m                  Objective Function Breakdown                  [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution [0m |#
 #====================================================================#
-ethanol-liquid                30.22096      1.000 [94m     3.02210e+01[0m 
-Regularization                 0.00000      1.000 [94m     0.00000e+00[0m 
-Total                                             [94m     3.02210e+01[0m 
+ethanol-liquid                30.22096      1.000 [94m     3.02210e+01[0m
+Regularization                 0.00000      1.000 [94m     0.00000e+00[0m
+Total                                             [94m     3.02210e+01[0m
 ----------------------------------------------------------------------
 
   Step       |k|        |dk|       |grad|       -=X2=-     Delta(X2)    StepQual
@@ -246,7 +246,7 @@ Total                                             [94m     3.02210e+01[0m
 #========================================================#
 #| [94m                   Total Hessian                    [0m |#
 #========================================================#
- 2.74220123e+03 
+ 2.74220123e+03
 ----------------------------------------------------------
 Calculating nonlinear optimization step
 Newton-Raphson step found (length 1.4528e-01)
@@ -285,8 +285,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                          ethanol-liquid Density (kg m^-3)                            [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm   785.000      815.930 +- 0.630    30.930   0.50000   0.53149 
-      320.03      1.0 atm   766.000      795.614 +- 0.661    29.614   0.50000   0.48722 
+      298.15      1.0 atm   785.000      815.930 +- 0.630    30.930   0.50000   0.53149
+      320.03      1.0 atm   766.000      795.614 +- 0.661    29.614   0.50000   0.48722
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m  Density objective function:  1.019, Derivative:   [0m |#
@@ -297,8 +297,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                 ethanol-liquid Enthalpy of Vaporization (kJ mol^-1)                  [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm    42.300       44.393 +- 0.183     2.093   0.50000   0.24345 
-      320.03      1.0 atm    41.000       43.142 +- 0.198     2.142   0.50000   0.25494 
+      298.15      1.0 atm    42.300       44.393 +- 0.183     2.093   0.50000   0.24345
+      320.03      1.0 atm    41.000       43.142 +- 0.198     2.142   0.50000   0.25494
 --------------------------------------------------------------------------------------------
 #======================================================================#
 #| [92m Enthalpy of Vaporization objective function:  0.498, Derivative: [0m |#
@@ -309,17 +309,17 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [94m           ethanol-liquid Condensed Phase Properties:           [0m |#
 #| [94m  Property Name                Residual x Weight = Contribution [0m |#
 #====================================================================#
-Density                            1.01872    1.000    1.01872e+00 
-Enthalpy of Vaporization           0.49839    1.000    4.98391e-01 
-Total                                                  1.51711e+00 
+Density                            1.01872    1.000    1.01872e+00
+Enthalpy of Vaporization           0.49839    1.000    4.98391e-01
+Total                                                  1.51711e+00
 ----------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-ethanol-liquid                 1.51711      1.000 [92m     1.51711e+00[0m ( -2.870e+01 ) 
-Regularization                 0.00211      1.000 [91m     2.11050e-03[0m ( +2.110e-03 ) 
-Total                                             [92m     1.51922e+00[0m ( -2.870e+01 ) 
+ethanol-liquid                 1.51711      1.000 [92m     1.51711e+00[0m ( -2.870e+01 )
+Regularization                 0.00211      1.000 [91m     2.11050e-03[0m ( +2.110e-03 )
+Total                                             [92m     1.51922e+00[0m ( -2.870e+01 )
 -------------------------------------------------------------------------------------
 Creating the directory /home/leeping/src/forcebalance/studies/019_hybrid_charge/scaling_test/result/optimize to print the force field
 #========================================================================#
@@ -338,7 +338,7 @@ Creating the directory /home/leeping/src/forcebalance/studies/019_hybrid_charge/
 #========================================================#
 #| [94m                   Total Hessian                    [0m |#
 #========================================================#
- 1.83522687e+03 
+ 1.83522687e+03
 ----------------------------------------------------------
 Calculating nonlinear optimization step
 Newton-Raphson step found (length 2.8825e-02)
@@ -377,8 +377,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                          ethanol-liquid Density (kg m^-3)                            [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm   785.000      811.212 +- 0.631    26.212   0.50000   0.38171 
-      320.03      1.0 atm   766.000      789.550 +- 0.823    23.550   0.50000   0.30810 
+      298.15      1.0 atm   785.000      811.212 +- 0.631    26.212   0.50000   0.38171
+      320.03      1.0 atm   766.000      789.550 +- 0.823    23.550   0.50000   0.30810
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m  Density objective function:  0.690, Derivative:   [0m |#
@@ -389,8 +389,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                 ethanol-liquid Enthalpy of Vaporization (kJ mol^-1)                  [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm    42.300       42.245 +- 0.192    -0.055   0.50000   0.00017 
-      320.03      1.0 atm    41.000       40.357 +- 0.203    -0.643   0.50000   0.02294 
+      298.15      1.0 atm    42.300       42.245 +- 0.192    -0.055   0.50000   0.00017
+      320.03      1.0 atm    41.000       40.357 +- 0.203    -0.643   0.50000   0.02294
 --------------------------------------------------------------------------------------------
 #======================================================================#
 #| [92m Enthalpy of Vaporization objective function:  0.023, Derivative: [0m |#
@@ -401,17 +401,17 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [94m           ethanol-liquid Condensed Phase Properties:           [0m |#
 #| [94m  Property Name                Residual x Weight = Contribution [0m |#
 #====================================================================#
-Density                            0.68981    1.000    6.89810e-01 
-Enthalpy of Vaporization           0.02311    1.000    2.31127e-02 
-Total                                                  7.12923e-01 
+Density                            0.68981    1.000    6.89810e-01
+Enthalpy of Vaporization           0.02311    1.000    2.31127e-02
+Total                                                  7.12923e-01
 ----------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-ethanol-liquid                 0.71292      1.000 [92m     7.12923e-01[0m ( -8.042e-01 ) 
-Regularization                 0.00303      1.000 [91m     3.03111e-03[0m ( +9.206e-04 ) 
-Total                                             [92m     7.15954e-01[0m ( -8.033e-01 ) 
+ethanol-liquid                 0.71292      1.000 [92m     7.12923e-01[0m ( -8.042e-01 )
+Regularization                 0.00303      1.000 [91m     3.03111e-03[0m ( +9.206e-04 )
+Total                                             [92m     7.15954e-01[0m ( -8.033e-01 )
 -------------------------------------------------------------------------------------
 Backing up result/optimize/parameters.txt -> result/optimize/parameters_1.txt
 Backing up result/optimize/ETH.mol2 -> result/optimize/ETH_1.mol2
@@ -432,7 +432,7 @@ Backing up result/optimize/smirnoff99Frosst.offxml -> result/optimize/smirnoff99
 #========================================================#
 #| [94m                   Total Hessian                    [0m |#
 #========================================================#
- 1.77039386e+03 
+ 1.77039386e+03
 ----------------------------------------------------------
 Calculating nonlinear optimization step
 Newton-Raphson step found (length 1.0545e-03)
@@ -471,8 +471,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                          ethanol-liquid Density (kg m^-3)                            [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm   785.000      810.336 +- 0.728    25.336   0.50000   0.35662 
-      320.03      1.0 atm   766.000      789.015 +- 0.756    23.015   0.50000   0.29428 
+      298.15      1.0 atm   785.000      810.336 +- 0.728    25.336   0.50000   0.35662
+      320.03      1.0 atm   766.000      789.015 +- 0.756    23.015   0.50000   0.29428
 --------------------------------------------------------------------------------------------
 #========================================================#
 #| [92m  Density objective function:  0.651, Derivative:   [0m |#
@@ -483,8 +483,8 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [1;94m                 ethanol-liquid Enthalpy of Vaporization (kJ mol^-1)                  [0m |#
 #| [1;94m Temperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term    [0m |#
 #==========================================================================================#
-      298.15      1.0 atm    42.300       42.075 +- 0.191    -0.225   0.50000   0.00282 
-      320.03      1.0 atm    41.000       40.294 +- 0.199    -0.706   0.50000   0.02772 
+      298.15      1.0 atm    42.300       42.075 +- 0.191    -0.225   0.50000   0.00282
+      320.03      1.0 atm    41.000       40.294 +- 0.199    -0.706   0.50000   0.02772
 --------------------------------------------------------------------------------------------
 #======================================================================#
 #| [92m Enthalpy of Vaporization objective function:  0.031, Derivative: [0m |#
@@ -495,17 +495,17 @@ Physical quantity H_vap uses denominator =  3.0000
 #| [94m           ethanol-liquid Condensed Phase Properties:           [0m |#
 #| [94m  Property Name                Residual x Weight = Contribution [0m |#
 #====================================================================#
-Density                            0.65090    1.000    6.50903e-01 
-Enthalpy of Vaporization           0.03054    1.000    3.05398e-02 
-Total                                                  6.81443e-01 
+Density                            0.65090    1.000    6.50903e-01
+Enthalpy of Vaporization           0.03054    1.000    3.05398e-02
+Total                                                  6.81443e-01
 ----------------------------------------------------------------------
 #===================================================================================#
 #| [94m                         Objective Function Breakdown                          [0m |#
 #| [94m  Target Name              Residual  x  Weight  =  Contribution (Current-Prev) [0m |#
 #===================================================================================#
-ethanol-liquid                 0.68144      1.000 [92m     6.81443e-01[0m ( -3.148e-02 ) 
-Regularization                 0.00307      1.000 [91m     3.06794e-03[0m ( +3.683e-05 ) 
-Total                                             [92m     6.84511e-01[0m ( -3.144e-02 ) 
+ethanol-liquid                 0.68144      1.000 [92m     6.81443e-01[0m ( -3.148e-02 )
+Regularization                 0.00307      1.000 [91m     3.06794e-03[0m ( +3.683e-05 )
+Total                                             [92m     6.84511e-01[0m ( -3.144e-02 )
 -------------------------------------------------------------------------------------
 Backing up result/optimize/parameters.txt -> result/optimize/parameters_2.txt
 Backing up result/optimize/ETH.mol2 -> result/optimize/ETH_2.mol2
@@ -526,7 +526,7 @@ Backing up result/optimize/smirnoff99Frosst.offxml -> result/optimize/smirnoff99
 #========================================================#
 #| [94m                   Total Hessian                    [0m |#
 #========================================================#
- 1.71895965e+03 
+ 1.71895965e+03
 ----------------------------------------------------------
 Convergence criterion reached in step size (1.00e-02)
 Convergence criterion reached for objective function (1.00e-01)

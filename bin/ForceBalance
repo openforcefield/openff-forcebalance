@@ -7,7 +7,7 @@
 #
 # If the output file already exists, then the output file will be backed up -
 # unless -f is given, and then files will be overwritten.
-# 
+#
 # Importantly, ForceBalance.py prints a lot of carriage returns as "progress reports".
 # These carriage returns are not saved to the output file if this command is used.
 
@@ -17,7 +17,7 @@ E_EXISTS=64
 force=0
 blkwht=0
 
-show_help() 
+show_help()
 {
     echo "Usage: `basename $0` [options] ForceBalance job.in [job.out]"
     echo "Values in brackets are optional."
@@ -58,16 +58,16 @@ if [ $# -eq $minargs ] ; then
     filename=$(basename "$1")
     extension="${filename##*.}"
     filename="${filename%.*}"
-    output=$filename".out" 
+    output=$filename".out"
     outext="out"
-    error=$filename".err" 
-    bakdir=$filename".bak" 
+    error=$filename".err"
+    bakdir=$filename".bak"
 else
     output=$(basename "$2")
     filename="${output%.*}"
     outext="${output##*.}"
     error=$filename".err"
-    bakdir=$filename".bak" 
+    bakdir=$filename".bak"
 fi
 
 if [[ $continue == 1 ]] ; then

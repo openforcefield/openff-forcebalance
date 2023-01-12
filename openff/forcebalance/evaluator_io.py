@@ -6,7 +6,6 @@ format are supported.
 author Yudong Qiu, Simon Boothroyd, Lee-Ping Wang
 @date 06/2019
 """
-from __future__ import division, print_function
 
 import json
 import os
@@ -14,25 +13,32 @@ import re
 import tempfile
 
 import numpy as np
-from forcebalance.nifty import warn_once, printcool, printcool_dictionary
-from forcebalance.output import getLogger
-from forcebalance.target import Target
+
+from openff.forcebalance.nifty import printcool, printcool_dictionary, warn_once
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.target import Target
 
 try:
     from openff.evaluator import unit
     from openff.evaluator.attributes import UNDEFINED
-    from openff.evaluator.client import EvaluatorClient, ConnectionOptions, RequestOptions
+    from openff.evaluator.client import (
+        ConnectionOptions,
+        EvaluatorClient,
+        RequestOptions,
+    )
     from openff.evaluator.datasets import PhysicalPropertyDataSet
+    from openff.evaluator.forcefield import ParameterGradientKey
     from openff.evaluator.utils.exceptions import EvaluatorException
     from openff.evaluator.utils.openmm import openmm_quantity_to_pint
     from openff.evaluator.utils.serialization import TypedJSONDecoder, TypedJSONEncoder
-    from openff.evaluator.forcefield import ParameterGradientKey
+
     evaluator_import_success = True
 except ImportError:
     evaluator_import_success = False
 
 try:
     from openff.toolkit.typing.engines import smirnoff
+
     toolkit_import_success = True
 except ImportError:
     toolkit_import_success = False
@@ -104,7 +110,7 @@ class Evaluator_SMIRNOFF(Target):
                     property_name: self.denominators[property_name]
                     for property_name in self.denominators
                 },
-                "polling_interval": self.polling_interval
+                "polling_interval": self.polling_interval,
             }
 
             return json.dumps(
@@ -126,7 +132,7 @@ class Evaluator_SMIRNOFF(Target):
             """
 
             if isinstance(json_source, str):
-                with open(json_source, "r") as file:
+                with open(json_source) as file:
                     dictionary = json.load(file, cls=TypedJSONDecoder)
             else:
                 dictionary = json.load(json_source, cls=TypedJSONDecoder)
@@ -169,12 +175,16 @@ class Evaluator_SMIRNOFF(Target):
     def __init__(self, options, tgt_opts, forcefield):
 
         if not evaluator_import_success:
-            warn_once("Note: Failed to import the OpenFF Evaluator - FB Evaluator target will not work. ")
+            warn_once(
+                "Note: Failed to import the OpenFF Evaluator - FB Evaluator target will not work. "
+            )
 
         if not toolkit_import_success:
-            warn_once("Note: Failed to import the OpenFF Toolkit - FB Evaluator target will not work. ")
+            warn_once(
+                "Note: Failed to import the OpenFF Toolkit - FB Evaluator target will not work. "
+            )
 
-        super(Evaluator_SMIRNOFF, self).__init__(options, tgt_opts, forcefield)
+        super().__init__(options, tgt_opts, forcefield)
 
         self._options = None  # The options for this target loaded from JSON.
         self._default_units = (
@@ -272,13 +282,14 @@ class Evaluator_SMIRNOFF(Target):
                     physical_property.thermodynamic_state.pressure,
                 )
 
-                dict_for_print["%s %s-%s" % tuple_key] = "%s+/-%s" % (
+                dict_for_print["%s %s-%s" % tuple_key] = "{}+/-{}".format(
                     value,
                     uncertainty,
                 )
 
             printcool_dictionary(
-                dict_for_print, title="Reference %s data" % substance.identifier,
+                dict_for_print,
+                title="Reference %s data" % substance.identifier,
             )
 
         # Assign and normalize weights for each phase point (average for now)
@@ -317,7 +328,8 @@ class Evaluator_SMIRNOFF(Target):
             gradient_key.tag
         )
         parameter = (
-            parameter_handler if gradient_key.smirks is None
+            parameter_handler
+            if gradient_key.smirks is None
             else parameter_handler.parameters[gradient_key.smirks]
         )
 
@@ -524,7 +536,8 @@ class Evaluator_SMIRNOFF(Target):
         if (
             self._pending_estimate_request.results(
                 True, polling_interval=self._options.polling_interval
-            )[0] is None
+            )[0]
+            is None
         ):
 
             raise RuntimeError(
@@ -812,14 +825,14 @@ class Evaluator_SMIRNOFF(Target):
                     # get gradients in physical unit
                     grad_array = estimated_gradients[reference_property.id]
                     # compute objective gradient
-                    obj_grad += 2.0 * weight * diff * grad_array / denominator ** 2
+                    obj_grad += 2.0 * weight * diff * grad_array / denominator**2
 
                     if AHess is True:
                         obj_hess += (
                             2.0
                             * weight
                             * (np.outer(grad_array, grad_array))
-                            / denominator ** 2
+                            / denominator**2
                         )
 
         return {"X": obj_value, "G": obj_grad, "H": obj_hess}
@@ -838,7 +851,8 @@ class Evaluator_SMIRNOFF(Target):
             }
             title = (
                 "%s %s\nTemperature  Pressure Substance  Reference  Calculated +- "
-                "Stdev     Delta    Weight    Denom     Term  " % (self.name, property_name)
+                "Stdev     Delta    Weight    Denom     Term  "
+                % (self.name, property_name)
             )
             printcool_dictionary(
                 dict_for_print, title=title, bold=True, color=4, keywidth=15

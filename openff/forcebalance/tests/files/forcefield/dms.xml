@@ -55,4 +55,3 @@
     <Atom type="dms-h1-9" charge="0.0617000000" sigma="0.2471353044" epsilon="0.0656888000" parameter_eval="charge=-1.0*(1*PARM['Atom/charge/dms-ss-1']+2*PARM['Atom/charge/dms-c3-2'])/6,sigma=PARM['Atom/sigma/dms-h1-3'],epsilon=PARM['Atom/epsilon/dms-h1-3']"/>
   </NonbondedForce>
 </ForceField>
-

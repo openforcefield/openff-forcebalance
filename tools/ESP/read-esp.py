@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
-from builtins import range
+import os
+import sys
+
 import numpy as np
-import os, sys
-from forcebalance.nifty import isfloat
-from forcebalance.molecule import Molecule
+
+from openff.forcebalance.molecule import Molecule
+from openff.forcebalance.nifty import isfloat
+
 
 def read_psi_xyzesp(psiout):
     # Read Psi4 ESP output file for geometries, ESP values and grid points.
@@ -29,35 +32,42 @@ def read_psi_xyzesp(psiout):
                 xyz = []
                 XMode = 0
         if ESPMode == 1:
-            if len(s) == 4 and isfloat(s[0]) and isfloat(s[1]) and isfloat(s[2]) and isfloat(s[3]):
+            if (
+                len(s) == 4
+                and isfloat(s[0])
+                and isfloat(s[1])
+                and isfloat(s[2])
+                and isfloat(s[3])
+            ):
                 espxyz.append([float(i) for i in s[:3]])
                 espval.append(float(s[3]))
             elif len(espxyz) > 0:
                 # After reading in a block of ESPs, don't read any more.
-                ESPMode = -1 
+                ESPMode = -1
         if line.strip().startswith("Geometry (in Angstrom)"):
             XMode = 1
             EMode = len(elem) == 0
-        if 'Electrostatic Potential' in line.strip() and ESPMode == 0:
+        if "Electrostatic Potential" in line.strip() and ESPMode == 0:
             ESPMode = 1
     if len(xyzs) == 0:
-        raise Exception('%s has length zero' % psiout)
+        raise Exception("%s has length zero" % psiout)
     return xyzs, elem, espxyz, espval
+
 
 xyzs, elem, espxyz, espval = read_psi_xyzesp(sys.argv[1])
 
 M = Molecule()
 M.xyzs = xyzs
 M.elem = elem
-M.write('%s.xyz' % os.path.splitext(sys.argv[1])[0])
+M.write("%s.xyz" % os.path.splitext(sys.argv[1])[0])
 
 EM = Molecule()
 EM.xyzs = [np.array(espxyz) * 0.52917721092]
-EM.elem = ['H' for i in range(len(espxyz))]
-EM.write('%s.espx' % os.path.splitext(sys.argv[1])[0], ftype="xyz")
+EM.elem = ["H" for i in range(len(espxyz))]
+EM.write("%s.espx" % os.path.splitext(sys.argv[1])[0], ftype="xyz")
 
 M.qm_espxyzs = EM.xyzs
 M.qm_espvals = [np.array(espval)]
 M.write("qdata.txt")
 
-np.savetxt('%s.esp' % os.path.splitext(sys.argv[1])[0], espval)
+np.savetxt("%s.esp" % os.path.splitext(sys.argv[1])[0], espval)

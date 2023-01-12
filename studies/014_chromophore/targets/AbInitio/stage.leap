@@ -3,4 +3,4 @@ loadamberparams res.frcmod
 chrom = loadmol2 res.mol2
 check chrom
 saveamberparm chrom prmtop inpcrd
-quit 
+quit

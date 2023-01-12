@@ -1,12 +1,15 @@
 """ Finite difference module. """
-from __future__ import division
 
 import traceback
+
 from numpy import dot
-from forcebalance.output import getLogger
+
+from openff.forcebalance.output import getLogger
+
 logger = getLogger(__name__)
 
-def f1d2p(f, h, f0 = None):
+
+def f1d2p(f, h, f0=None):
     """
     A two-point finite difference stencil.
     This function does either two computations or one,
@@ -27,11 +30,12 @@ def f1d2p(f, h, f0 = None):
     fp = The finite difference derivative of the function f(x) around x=0.
     """
     if f0 is None:
-        f0, f1 = [f(i*h) for i in [0, 1]]
+        f0, f1 = (f(i * h) for i in [0, 1])
     else:
         f1 = f(h)
-    fp = (f1-f0)/h
+    fp = (f1 - f0) / h
     return fp
+
 
 def f1d5p(f, h):
     """
@@ -56,26 +60,31 @@ def f1d5p(f, h):
     Outputs:
     fp = The finite difference derivative of the function f(x) around x=0.
     """
-    fm2, fm1, f1, f2 = [f(i*h) for i in [-2, -1, 1, 2]]
-    fp = (-1*f2+8*f1-8*fm1+1*fm2)/(12*h)
+    fm2, fm1, f1, f2 = (f(i * h) for i in [-2, -1, 1, 2])
+    fp = (-1 * f2 + 8 * f1 - 8 * fm1 + 1 * fm2) / (12 * h)
     return fp
+
 
 def f1d7p(f, h):
     """
     A highly accurate seven-point finite difference stencil
-    for computing derivatives of a function.  
+    for computing derivatives of a function.
     """
-    fm3, fm2, fm1, f1, f2, f3 = [f(i*h) for i in [-3, -2, -1, 1, 2, 3]]
-    fp = (f3-9*f2+45*f1-45*fm1+9*fm2-fm3)/(60*h)
+    fm3, fm2, fm1, f1, f2, f3 = (f(i * h) for i in [-3, -2, -1, 1, 2, 3])
+    fp = (f3 - 9 * f2 + 45 * f1 - 45 * fm1 + 9 * fm2 - fm3) / (60 * h)
     return fp
 
+
 def f12d7p(f, h):
-    fm3, fm2, fm1, f0, f1, f2, f3 = [f(i*h) for i in [-3, -2, -1, 0, 1, 2, 3]]
-    fp = (f3-9*f2+45*f1-45*fm1+9*fm2-fm3)/(60*h)
-    fpp = (2*f3-27*f2+270*f1-490*f0+270*fm1-27*fm2+2*fm3)/(180*h*h)
+    fm3, fm2, fm1, f0, f1, f2, f3 = (f(i * h) for i in [-3, -2, -1, 0, 1, 2, 3])
+    fp = (f3 - 9 * f2 + 45 * f1 - 45 * fm1 + 9 * fm2 - fm3) / (60 * h)
+    fpp = (2 * f3 - 27 * f2 + 270 * f1 - 490 * f0 + 270 * fm1 - 27 * fm2 + 2 * fm3) / (
+        180 * h * h
+    )
     return fp, fpp
 
-def f12d3p(f, h, f0 = None):
+
+def f12d3p(f, h, f0=None):
     """
     A three-point finite difference stencil.
     This function does either two computations or three,
@@ -104,31 +113,47 @@ def f12d3p(f, h, f0 = None):
     fp = The finite difference derivative of the function f(x) around x=0.
     """
     if f0 is None:
-        fm1, f0, f1 = [f(i*h) for i in [-1, 0, 1]]
+        fm1, f0, f1 = (f(i * h) for i in [-1, 0, 1])
     else:
-        fm1, f1 = [f(i*h) for i in [-1, 1]]
-    fp = (f1-fm1)/(2*h)
-    fpp = (fm1-2*f0+f1)/(h*h)
+        fm1, f1 = (f(i * h) for i in [-1, 1])
+    fp = (f1 - fm1) / (2 * h)
+    fpp = (fm1 - 2 * f0 + f1) / (h * h)
     return fp, fpp
 
+
 def f2var(f, h):
-    """ A finite difference stencil for a function of two variables. """
-    fpp, fpm, fmp, fmm = [f(i*h, j*h) for i, j in [(1,1), (1,-1), (-1,1), (-1,-1)]]
-    return (fpp-fpm-fmp+fmm)/(4*h**2)
+    """A finite difference stencil for a function of two variables."""
+    fpp, fpm, fmp, fmm = (
+        f(i * h, j * h) for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+    )
+    return (fpp - fpm - fmp + fmm) / (4 * h**2)
+
 
 def in_fd():
-    """ Invoking this function from anywhere will tell us whether we're being called by a finite-difference function.
-    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to. """
+    """Invoking this function from anywhere will tell us whether we're being called by a finite-difference function.
+    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to."""
 
-    return any([i in [j[2] for j in traceback.extract_stack()] for i in ['f1d2p','f12d3p','f1d5p','f12d7p','f1d7p']])
+    return any(
+        [
+            i in [j[2] for j in traceback.extract_stack()]
+            for i in ["f1d2p", "f12d3p", "f1d5p", "f12d7p", "f1d7p"]
+        ]
+    )
+
 
 def in_fd_srch():
-    """ Invoking this function from anywhere will tell us whether we're being called by a finite-difference function.
-    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to. """
+    """Invoking this function from anywhere will tell us whether we're being called by a finite-difference function.
+    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to."""
 
-    return any([i in [j[2] for j in traceback.extract_stack()] for i in ['f1d2p','f12d3p','f1d5p','f12d7p','f1d7p','search_fun']])
+    return any(
+        [
+            i in [j[2] for j in traceback.extract_stack()]
+            for i in ["f1d2p", "f12d3p", "f1d5p", "f12d7p", "f1d7p", "search_fun"]
+        ]
+    )
 
-def fdwrap(func,mvals0,pidx,key=None,**kwargs):
+
+def fdwrap(func, mvals0, pidx, key=None, **kwargs):
     """
     A function wrapper for finite difference designed for
     differentiating 'get'-type functions.
@@ -150,17 +175,26 @@ def fdwrap(func,mvals0,pidx,key=None,**kwargs):
     Outputs:
     func1  = Wrapped version of func, which takes a single float argument.
     """
+
     def func1(arg):
         mvals = list(mvals0)
         mvals[pidx] += arg
-        logger.info("\rfdwrap: " + func.__name__ + " [%i] = % .1e " % (pidx, arg) + ' '*50 + '\r')
+        logger.info(
+            "\rfdwrap: "
+            + func.__name__
+            + " [%i] = % .1e " % (pidx, arg)
+            + " " * 50
+            + "\r"
+        )
         if key is not None:
-            return func(mvals,**kwargs)[key]
+            return func(mvals, **kwargs)[key]
         else:
-            return func(mvals,**kwargs)
+            return func(mvals, **kwargs)
+
     return func1
-        
-def fdwrap_G(tgt,mvals0,pidx):
+
+
+def fdwrap_G(tgt, mvals0, pidx):
     """
     A driver to fdwrap for gradients (see documentation for fdwrap)
     Inputs:
@@ -168,9 +202,10 @@ def fdwrap_G(tgt,mvals0,pidx):
     mvals0 = The 'central' values of the mathematical parameters - i.e. the wrapped function's origin is here.
     pidx   = The index of the parameter that we're differentiating
     """
-    return fdwrap(tgt.get_X,mvals0,pidx,'X')
+    return fdwrap(tgt.get_X, mvals0, pidx, "X")
 
-def fdwrap_H(tgt,mvals0,pidx):
+
+def fdwrap_H(tgt, mvals0, pidx):
     """
     A driver to fdwrap for Hessians (see documentation for fdwrap)
     Inputs:
@@ -178,7 +213,8 @@ def fdwrap_H(tgt,mvals0,pidx):
     mvals0 = The 'central' values of the mathematical parameters - i.e. the wrapped function's origin is here.
     pidx   = The index of the parameter that we're differentiating
     """
-    return fdwrap(tgt.get_G,mvals0,pidx,'G')
+    return fdwrap(tgt.get_G, mvals0, pidx, "G")
 
-#method resolution order
-#type.mro(type(a))
+
+# method resolution order
+# type.mro(type(a))

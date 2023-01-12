@@ -5,4 +5,3 @@ study.
 
 The sim2.* files correspond to gas.* in the original liquid bromine
 study.
-

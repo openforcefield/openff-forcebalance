@@ -3,7 +3,7 @@ md for big water box (from Dave Case, comments by Lee-Ping)
  imin=0,           ! 0 = MD; 1 = Minimize; 5 = Trajectory analysis
  maxcyc=500,       ! Number of minimization steps
  ntmin=2,          ! Minimization algorithm; 2 = Steepest descent
- nscm=0,           ! Interval for removing translation/rotation 
+ nscm=0,           ! Interval for removing translation/rotation
  ntxo=2,           ! Restart output format; 1 = ASCII, 2 = NetCDF
  dx0=0.1,          ! Minimizer step length
  ntpr=5000,        ! Interval for printing output
@@ -27,7 +27,7 @@ md for big water box (from Dave Case, comments by Lee-Ping)
  nstlim=500000000, ! Number of MD steps
  ig=-1,            ! Random number seed; -1 based on date/time
  ntr=0,            ! 1 = Restrain atoms based on mask
- restraint_wt=0.1, ! Restraint force constant 
+ restraint_wt=0.1, ! Restraint force constant
  restraintmask='!:WAT,NA&!@H=',
 /
 &ewald
