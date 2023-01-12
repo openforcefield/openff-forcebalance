@@ -1,24 +1,18 @@
-## HACK: Improve the performance of the openff forcefield.create_openmm_system()
+"""Cache results of some toolkit functions."""
 import os
 
-from openff.toolkit.topology.molecule import Molecule
 from openff.toolkit.utils.toolkits import (
     AmberToolsToolkitWrapper,
     OpenEyeToolkitWrapper,
     RDKitToolkitWrapper,
 )
 
-# Add a mechanism for disabling SMIRNOFF hack entirely as it is prone to breaking
-# when upstream dependencies (especially the toolkit) are updated.
-_SHOULD_CACHE = os.environ.get("ENABLE_FB_SMIRNOFF_CACHING")
-
-# Caching of SMIRNOFF functions is enabled by default, including when the
-# "ENABLE_FB_SMIRNOFF_CACHING" environmental variable is not set. The user
-# Can `export ENABLE_FB_SMIRNOFF_CACHING=False` to disable all caching.
-if _SHOULD_CACHE is None:
-    _SHOULD_CACHE = True
-else:
-    _SHOULD_CACHE = _SHOULD_CACHE.lower() in ["true", "1", "yes"]
+# Add a mechanism for disabling SMIRNOFF hack entirely (turned on by default)
+_SHOULD_CACHE = os.environ.get("ENABLE_FB_SMIRNOFF_CACHING", "true").lower() in [
+    "true",
+    "yes",
+    "1",
+]
 
 
 def hash_molecule(molecule):
@@ -101,17 +95,6 @@ if _SHOULD_CACHE:
 
     ChemicalEnvironment.validate = cached_validate
 
-    # cache for compute_partial_charges_am1bcc (save 69s)
-    # No longer needed as of 0.7.0 since all partial charge assignment is routed through ToolkitWrapper.assign_partial_charges
-    # original_compute_partial_charges_am1bcc = OpenEyeToolkitWrapper.compute_partial_charges_am1bcc
-    # TOOLKIT_CACHE_compute_partial_charges_am1bcc = {}
-    # def cached_compute_partial_charges_am1bcc(self, molecule, use_conformers=None, strict_n_conformers=False):
-    #     cache_key = hash(molecule, use_conformers, strict_n_conformers)
-    #     if cache_key not in TOOLKIT_CACHE_compute_partial_charges_am1bcc:
-    #         TOOLKIT_CACHE_compute_partial_charges_am1bcc[cache_key] = original_compute_partial_charges_am1bcc(self, molecule, use_conformers=use_conformers, strict_n_conformers=strict_n_conformers)
-    #     return TOOLKIT_CACHE_compute_partial_charges_am1bcc[cache_key]
-    # OpenEyeToolkitWrapper.compute_partial_charges_am1bcc = cached_compute_partial_charges_am1bcc
-
     # Cache for OETK assign_partial_charges
     oe_original_assign_partial_charges = OpenEyeToolkitWrapper.assign_partial_charges
     OE_TOOLKIT_CACHE_assign_partial_charges = {}
@@ -175,20 +158,3 @@ if _SHOULD_CACHE:
         molecule._conformers = RDK_TOOLKIT_CACHE_molecule_conformers[cache_key]
 
     RDKitToolkitWrapper.generate_conformers = rdk_cached_generate_conformers
-
-    # final timing: 56s
-
-    # cache the ForceField creation (no longer needed since using OpenFF API for parameter modifications)
-
-    # import hashlib
-    # from openff.toolkit.typing.engines.smirnoff import ForceField
-    # SMIRNOFF_FORCE_FIELD_CACHE = {}
-    # def getForceField(*ffpaths):
-    #     hasher = hashlib.md5()
-    #     for path in ffpaths:
-    #         with open(path, 'rb') as f:
-    #             hasher.update(f.read())
-    #     cache_key = hasher.hexdigest()
-    #     if cache_key not in SMIRNOFF_FORCE_FIELD_CACHE:
-    #         SMIRNOFF_FORCE_FIELD_CACHE[cache_key] = ForceField(*ffpaths, allow_cosmetic_attributes=True)
-    #     return SMIRNOFF_FORCE_FIELD_CACHE[cache_key]
