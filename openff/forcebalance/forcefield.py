@@ -486,7 +486,7 @@ class FF(BaseClass):
 
         # Determine the appropriate parser from the FF_IOModules dictionary.
         # If we can't figure it out, then use the base reader, it ain't so bad. :)
-        Reader = FF_IOModules.get(fftype, forcebalance.BaseReader)
+        Reader = FF_IOModules.get(fftype, BaseReader)
 
         # Open the force field using an absolute path and read its contents into memory.
         absff = os.path.join(self.root, self.ffdir, ffname)

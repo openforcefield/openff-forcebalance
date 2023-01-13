@@ -39,7 +39,7 @@ from openff.forcebalance.output import getLogger
 logger = getLogger(__name__)
 
 
-class Target(abc.ABCMeta, BaseClass):
+class Target(abc.ABC, BaseClass):
 
     """
     Base class for all fitting targets.
@@ -162,7 +162,7 @@ class Target(abc.ABCMeta, BaseClass):
         self.set_option(tgt_opts, "epsgrad")
         ## Dictionary of whether to call the derivatives.
         self.pgrad = list(range(forcefield.np))
-        self.OptionDict["pgrad"] = self.pgrad
+        self.option_dict["pgrad"] = self.pgrad
 
         # ======================================#
         #     Variables which are set here     #
@@ -279,8 +279,8 @@ class Target(abc.ABCMeta, BaseClass):
         for i in self.pgrad:
             if i not in pgrad0:
                 logger.info(f"Parameter {i} was reactivated in {self.name}\n")
-        # Set pgrad in the OptionDict so remote targets may use it.
-        self.OptionDict["pgrad"] = self.pgrad
+        # Set pgrad in the option_dict so remote targets may use it.
+        self.option_dict["pgrad"] = self.pgrad
 
     def write_0grads(self, Ans):
 

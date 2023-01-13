@@ -1,30 +1,19 @@
-import numpy as np
-
-import openff.forcebalance
-from openff.forcebalance.openmmio import PrepareVirtualSites, ResetVirtualSites_fast
-
-try:
-    try:
-        # Try importing openmm using >=7.6 namespace
-        import openmm as mm
-        from openmm import app, unit
-    except ImportError:
-        # Try importing openmm using <7.6 namespace
-        import simtk.openmm as mm
-        from simtk import unit
-        from simtk.openmm import app
-    no_openmm = False
-except ImportError:
-    # If OpenMM classes cannot be imported, then set this flag
-    # so the testing classes/functions can use to skip.
-    no_openmm = True
-
 import os
 import shutil
 
-import pytest
+import numpy as np
+import openmm
+from openff.utilities import get_data_file_path
+from openmm import app, unit
 
-from .test_target import TargetTests  # general targets tests defined in test_target.py
+from openff.forcebalance.forcefield import FF
+from openff.forcebalance.openmmio import (
+    Interaction_OpenMM,
+    Liquid_OpenMM,
+    PrepareVirtualSites,
+    ResetVirtualSites_fast,
+)
+from openff.forcebalance.tests.unit_tests.test_target import TargetTests
 
 """
 The testing functions for this class are located in test_target.py.
@@ -33,8 +22,6 @@ The testing functions for this class are located in test_target.py.
 
 class TestLiquid_OpenMM(TargetTests):
     def setup_method(self, method):
-        if no_openmm:
-            pytest.skip("No OpenMM modules found.")
         super().setup_method(method)
         self.check_grad_fd = False
         # settings specific to this target
@@ -51,15 +38,13 @@ class TestLiquid_OpenMM(TargetTests):
             }
         )
 
-        self.ff = openff.forcebalance.forcefield.FF(self.options)
+        self.ff = FF(self.options)
 
         self.ffname = self.options["forcefield"][0][:-3]
         self.filetype = self.options["forcefield"][0][-3:]
         self.mvals = np.array([0.5] * self.ff.np)
 
-        self.target = openff.forcebalance.openmmio.Liquid_OpenMM(
-            self.options, self.tgt_opt, self.ff
-        )
+        self.target = Liquid_OpenMM(self.options, self.tgt_opt, self.ff)
         self.target.stage(self.mvals, AGrad=True, use_iterdir=False)
 
     def teardown_method(self):
@@ -69,8 +54,6 @@ class TestLiquid_OpenMM(TargetTests):
 
 class TestInteraction_OpenMM(TargetTests):
     def setup_method(self, method):
-        if no_openmm:
-            pytest.skip("No OpenMM modules found.")
         super().setup_method(method)
         # TargetTests.setup_class(cls)
         # settings specific to this target
@@ -85,15 +68,13 @@ class TestInteraction_OpenMM(TargetTests):
             }
         )
 
-        self.ff = openff.forcebalance.forcefield.FF(self.options)
+        self.ff = FF(self.options)
 
         self.ffname = self.options["forcefield"][0][:-3]
         self.filetype = self.options["forcefield"][0][-3:]
         self.mvals = [0.5] * self.ff.np
 
-        self.target = openff.forcebalance.openmmio.Interaction_OpenMM(
-            self.options, self.tgt_opt, self.ff
-        )
+        self.target = Interaction_OpenMM(self.options, self.tgt_opt, self.ff)
 
     def teardown_method(self):
         shutil.rmtree("temp")
@@ -102,16 +83,17 @@ class TestInteraction_OpenMM(TargetTests):
 
 def test_local_coord_sites():
     """Make sure that the internal prep of vs positions matches that given by OpenMM."""
-    if no_openmm:
-        pytest.skip("No OpenMM modules found.")
-    # make a system
-    mol = app.PDBFile(os.path.join("files", "vs_mol.pdb"))
+    mol = app.PDBFile(
+        get_data_file_path("files/vs_mol.pdb", "openff.forcebalance.tests")
+    )
     modeller = app.Modeller(topology=mol.topology, positions=mol.positions)
-    forcefield = app.ForceField(os.path.join("files", "forcefield", "vs_mol.xml"))
+    forcefield = app.ForceField(
+        get_data_file_path("files/forcefield/vs_mol.xml", "openff.forcebalance.tests")
+    )
     modeller.addExtraParticles(forcefield)
     system = forcefield.createSystem(modeller.topology, constraints=None)
-    integrator = mm.VerletIntegrator(1.0 * unit.femtoseconds)
-    platform = mm.Platform.getPlatformByName("Reference")
+    integrator = openmm.VerletIntegrator(1.0 * unit.femtoseconds)
+    platform = openmm.Platform.getPlatformByName("Reference")
     simulation = app.Simulation(modeller.topology, system, integrator, platform)
     simulation.context.setPositions(modeller.positions)
     # update the site positions

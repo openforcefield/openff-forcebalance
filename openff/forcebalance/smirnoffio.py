@@ -33,13 +33,11 @@ from openff.forcebalance.torsion_profile import TorsionProfileTarget
 from openff.forcebalance.vibration import Vibration
 
 logger = getLogger(__name__)
-try:
-    import simtk.openmm._openmm as _openmm
-    from simtk.openmm import *
-    from simtk.openmm.app import *
-    from simtk.unit import *
-except:
-    pass
+
+import openmm.unit
+from openmm import *
+from openmm import _openmm
+from openmm.app import *
 
 try:
     # import the hack for openff.toolkit to improve performance by 10x

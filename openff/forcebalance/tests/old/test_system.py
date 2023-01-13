@@ -11,7 +11,7 @@ from openff.forcebalance.objective import Objective
 from openff.forcebalance.optimizer import Counter, Optimizer
 from openff.forcebalance.parser import parse_inputs
 
-from .__init__ import ForceBalanceTestCase, check_for_openmm
+from .__init__ import ForceBalanceTestCase
 
 # expected results (mvals) taken from previous runs. Update this if it changes and seems reasonable (updated 10/24/13)
 # EXPECTED_WATER_RESULTS = array([3.3192e-02, 4.3287e-02, 5.5072e-03, -4.5933e-02, 1.5499e-02, -3.7655e-01, 2.4720e-03, 1.1914e-02, 1.5066e-01])
@@ -305,8 +305,6 @@ class TestLipidStudy(ForceBalanceSystemTest):
 
 class TestImplicitSolventHFEStudy(ForceBalanceSystemTest):
     def setup_method(self, method):
-        if not check_for_openmm():
-            pytest.skip("No OpenMM modules found.")
         super().setup_method(method)
         cwd = os.path.dirname(os.path.realpath(__file__))
         os.chdir(os.path.join(cwd, "..", "..", "studies", "012_implicit_solvent_hfe"))

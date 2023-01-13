@@ -94,12 +94,12 @@ class Hydration(Target):
         self.scripts += ["md_ism_hfe.py"]
         ## Read in the reference data
         self.read_reference_data()
-        ## Set engname in OptionDict, which gets printed to disk.
+        ## Set engname in option_dict, which gets printed to disk.
         ## This is far from an ideal solution...
-        self.OptionDict["engname"] = self.engname
+        self.option_dict["engname"] = self.engname
         ## Copy target options into engine options.
         self.engine_opts = OrderedDict(
-            list(self.OptionDict.items()) + list(options.items())
+            list(self.option_dict.items()) + list(options.items())
         )
         del self.engine_opts["name"]
         ## Carry out necessary operations for specific modes.
@@ -253,7 +253,7 @@ class Hydration(Target):
             # Store names of previous trajectory files.
             self.last_traj += [os.path.join(os.getcwd(), i) for i in self.extra_output]
             # Write target, engine and simulation options to disk.
-            lp_dump((self.OptionDict, eng_opts, md_opts), "simulation.p")
+            lp_dump((self.option_dict, eng_opts, md_opts), "simulation.p")
             # Execute the script for running molecular dynamics.
             cmdstr = "{} python md_ism_hfe.py {}".format(
                 self.prefix, "-g" if AGrad else ""

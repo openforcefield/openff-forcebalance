@@ -66,7 +66,9 @@ class TorsionProfileTarget(Target):
         ## Read in the reference data.
         self.read_reference_data()
         ## Build keyword dictionaries to pass to engine.
-        engine_args = OrderedDict(list(self.OptionDict.items()) + list(options.items()))
+        engine_args = OrderedDict(
+            list(self.option_dict.items()) + list(options.items())
+        )
         engine_args.pop("name", None)
         ## Create engine object.
         engine_args["freeze_atoms"] = self.freeze_atoms

@@ -162,6 +162,11 @@ cm2au = (
 )  # Multiply to convert cm^-1 to Hartree
 ambervel2au = 9.349961132249932e-04  # Multiply to go from AMBER velocity unit Ang/(1/20.455 ps) to bohr/atu.
 
+## Q-Chem to GMX unit conversion for energy
+eqcgmx = au2kj  # Previous value: 2625.5002
+## Q-Chem to GMX unit conversion for force
+fqcgmx = -grad_au2gmx  # Previous value: -49621.9
+
 
 # =========================#
 #     I/O formatting      #

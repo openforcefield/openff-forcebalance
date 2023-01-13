@@ -173,7 +173,7 @@ class Lipid(Target):
         self.prepare_temp_directory()
         # Build keyword dictionary to pass to engine.
         if self.do_self_pol:
-            self.gas_engine_args.update(self.OptionDict)
+            self.gas_engine_args.update(self.option_dict)
             self.gas_engine_args.update(options)
             del self.gas_engine_args["name"]
             # Create engine object for gas molecule to do the polarization correction.
@@ -608,7 +608,7 @@ class Lipid(Target):
         # It submits the jobs to the Work Queue and the stage() function will wait for jobs to complete.
         #
         # First dump the force field to a pickle file
-        lp_dump((self.FF, mvals, self.OptionDict, AGrad), "forcebalance.p")
+        lp_dump((self.FF, mvals, self.option_dict, AGrad), "forcebalance.p")
 
         # Give the user an opportunity to copy over data from a previous (perhaps failed) run.
         if (not self.evaluated) and self.manual:

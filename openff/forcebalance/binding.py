@@ -214,7 +214,9 @@ class BindingEnergy(Target):
                 )
             )
         ## Build keyword dictionaries to pass to engine.
-        engine_args = OrderedDict(list(self.OptionDict.items()) + list(options.items()))
+        engine_args = OrderedDict(
+            list(self.option_dict.items()) + list(options.items())
+        )
         engine_args.pop("name", None)
         ## Create engine objects.
         self.engines = OrderedDict()

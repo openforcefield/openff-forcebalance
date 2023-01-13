@@ -33,21 +33,3 @@ class ForceBalanceTestCase:
 
     def teardown_method(self):
         os.chdir(self.start_directory)
-
-
-def check_for_openmm():
-    try:
-        try:
-            # Try importing openmm using >=7.6 namespace
-            import openmm as mm
-            from openmm import app, unit
-        except ImportError:
-            # Try importing openmm using <7.6 namespace
-            import simtk.openmm as mm
-            from simtk import unit
-            from simtk.openmm import app
-        return True
-    except ImportError:
-        # If OpenMM classes cannot be imported, then set this flag
-        # so the testing classes/functions can use to skip.
-        return False

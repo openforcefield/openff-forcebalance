@@ -115,7 +115,9 @@ class Interaction(Target):
                 % (commadash(self.select2))
             )
         ## Build keyword dictionaries to pass to engine.
-        engine_args = OrderedDict(list(self.OptionDict.items()) + list(options.items()))
+        engine_args = OrderedDict(
+            list(self.option_dict.items()) + list(options.items())
+        )
         engine_args.pop("name", None)
         self.engine = self.engine_(target=self, mol=self.mol, **engine_args)
         ## Read in the reference data
