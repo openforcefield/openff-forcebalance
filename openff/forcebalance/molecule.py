@@ -9,20 +9,13 @@ from ctypes import *
 from datetime import date
 
 import numpy as np
+import openmm.unit
 from numpy import arccos, cos, sin
 from numpy.linalg import multi_dot
+from openmm import *
+from openmm.app import *
 from pkg_resources import parse_version
 
-# For Python 2/3 compatibility
-try:
-    from itertools import zip_longest as zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 # Special error which is thrown when TINKER .arc data is detected in a .xyz file
 class ActuallyArcError(IOError):
@@ -668,22 +661,6 @@ if "forcebalance" in __name__:
         from . import Mol2
     except ImportError:
         logger.debug("Note: Cannot import optional Mol2 module to read .mol2 files.\n")
-
-    # ==============================#
-    # | OpenMM interface functions |#
-    # ==============================#
-    try:
-        try:
-            from openmm import *
-            from openmm.app import *
-            from openmm.unit import *
-        except ImportError:
-            from simtk.openmm import *
-            from simtk.openmm.app import *
-            from simtk.unit import *
-    except ImportError:
-        logger.debug("Note: Cannot import optional OpenMM module.\n")
-
 elif "geometric" in __name__:
     # ============================#
     # | PDB read/write functions |#
@@ -694,20 +671,6 @@ elif "geometric" in __name__:
         logger.debug(
             "Note: Failed to import optional pdb module to read/write PDB files.\n"
         )
-    # ==============================#
-    # | OpenMM interface functions |#
-    # ==============================#
-    try:
-        try:
-            from openmm import *
-            from openmm.app import *
-            from openmm.unit import *
-        except ImportError:
-            from simtk.openmm import *
-            from simtk.openmm.app import *
-            from simtk.unit import *
-    except ImportError:
-        logger.debug("Note: Failed to import optional OpenMM module.\n")
 
 # ===========================#
 # | Convenience subroutines |#

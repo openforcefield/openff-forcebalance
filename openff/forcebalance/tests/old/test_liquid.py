@@ -9,13 +9,11 @@ from openff.forcebalance.objective import Objective
 from openff.forcebalance.optimizer import Optimizer
 from openff.forcebalance.parser import parse_inputs
 
-from .__init__ import ForceBalanceTestCase, check_for_openmm
+from .__init__ import ForceBalanceTestCase
 
 
 class TestWaterTutorial(ForceBalanceTestCase):
     def setup_method(self, method):
-        if not check_for_openmm():
-            pytest.skip("No OpenMM modules found.")
         super().setup_method(method)
         self.cwd = os.path.dirname(os.path.realpath(__file__))
         # copy folder 'files/test_liquid' into a new folder 'files/test_liquid.run'

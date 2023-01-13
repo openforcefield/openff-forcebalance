@@ -8,7 +8,6 @@ import os
 from collections import OrderedDict
 from copy import deepcopy
 
-import networkx as nx
 import numpy as np
 
 from openff.forcebalance import BaseReader
@@ -22,7 +21,6 @@ from openff.forcebalance.liquid import Liquid
 from openff.forcebalance.molecule import *
 from openff.forcebalance.moments import Moments
 from openff.forcebalance.nifty import *
-from openff.forcebalance.nifty import _exec
 from openff.forcebalance.opt_geo_target import OptGeoTarget
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.torsion_profile import TorsionProfileTarget
@@ -30,23 +28,8 @@ from openff.forcebalance.vibration import Vibration
 
 logger = getLogger(__name__)
 
-# Handle simtk namespace change around 7.6 release
-try:
-    try:
-        # Try importing openmm using >=7.6 namespace
-        import openmm._openmm as _openmm
-        from openmm import *
-        from openmm.app import *
-        from openmm.unit import *
-    except ImportError:
-        # Try importing openmm using <7.6 namespace
-        import simtk.openmm._openmm as _openmm
-        from simtk.openmm import *
-        from simtk.openmm.app import *
-        from simtk.unit import *
-except ImportError:
-    # Need to have "pass" conditional if neither is installed so that non-openmm builds can parse this file
-    pass
+from openmm import _openmm, unit
+from openmm.app import *
 
 
 def get_mask(grps):
@@ -70,7 +53,7 @@ def energy_components(Sim, verbose=False):
         for i in range(Sim.system.getNumForces()):
             EnergyTerms[Sim.system.getForce(i).__class__.__name__] = (
                 Sim.context.getState(getEnergy=True, groups=2**i).getPotentialEnergy()
-                / kilojoules_per_mole
+                / unit.kilojoules_per_mole
             )
     return EnergyTerms
 
@@ -88,17 +71,6 @@ def get_multipoles(simulation, q=None, mass=None, positions=None, rmcom=True):
     qzz = 0.0
     enm_debye = 48.03204255928332  # Conversion factor from e*nm to Debye
     for i in simulation.system.getForces():
-        if isinstance(i, AmoebaMultipoleForce):
-            mm = i.getSystemMultipoleMoments(simulation.context)
-            dx += mm[1]
-            dy += mm[2]
-            dz += mm[3]
-            qxx += mm[4]
-            qxy += mm[5]
-            qxz += mm[6]
-            qyy += mm[8]
-            qyz += mm[9]
-            qzz += mm[12]
         if isinstance(i, NonbondedForce):
             # Get array of charges.
             if q is None:
@@ -118,11 +90,11 @@ def get_multipoles(simulation, q=None, mass=None, positions=None, rmcom=True):
                     [
                         simulation.context.getSystem()
                         .getParticleMass(k)
-                        .value_in_unit(dalton)
+                        .value_in_unit(unit.dalton)
                         for k in range(simulation.context.getSystem().getNumParticles())
                     ]
                 )
-            x = np.array(positions.value_in_unit(nanometer))
+            x = np.array(positions.value_in_unit(unit.nanometer))
             if rmcom:
                 com = np.sum(x * mass.reshape(-1, 1), axis=0) / np.sum(mass)
                 x -= com
@@ -281,11 +253,11 @@ def ResetVirtualSites_fast(positions, vsinfo):
     compute the correct virtual site positions according to the System."""
     isvsites, vsfuncs, vsidxs, vswts = vsinfo
     if any(isvsites):
-        pos = np.array(positions.value_in_unit(nanometer))
+        pos = np.array(positions.value_in_unit(unit.nanometer))
         for i in range(len(positions)):
             if isvsites[i]:
                 pos[i] = vsfuncs[i](pos, vsidxs[i], vswts[i])
-        newpos = [Vec3(*i) for i in pos] * nanometer
+        newpos = [Vec3(*i) for i in pos] * unit.nanometer
         return newpos
     else:
         return positions
@@ -295,7 +267,7 @@ def ResetVirtualSites(positions, system):
     """Given a set of OpenMM-compatible positions and a System object,
     compute the correct virtual site positions according to the System."""
     if any([system.isVirtualSite(j) for j in range(system.getNumParticles())]):
-        pos = np.array(positions.value_in_unit(nanometer))
+        pos = np.array(positions.value_in_unit(unit.nanometer))
         for i in range(system.getNumParticles()):
             if system.isVirtualSite(i):
                 vs = system.getVirtualSite(i)
@@ -337,7 +309,7 @@ def ResetVirtualSites(positions, system):
                         + _openmm.OutOfPlaneSite_getWeightCross(vs) * cross
                     )
                 pos[i] = vspos
-        newpos = [Vec3(*i) for i in pos] * nanometer
+        newpos = [Vec3(*i) for i in pos] * unit.nanometer
         return newpos
     else:
         return positions
@@ -364,85 +336,6 @@ def GetVirtualSiteParameters(system):
     return np.array(vsprm)
 
 
-def GetDrudeParameters(system):
-    """This is a similar function as GetVirtualSiteParameters, designed
-    to return all of the parameters associated with the Drude class in
-    order to test whether any changes have been made by ForceBalance.
-    The drude_particle array contains the charge of the Drude particle,
-    the isotropic polarizability, and the two potential anisotropic polarizabilities.
-    The drude_screen array contains the Thole screening parameter.
-    See OpenMM's DrudeForce class reference for more information.
-    """
-
-    drude_particle = []
-    drude_screen = []
-    for f in system.getForces():
-        if f.__class__.__name__ == "DrudeForce":
-            for i in range(f.getNumParticles()):
-                drude_particle.append(f.getParticleParameters(i)[5]._value)
-                drude_particle.append(f.getParticleParameters(i)[6]._value)
-                drude_particle.append(f.getParticleParameters(i)[7])
-                drude_particle.append(f.getParticleParameters(i)[8])
-            for i in range(f.getNumScreenedPairs()):
-                drude_screen.append(f.getScreenedPairParameters(i)[2])
-    return np.array(drude_particle), np.array(drude_screen)
-
-
-def CopyAmoebaBondParameters(src, dest):
-    dest.setAmoebaGlobalBondCubic(src.getAmoebaGlobalBondCubic())
-    dest.setAmoebaGlobalBondQuartic(src.getAmoebaGlobalBondQuartic())
-    for i in range(src.getNumBonds()):
-        dest.setBondParameters(i, *src.getBondParameters(i))
-
-
-def CopyAmoebaOutOfPlaneBendParameters(src, dest):
-    dest.setAmoebaGlobalOutOfPlaneBendCubic(src.getAmoebaGlobalOutOfPlaneBendCubic())
-    dest.setAmoebaGlobalOutOfPlaneBendQuartic(
-        src.getAmoebaGlobalOutOfPlaneBendQuartic()
-    )
-    dest.setAmoebaGlobalOutOfPlaneBendPentic(src.getAmoebaGlobalOutOfPlaneBendPentic())
-    dest.setAmoebaGlobalOutOfPlaneBendSextic(src.getAmoebaGlobalOutOfPlaneBendSextic())
-    for i in range(src.getNumOutOfPlaneBends()):
-        dest.setOutOfPlaneBendParameters(i, *src.getOutOfPlaneBendParameters(i))
-
-
-def CopyAmoebaAngleParameters(src, dest):
-    dest.setAmoebaGlobalAngleCubic(src.getAmoebaGlobalAngleCubic())
-    dest.setAmoebaGlobalAngleQuartic(src.getAmoebaGlobalAngleQuartic())
-    dest.setAmoebaGlobalAnglePentic(src.getAmoebaGlobalAnglePentic())
-    dest.setAmoebaGlobalAngleSextic(src.getAmoebaGlobalAngleSextic())
-    for i in range(src.getNumAngles()):
-        dest.setAngleParameters(i, *src.getAngleParameters(i))
-    return
-
-
-def CopyAmoebaInPlaneAngleParameters(src, dest):
-    dest.setAmoebaGlobalInPlaneAngleCubic(src.getAmoebaGlobalInPlaneAngleCubic())
-    dest.setAmoebaGlobalInPlaneAngleQuartic(src.getAmoebaGlobalInPlaneAngleQuartic())
-    dest.setAmoebaGlobalInPlaneAnglePentic(src.getAmoebaGlobalInPlaneAnglePentic())
-    dest.setAmoebaGlobalInPlaneAngleSextic(src.getAmoebaGlobalInPlaneAngleSextic())
-    for i in range(src.getNumAngles()):
-        dest.setAngleParameters(i, *src.getAngleParameters(i))
-    return
-
-
-def CopyAmoebaVdwParameters(src, dest):
-    for i in range(src.getNumParticles()):
-        dest.setParticleParameters(i, *src.getParticleParameters(i))
-
-
-def CopyAmoebaMultipoleParameters(src, dest):
-    for i in range(src.getNumMultipoles()):
-        dest.setMultipoleParameters(i, *src.getMultipoleParameters(i))
-
-
-def CopyDrudeForceParameters(src, dest):
-    for i in range(src.getNumScreenedPairs()):
-        dest.setScreenedPairParameters(i, *src.getScreenedPairParameters(i))
-    for i in range(src.getNumParticles()):
-        dest.setParticleParameters(i, *src.getParticleParameters(i))
-
-
 def CopyHarmonicBondParameters(src, dest):
     for i in range(src.getNumBonds()):
         dest.setBondParameters(i, *src.getBondParameters(i))
@@ -454,11 +347,6 @@ def CopyHarmonicAngleParameters(src, dest):
 
 
 def CopyPeriodicTorsionParameters(src, dest):
-    for i in range(src.getNumTorsions()):
-        dest.setTorsionParameters(i, *src.getTorsionParameters(i))
-
-
-def CopyRBTorsionParameters(src, dest):
     for i in range(src.getNumTorsions()):
         dest.setTorsionParameters(i, *src.getTorsionParameters(i))
 
@@ -505,17 +393,9 @@ def CopySystemParameters(src, dest):
     sto another system (i.e. the one stored inside the Target object).
     DANGER: These need to be implemented manually!!!"""
     Copiers = {
-        "AmoebaBondForce": CopyAmoebaBondParameters,
-        "AmoebaOutOfPlaneBendForce": CopyAmoebaOutOfPlaneBendParameters,
-        "AmoebaAngleForce": CopyAmoebaAngleParameters,
-        "AmoebaInPlaneAngleForce": CopyAmoebaInPlaneAngleParameters,
-        "AmoebaVdwForce": CopyAmoebaVdwParameters,
-        "AmoebaMultipoleForce": CopyAmoebaMultipoleParameters,
-        "DrudeForce": CopyDrudeForceParameters,
         "HarmonicBondForce": CopyHarmonicBondParameters,
         "HarmonicAngleForce": CopyHarmonicAngleParameters,
         "PeriodicTorsionForce": CopyPeriodicTorsionParameters,
-        "RBTorsionForce": CopyRBTorsionParameters,
         "NonbondedForce": CopyNonbondedParameters,
         "CustomBondForce": CopyCustomBondParameters,
         "CustomNonbondedForce": CopyCustomNonbondedParameters,
@@ -548,38 +428,6 @@ def UpdateSimulationParameters(src_system, dest_simulation):
                 dest_simulation.context.setParameter(pName, pValue)
 
 
-def SetAmoebaVirtualExclusions(system):
-    if any(
-        [f.__class__.__name__ == "AmoebaMultipoleForce" for f in system.getForces()]
-    ):
-        # logger.info("Cajoling AMOEBA covalent maps so they work with virtual sites.\n")
-        vss = [
-            (
-                i,
-                [
-                    system.getVirtualSite(i).getParticle(j)
-                    for j in range(system.getVirtualSite(i).getNumParticles())
-                ],
-            )
-            for i in range(system.getNumParticles())
-            if system.isVirtualSite(i)
-        ]
-        for f in system.getForces():
-            if f.__class__.__name__ == "AmoebaMultipoleForce":
-                # logger.info("--- Before ---\n")
-                # for i in range(f.getNumMultipoles()):
-                #     logger.info("%s\n" % f.getCovalentMaps(i))
-                for i, j in vss:
-                    f.setCovalentMap(i, 0, j)
-                    f.setCovalentMap(i, 4, j + [i])
-                    for k in j:
-                        f.setCovalentMap(k, 0, list(f.getCovalentMap(k, 0)) + [i])
-                        f.setCovalentMap(k, 4, list(f.getCovalentMap(k, 4)) + [i])
-                # logger.info("--- After ---\n")
-                # for i in range(f.getNumMultipoles()):
-                #     logger.info("%s\n" % f.getCovalentMaps(i))
-
-
 def AddVirtualSiteBonds(mod, ff):
     # print "In AddVirtualSiteBonds"
     for ir, R in enumerate(list(mod.topology.residues())):
@@ -593,32 +441,16 @@ def AddVirtualSiteBonds(mod, ff):
                 mod.topology.addBond(*bi)
 
 
-def SetAmoebaNonbondedExcludeAll(system, topology):
-    """Manually set the AmoebaVdwForce, AmoebaMultipoleForce to exclude all atoms belonging to the same residue"""
-    # find atoms and residues
-    atom_residue_index = [a.residue.index for a in topology.atoms()]
-    residue_atoms = [[a.index for a in r.atoms()] for r in topology.residues()]
-    for f in system.getForces():
-        if f.__class__.__name__ == "AmoebaVdwForce":
-            for i in range(f.getNumParticles()):
-                f.setParticleExclusions(i, residue_atoms[atom_residue_index[i]])
-        elif f.__class__.__name__ == "AmoebaMultipoleForce":
-            for i in range(f.getNumMultipoles()):
-                f.setCovalentMap(i, 0, residue_atoms[atom_residue_index[i]])
-                for m in range(1, 4):
-                    f.setCovalentMap(i, m, [])
-
-
 def MTSVVVRIntegrator(temperature, collision_rate, timestep, system, ninnersteps=4):
     """
     Create a multiple timestep velocity verlet with velocity randomization (VVVR) integrator.
 
     ARGUMENTS
 
-    temperature (Quantity compatible with kelvin) - the temperature
+    temperature (Quantity compatible with unit.kelvin) - the temperature
     collision_rate (Quantity compatible with 1/picoseconds) - the collision rate
     timestep (Quantity compatible with femtoseconds) - the integration timestep
-    system (simtk.openmm.System) - system whose forces will be partitioned
+    system (openmm.System) - system whose forces will be partitioned
     ninnersteps (int) - number of inner timesteps (default: 4)
 
     RETURNS
@@ -647,8 +479,6 @@ def MTSVVVRIntegrator(temperature, collision_rate, timestep, system, ninnersteps
         if i.__class__.__name__ in [
             "NonbondedForce",
             "CustomNonbondedForce",
-            "AmoebaVdwForce",
-            "AmoebaMultipoleForce",
         ]:
             # Slow force.
             logger.info(i.__class__.__name__ + " is a Slow Force\n")
@@ -658,7 +488,7 @@ def MTSVVVRIntegrator(temperature, collision_rate, timestep, system, ninnersteps
             # Fast force.
             i.setForceGroup(0)
 
-    kB = BOLTZMANN_CONSTANT_kB * AVOGADRO_CONSTANT_NA
+    kB = unit.BOLTZMANN_CONSTANT_kB * unit.AVOGADRO_CONSTANT_NA
     kT = kB * temperature
 
     integrator = CustomIntegrator(timestep)
@@ -731,22 +561,12 @@ suffix_dict = {
         "Proper": ["class1", "class2", "class3", "class4"],
         "Improper": ["class1", "class2", "class3", "class4"],
     },
-    "RBTorsionForce": {
-        "Proper": ["class1", "class2", "class3", "class4"],
-    },
     "NonbondedForce": {"Atom": ["type"]},
     "CustomBondForce": {
         "Bond": ["class1", "class2"],
     },
     "CustomNonbondedForce": {"Atom": ["class"]},
     "GBSAOBCForce": {"Atom": ["type"]},
-    "AmoebaBondForce": {"Bond": ["class1", "class2"]},
-    "AmoebaAngleForce": {"Angle": ["class1", "class2", "class3"]},
-    "AmoebaStretchBendForce": {"StretchBend": ["class1", "class2", "class3"]},
-    "AmoebaVdwForce": {"Vdw": ["class"]},
-    "AmoebaMultipoleForce": {"Multipole": ["type", "kz", "kx"], "Polarize": ["type"]},
-    "AmoebaUreyBradleyForce": {"UreyBradley": ["class1", "class2", "class3"]},
-    "DrudeForce": {"Particle": ["type1", "type2"]},
     "Residues.Residue": {"VirtualSite": ["index"]},
     ## LPW's custom parameter definitions
     "ForceBalance": {"GB": ["type"]},
@@ -968,11 +788,6 @@ class OpenMM(Engine):
         ## OpenMM options for setting up the System.
         self.mmopts = dict(mmopts)
 
-        ## Are we using AMOEBA?
-        self.AMOEBA = any(
-            ["Amoeba" in f.__class__.__name__ for f in self.forcefield._forces]
-        )
-
         ## Specify frozen atoms and restraint force constant
         if "restrain_k" in kwargs:
             self.restrain_k = kwargs["restrain_k"]
@@ -1036,8 +851,10 @@ class OpenMM(Engine):
                             vdw_cutoff * 10, minbox
                         )
                     )
-                self.mmopts.setdefault("nonbondedCutoff", nonbonded_cutoff * nanometer)
-                self.mmopts.setdefault("vdwCutoff", vdw_cutoff * nanometer)
+                self.mmopts.setdefault(
+                    "nonbondedCutoff", nonbonded_cutoff * unit.nanometer
+                )
+                self.mmopts.setdefault("vdwCutoff", vdw_cutoff * unit.nanometer)
                 self.mmopts.setdefault("aEwald", 5.4459052)
                 # self.mmopts.setdefault('pmeGridDimensions', [24,24,24])
             else:
@@ -1055,10 +872,12 @@ class OpenMM(Engine):
                         )
                     )
 
-                self.mmopts.setdefault("nonbondedCutoff", nonbonded_cutoff * nanometer)
+                self.mmopts.setdefault(
+                    "nonbondedCutoff", nonbonded_cutoff * unit.nanometer
+                )
                 self.mmopts.setdefault("useSwitchingFunction", True)
                 self.mmopts.setdefault(
-                    "switchingDistance", (nonbonded_cutoff - 0.1) * nanometer
+                    "switchingDistance", (nonbonded_cutoff - 0.1) * unit.nanometer
                 )
             self.mmopts.setdefault("useDispersionCorrection", True)
         else:
@@ -1081,7 +900,7 @@ class OpenMM(Engine):
         #            for i in range(system.getNumParticles()) if system.isVirtualSite(i)]
         self.AtomLists = defaultdict(list)
         self.AtomLists["Mass"] = [
-            a.element.mass.value_in_unit(dalton) if a.element is not None else 0
+            a.element.mass.value_in_unit(unit.dalton) if a.element is not None else 0
             for a in Atoms
         ]
         self.AtomLists["ParticleType"] = [
@@ -1096,7 +915,7 @@ class OpenMM(Engine):
         self.xyz_omms = []
         for I in range(len(mol)):
             xyz = mol.xyzs[I]
-            xyz_omm = [Vec3(i[0], i[1], i[2]) for i in xyz] * angstrom
+            xyz_omm = [Vec3(i[0], i[1], i[2]) for i in xyz] * unit.angstrom
             # An extra step with adding virtual particles
             mod = Modeller(self.pdb.topology, xyz_omm)
             mod.addExtraParticles(self.forcefield)
@@ -1110,9 +929,9 @@ class OpenMM(Engine):
                     logger.error("OpenMM cannot handle nonorthogonal boxes.\n")
                     raise RuntimeError
                 box_omm = [
-                    Vec3(mol.boxes[I].a, 0, 0) * angstrom,
-                    Vec3(0, mol.boxes[I].b, 0) * angstrom,
-                    Vec3(0, 0, mol.boxes[I].c) * angstrom,
+                    Vec3(mol.boxes[I].a, 0, 0) * unit.angstrom,
+                    Vec3(0, mol.boxes[I].b, 0) * unit.angstrom,
+                    Vec3(0, 0, mol.boxes[I].c) * unit.angstrom,
                 ]
             else:
                 box_omm = None
@@ -1153,9 +972,9 @@ class OpenMM(Engine):
                     )
                     raise RuntimeError
                 integrator = MTSVVVRIntegrator(
-                    temperature * kelvin,
-                    collision / picosecond,
-                    timestep * femtosecond,
+                    temperature * unit.kelvin,
+                    collision / unit.picosecond,
+                    timestep * unit.femtosecond,
                     self.system,
                     ninnersteps=int(timestep / faststep),
                 )
@@ -1167,28 +986,16 @@ class OpenMM(Engine):
                     self.tdiv = rpmd_beads
                     integrator = RPMDIntegrator(
                         rpmd_beads,
-                        temperature * kelvin,
-                        collision / picosecond,
-                        timestep * femtosecond,
-                    )
-                elif any(
-                    ["Drude" in f.__class__.__name__ for f in self.system.getForces()]
-                ):
-                    integrator = DrudeLangevinIntegrator(
-                        temperature * kelvin,
-                        collision / picosecond,
-                        1 * kelvin,
-                        collision / picosecond,
-                        0.1 * femtoseconds,
+                        temperature * unit.kelvin,
+                        collision / unit.picosecond,
+                        timestep * unit.femtosecond,
                     )
                 else:
                     integrator = LangevinIntegrator(
-                        temperature * kelvin,
-                        collision / picosecond,
-                        timestep * femtosecond,
+                        temperature * unit.kelvin,
+                        collision / unit.picosecond,
+                        timestep * unit.femtosecond,
                     )
-        elif any(["Drude" in f.__class__.__name__ for f in self.system.getForces()]):
-            integrator = DrudeSCFIntegrator(0.1 * femtoseconds)
         else:
             ## If no temperature control, default to the Verlet integrator.
             if rpmd_beads > 0:
@@ -1198,19 +1005,19 @@ class OpenMM(Engine):
                 warn_once(
                     "No multiple timestep integrator without temperature control."
                 )
-            integrator = VerletIntegrator(timestep * femtoseconds)
+            integrator = VerletIntegrator(timestep * unit.femtoseconds)
 
         ## Add the barostat.
         if pressure is not None:
             if anisotropic:
                 barostat = MonteCarloAnisotropicBarostat(
-                    [pressure, pressure, pressure] * atmospheres,
-                    temperature * kelvin,
+                    [pressure, pressure, pressure] * unit.atmospheres,
+                    temperature * unit.kelvin,
                     nbarostat,
                 )
             else:
                 barostat = MonteCarloBarostat(
-                    pressure * atmospheres, temperature * kelvin, nbarostat
+                    pressure * unit.atmospheres, temperature * unit.kelvin, nbarostat
                 )
         if self.pbc and pressure is not None:
             self.system.addForce(barostat)
@@ -1222,7 +1029,7 @@ class OpenMM(Engine):
         if hasattr(self, "restrain_k") and self.restrain_k != 0.0:
             restraint_frc = CustomExternalForce("0.5*k*((x-x0)^2+(y-y0)^2+(z-z0)^2)")
             restraint_frc.addGlobalParameter(
-                "k", self.restrain_k * kilocalorie_per_mole / angstrom**2
+                "k", self.restrain_k * unit.kilocalorie_per_mole / unit.angstrom**2
             )
             restraint_frc.addPerParticleParameter("x0")
             restraint_frc.addPerParticleParameter("y0")
@@ -1240,10 +1047,6 @@ class OpenMM(Engine):
 
         ## Set up for energy component analysis.
         GrpTogether = [
-            "AmoebaGeneralizedKirkwoodForce",
-            "AmoebaMultipoleForce",
-            "AmoebaWcaDispersionForce",
-            "DrudeForce",
             "CustomNonbondedForce",
             "NonbondedForce",
         ]
@@ -1260,9 +1063,6 @@ class OpenMM(Engine):
                     i = len(set(GrpNums.values()))
                 GrpNums[j.__class__.__name__] = i
                 j.setForceGroup(i)
-
-        ## If virtual particles are used with AMOEBA...
-        SetAmoebaVirtualExclusions(self.system)
 
         # test: exclude all Amoeba Nonbonded Forces within each residue
         # SetAmoebaNonbondedExcludeAll(self.system, self.mod.topology)
@@ -1290,8 +1090,6 @@ class OpenMM(Engine):
         self.forcefield = ForceField(*self.ffxml)
         # OpenMM classes for force generators
         ismgens = [
-            forcefield.AmoebaGeneralizedKirkwoodGenerator,
-            forcefield.AmoebaWcaDispersionGenerator,
             forcefield.CustomGBGenerator,
             forcefield.GBSAOBCGenerator,
         ]
@@ -1348,9 +1146,6 @@ class OpenMM(Engine):
                 )
                 if self.SetPME:
                     i.setNonbondedMethod(i.PME)
-            if isinstance(i, AmoebaMultipoleForce):
-                if self.SetPME:
-                    i.setNonbondedMethod(i.PME)
 
         # ----
         # If the virtual site parameters have changed,
@@ -1371,29 +1166,6 @@ class OpenMM(Engine):
         # have changed then the positions must be recomputed and
         # the simulation object must be remade.
         # ----
-        if any(["Drude" in f.__class__.__name__ for f in self.system.getForces()]):
-            drude_particle, drude_screen = GetDrudeParameters(self.system)
-            if hasattr(self, "simulation"):
-                if (
-                    hasattr(self, "drude_particle")
-                    and len(self.drude_particle) > 0
-                    and np.max(np.abs(self.drude_particle - drude_particle)) != 0
-                ):
-                    self.xyz_omms = self.drude_initial_positions
-                    self.adjust_drude_positions()
-                elif (
-                    hasattr(self, "drude_screen")
-                    and len(self.drude_screen) > 0
-                    and np.max(np.abs(self.drude_screen - drude_screen)) != 0
-                ):
-                    self.xyz_omms = self.drude_initial_positions
-                    self.adjust_drude_positions()
-            else:
-                self.drude_initial_positions = self.xyz_omms
-                self.adjust_drude_positions()
-            self.drude_particle = drude_particle.copy()
-            self.drude_screen = drude_screen.copy()
-
         if hasattr(self, "simulation"):
             UpdateSimulationParameters(self.system, self.simulation)
         else:
@@ -1458,7 +1230,7 @@ class OpenMM(Engine):
 
     def compute_mass(self, system):
         """Compute the total mass of an OpenMM system."""
-        mass = 0.0 * amu
+        mass = 0.0 * unit.amu
         for i in range(system.getNumParticles()):
             mass += system.getParticleMass(i)
         return mass
@@ -1470,10 +1242,10 @@ class OpenMM(Engine):
             getPositions=dipole, getEnergy=True, getForces=force
         )
         Result = {}
-        Result["Energy"] = state.getPotentialEnergy() / kilojoules_per_mole
+        Result["Energy"] = state.getPotentialEnergy() / unit.kilojoules_per_mole
         if force:
             Force = state.getForces(asNumpy=True).value_in_unit(
-                kilojoule / (nanometer * mole)
+                unit.kilojoule_per_mole / unit.nanometer
             )
             # Extract forces belonging to real atoms only
             Result["Force"] = Force[self.realAtomIdxs].flatten()
@@ -1718,7 +1490,7 @@ class OpenMM(Engine):
         """A convenience method for updating the positions of the simulation context."""
         # check if we have units
         if isinstance(X1, numpy.ndarray):
-            X1 = X1 * angstrom
+            X1 = X1 * unit.angstrom
 
         if disable_vsite:
             self.simulation.context.setPositions(X1)
@@ -1771,13 +1543,13 @@ class OpenMM(Engine):
         X0 = (
             self.simulation.context.getState(getPositions=True)
             .getPositions(asNumpy=True)
-            .value_in_unit(angstrom)[self.realAtomIdxs]
+            .value_in_unit(unit.angstrom)[self.realAtomIdxs]
         )
         # printcool_dictionary(energy_components(self.simulation), title='Energy component analysis before minimization, shot %i' % shot)
         # Minimize the energy.  Optimizer works best in "steps".
         for logc in np.linspace(0, np.log10(crit), steps):
             self.simulation.minimizeEnergy(
-                tolerance=10**logc * kilojoule / mole, maxIterations=100000
+                tolerance=10**logc * unit.kilojoule_per_mole, maxIterations=100000
             )
         # check if energy minimization is successful
         # try 1000 times with 10 steps each as openmm minimizer is not very stable at the tolerance
@@ -1785,15 +1557,15 @@ class OpenMM(Engine):
             e_minimized = (
                 self.simulation.context.getState(getEnergy=True)
                 .getPotentialEnergy()
-                .value_in_unit(kilojoule_per_mole)
+                .value_in_unit(unit.kilojoule_per_mole)
             )
             self.simulation.minimizeEnergy(
-                tolerance=crit * kilojoule_per_mole, maxIterations=10
+                tolerance=crit * unit.kilojoule_per_mole, maxIterations=10
             )
             e_new = (
                 self.simulation.context.getState(getEnergy=True)
                 .getPotentialEnergy()
-                .value_in_unit(kilojoule_per_mole)
+                .value_in_unit(unit.kilojoule_per_mole)
             )
             if abs(e_new - e_minimized) < crit * 10:
                 break
@@ -1810,8 +1582,10 @@ class OpenMM(Engine):
             getPositions=True, getEnergy=True, groups=groups
         )
         # Get the optimized geometry.
-        X1 = S.getPositions(asNumpy=True).value_in_unit(angstrom)[self.realAtomIdxs]
-        E = S.getPotentialEnergy().value_in_unit(kilocalorie_per_mole)
+        X1 = S.getPositions(asNumpy=True).value_in_unit(unit.angstrom)[
+            self.realAtomIdxs
+        ]
+        E = S.getPotentialEnergy().value_in_unit(unit.kilocalorie_per_mole)
         # Align to original geometry.
         M = deepcopy(self.mol[0])
         M += deepcopy(M)
@@ -2044,12 +1818,12 @@ class OpenMM(Engine):
                 f.write(serial)
 
         # Determine number of degrees of freedom; the center of mass motion remover is also a constraint.
-        kB = BOLTZMANN_CONSTANT_kB * AVOGADRO_CONSTANT_NA
+        kB = unit.BOLTZMANN_CONSTANT_kB * unit.AVOGADRO_CONSTANT_NA
 
         # Compute total mass.
         self.mass = (
-            self.compute_mass(self.system).in_units_of(gram / mole)
-            / AVOGADRO_CONSTANT_NA
+            self.compute_mass(self.system).in_units_of(unit.gram / unit.mole)
+            / unit.AVOGADRO_CONSTANT_NA
         )
 
         # Determine number of degrees of freedom.
@@ -2083,7 +1857,7 @@ class OpenMM(Engine):
         # Now run the simulation #
         # ========================#
         # Initialize velocities.
-        self.simulation.context.setVelocitiesToTemperature(temperature * kelvin)
+        self.simulation.context.setVelocitiesToTemperature(temperature * unit.kelvin)
         # Equilibrate.
         if iequil > 0:
             if verbose:
@@ -2120,8 +1894,8 @@ class OpenMM(Engine):
                 volume = self.compute_volume(box_vectors)
                 density = (self.mass / volume).in_units_of(kilogram / meter**3)
             else:
-                volume = 0.0 * nanometers**3
-                density = 0.0 * kilogram / meter**3
+                volume = 0.0 * unit.nanometers**3
+                density = 0.0 * unit.kilogram / unit.meter**3
             kinetic_temperature = (
                 2.0 * kinetic / kB / self.ndof
             )  # (1/2) ndof * kB * T = KE
@@ -2131,11 +1905,11 @@ class OpenMM(Engine):
                         "%6d %9.3f %9.3f % 13.3f %10.4f %13.4f\n"
                         % (
                             iteration + 1,
-                            state.getTime() / picoseconds,
-                            kinetic_temperature / kelvin,
-                            potential / kilojoules_per_mole,
-                            volume / nanometers**3,
-                            density / (kilogram / meter**3),
+                            state.getTime() / unit.picoseconds,
+                            kinetic_temperature / unit.kelvin,
+                            potential / unit.kilojoules_per_mole,
+                            volume / unit.nanometers**3,
+                            density / (unit.kilogram / unit.meter**3),
                         )
                     )
             else:
@@ -2144,9 +1918,9 @@ class OpenMM(Engine):
                         "%6d %9.3f %9.3f % 13.3f\n"
                         % (
                             iteration + 1,
-                            state.getTime() / picoseconds,
-                            kinetic_temperature / kelvin,
-                            potential / kilojoules_per_mole,
+                            state.getTime() / unit.picoseconds,
+                            kinetic_temperature / unit.kelvin,
+                            potential / unit.kilojoules_per_mole,
                         )
                     )
         # Collect production data.
@@ -2196,9 +1970,11 @@ class OpenMM(Engine):
                 density = (self.mass / volume).in_units_of(kilogram / meter**3)
             else:
                 box_vectors = None
-                volume = 0.0 * nanometers**3
-                density = 0.0 * kilogram / meter**3
-            positions = state.getPositions(asNumpy=True).astype(np.float32) * nanometer
+                volume = 0.0 * unit.nanometers**3
+                density = 0.0 * unit.kilogram / unit.meter**3
+            positions = (
+                state.getPositions(asNumpy=True).astype(np.float32) * unit.nanometer
+            )
             self.xyz_omms.append([positions, box_vectors])
             # Perform energy decomposition.
             for comp, val in energy_components(self.simulation).items():
@@ -2212,11 +1988,11 @@ class OpenMM(Engine):
                         "%6d %9.3f %9.3f % 13.3f %10.4f %13.4f\n"
                         % (
                             iteration + 1,
-                            state.getTime() / picoseconds,
-                            kinetic_temperature / kelvin,
-                            potential / kilojoules_per_mole,
-                            volume / nanometers**3,
-                            density / (kilogram / meter**3),
+                            state.getTime() / unit.picoseconds,
+                            kinetic_temperature / unit.kelvin,
+                            potential / unit.kilojoules_per_mole,
+                            volume / unit.nanometers**3,
+                            density / (unit.kilogram / unit.meter**3),
                         )
                     )
             else:
@@ -2225,16 +2001,16 @@ class OpenMM(Engine):
                         "%6d %9.3f %9.3f % 13.3f\n"
                         % (
                             iteration + 1,
-                            state.getTime() / picoseconds,
-                            kinetic_temperature / kelvin,
+                            state.getTime() / unit.picoseconds,
+                            kinetic_temperature / unit.kelvin,
                             potential / kilojoules_per_mole,
                         )
                     )
-            Temps.append(kinetic_temperature / kelvin)
-            Rhos.append(density.value_in_unit(kilogram / meter**3))
-            Potentials.append(potential / kilojoules_per_mole)
-            Kinetics.append(kinetic / kilojoules_per_mole)
-            Volumes.append(volume / nanometer**3)
+            Temps.append(kinetic_temperature / unit.kelvin)
+            Rhos.append(density.value_in_unit(unit.kilogram / unit.meter**3))
+            Potentials.append(potential / unit.kilojoules_per_mole)
+            Kinetics.append(kinetic / unit.kilojoules_per_mole)
+            Volumes.append(volume / unit.nanometer**3)
             Dips.append(get_dipole(self.simulation, positions=self.xyz_omms[-1][0]))
         Rhos = np.array(Rhos)
         Potentials = np.array(Potentials)
@@ -2282,9 +2058,9 @@ class OpenMM(Engine):
         for i in range(len(self.xyz_omms)):
             pos, box = self.xyz_omms[i]
             # scale the box vectors
-            new_box = np.array(box / nanometer) * scale_xyz
+            new_box = np.array(box / unit.nanometer) * scale_xyz
             # convert pos to np.array
-            positions = np.array(pos / nanometer)
+            positions = np.array(pos / unit.nanometer)
             # Positions of each residue
             residue_positions = np.take(positions, self.residues_idxs, axis=0)
             # Center of each residue
@@ -2297,43 +2073,9 @@ class OpenMM(Engine):
             )
             # update this frame
             self.xyz_omms[i] = [
-                new_pos.astype(np.float32) * nanometer,
-                new_box * nanometer,
+                new_pos.astype(np.float32) * unit.nanometer,
+                new_box * unit.nanometer,
             ]
-
-    def adjust_drude_positions(self):
-        """First zero the mass of the system. This is needed because the Drude positions
-        are on top of the parent atom, giving incorrect polarization energy. Taking a small
-        time step with a zero mass system will "optimize" the Drude particle positions
-        without moving the initial particle positions. The system is then remassed after
-        the positions have been changed."""
-
-        mass = []
-        for k in range(self.system.getNumParticles()):
-            mass.append(self.system.getParticleMass(k))
-            self.system.setParticleMass(k, 0)
-        self.create_simulation(**self.simkwargs)
-        if self.pbc:
-            box_omm = [
-                Vec3(mol.boxes[I].a, 0, 0) * nanometer,
-                Vec3(0, mol.boxes[I].b, 0) * nanometer,
-                Vec3(0, 0, mol.boxes[I].c) * nanometer,
-            ]
-        else:
-            box_omm = None
-        for I in range(len(self.xyz_omms)):
-            self.set_positions(I)
-            self.simulation.step(1)
-            pos = (
-                self.simulation.context.getState(getPositions=True)
-                .getPositions()
-                ._value
-            )
-            pos = [Vec3(i[0], i[1], i[2]) for i in pos] * nanometer
-            self.xyz_omms[I] = (pos, box_omm)
-        for k in range(self.system.getNumParticles()):
-            self.system.setParticleMass(k, mass[k])
-        delattr(self, "simulation")
 
 
 class Liquid_OpenMM(Liquid):

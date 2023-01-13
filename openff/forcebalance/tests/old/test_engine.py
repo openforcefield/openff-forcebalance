@@ -6,7 +6,7 @@ from openff.forcebalance.gmxio import GMX
 from openff.forcebalance.nifty import *
 from openff.forcebalance.openmmio import OpenMM
 
-from .__init__ import ForceBalanceTestCase, check_for_openmm
+from .__init__ import ForceBalanceTestCase
 
 # Set SAVEDATA to True and run the tests in order to save data
 # to a file for future reference. This is easier to use for troubleshooting
