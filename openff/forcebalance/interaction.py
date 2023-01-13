@@ -9,19 +9,11 @@ from collections import OrderedDict
 
 import numpy as np
 
-from openff.forcebalance.finite_difference import f1d2p, f12d3p, fdwrap, in_fd
-from openff.forcebalance.molecule import Molecule, format_xyz_coord
+from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
+from openff.forcebalance.molecule import Molecule
 from openff.forcebalance.nifty import (
-    bohr2ang,
-    col,
     commadash,
     eqcgmx,
-    flat,
-    floatornan,
-    fqcgmx,
-    invert_svd,
-    kb,
-    printcool,
     printcool_dictionary,
     uncommadash,
 )

@@ -1,13 +1,8 @@
-#!/usr/bin/env python
-
-import os
-import re
 import sys
 
 import numpy as np
 
-from .molecule import Elements, Molecule
-from .nifty import isfloat, isint
+from openff.forcebalance.molecule import Molecule
 
 np.set_printoptions(precision=4)
 

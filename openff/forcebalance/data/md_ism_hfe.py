@@ -12,23 +12,15 @@ This script is meant to be launched automatically by ForceBalance.
 
 """
 
-# ==================#
-# | Global Imports |#
-# ==================#
-
 import argparse
 from collections import OrderedDict
 
-import numpy as np
-
-from openff.forcebalance.molecule import Molecule
 from openff.forcebalance.nifty import (
     click,
     lp_dump,
     lp_load,
     printcool,
     printcool_dictionary,
-    wopen,
 )
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.thermo import energy_derivatives

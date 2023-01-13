@@ -17,7 +17,6 @@ import time
 from collections import OrderedDict
 from copy import deepcopy
 
-# import cProfile
 import numpy as np
 from numpy.linalg import multi_dot
 
@@ -38,7 +37,7 @@ from openff.forcebalance.nifty import (
     warn_press_key,
     wopen,
 )
-from openff.forcebalance.output import DEBUG, CleanStreamHandler, getLogger
+from openff.forcebalance.output import DEBUG, getLogger
 from openff.forcebalance.parser import parse_inputs
 
 logger = getLogger(__name__)

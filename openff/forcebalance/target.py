@@ -21,16 +21,12 @@ from openff.forcebalance.finite_difference import (
 from openff.forcebalance.nifty import (
     LinkFile,
     _exec,
-    col,
-    createWorkQueue,
     getWorkQueue,
     getWQIds,
     link_dir_contents,
     lp_load,
     printcool_dictionary,
-    row,
     warn_press_key,
-    wopen,
     wq_wait1,
 )
 from openff.forcebalance.optimizer import Counter

@@ -6,7 +6,6 @@ from collections import OrderedDict
 import numpy as np
 
 from openff.forcebalance import BaseClass
-from openff.forcebalance.finite_difference import f1d2p, f12d3p, fdwrap_G, fdwrap_H
 from openff.forcebalance.nifty import *
 from openff.forcebalance.optimizer import Counter
 from openff.forcebalance.output import getLogger

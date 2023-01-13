@@ -8,7 +8,6 @@ import itertools
 
 import numpy as np
 
-from openff.forcebalance import BaseReader
 from openff.forcebalance.abinitio import AbInitio
 from openff.forcebalance.forcefield import FF
 

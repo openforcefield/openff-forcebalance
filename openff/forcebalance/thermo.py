@@ -8,14 +8,11 @@ from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
 from openff.forcebalance.nifty import (
     LinkFile,
     _exec,
-    col,
-    flat,
     link_dir_contents,
     lp_dump,
     lp_load,
     printcool,
     printcool_dictionary,
-    row,
     wopen,
 )
 from openff.forcebalance.output import getLogger

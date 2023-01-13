@@ -17,31 +17,23 @@ Named after the mighty Sniffy Handy Nifty (King Sniffy)
 import distutils.dir_util
 import filecmp
 import itertools
+import math
 import os
 import re
 import shutil
-import sys
-from select import select
-
-import numpy as np
-from numpy.linalg import multi_dot
-
-# For Python 3 compatibility
-try:
-    from itertools import zip_longest as zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
-
-import math
 import subprocess
+import sys
 import tarfile
 import threading
 import time
 from collections import OrderedDict, defaultdict
+from itertools import zip_longest
 from pickle import Pickler, Unpickler
+from select import select
 from subprocess import PIPE
 
-import six  # For six.string_types
+import numpy as np
+from numpy.linalg import multi_dot
 
 # ================================#
 #       Set up the logger        #

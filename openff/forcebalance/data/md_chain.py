@@ -23,13 +23,7 @@ from collections import OrderedDict
 import numpy as np
 
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import (
-    lp_dump,
-    lp_load,
-    printcool,
-    printcool_dictionary,
-    wopen,
-)
+from openff.forcebalance.nifty import lp_dump, lp_load, printcool, printcool_dictionary
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)

@@ -9,21 +9,9 @@ from copy import deepcopy
 
 import numpy as np
 
-from openff.forcebalance.finite_difference import f1d2p, f12d3p, fdwrap, in_fd
+from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import (
-    bohr2ang,
-    col,
-    eqcgmx,
-    flat,
-    floatornan,
-    fqcgmx,
-    invert_svd,
-    kb,
-    printcool,
-    printcool_dictionary,
-    warn_press_key,
-)
+from openff.forcebalance.nifty import printcool_dictionary, warn_press_key
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
 
