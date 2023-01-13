@@ -6,6 +6,8 @@ dependencies:
   - python
   - pip
   - pytest-cov
+  - pytest-randomly
+  - pytest-ordering
   - scipy
   - lxml
   - zlib
