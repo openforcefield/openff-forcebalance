@@ -796,21 +796,6 @@ class OpenMM(Engine):
 
         ## Set system options from ForceBalance force field options.
         if hasattr(self, "FF"):
-            if self.AMOEBA:
-                if self.FF.amoeba_pol is None:
-                    logger.error(
-                        "You must specify amoeba_pol if there are any AMOEBA forces.\n"
-                    )
-                    raise RuntimeError
-                if self.FF.amoeba_pol == "mutual":
-                    self.mmopts["polarization"] = "mutual"
-                    self.mmopts.setdefault(
-                        "mutualInducedTargetEpsilon",
-                        self.FF.amoeba_eps if self.FF.amoeba_eps is not None else 1e-6,
-                    )
-                    self.mmopts["mutualInducedMaxIterations"] = 500
-                elif self.FF.amoeba_pol == "direct":
-                    self.mmopts["polarization"] = "direct"
             self.mmopts["rigidWater"] = self.FF.rigid_water
             if self.FF.constrain_h is True:
                 self.mmopts["constraints"] = HBonds
@@ -828,7 +813,7 @@ class OpenMM(Engine):
             # LPW: THIS CAUSES ISSUES! (AMOEBA system refuses to be created)
             # self.mmopts.setdefault('nonbondedMethod', CutoffPeriodic)
             self.mmopts.setdefault("nonbondedMethod", PME)
-            if self.AMOEBA:
+            if False:
                 nonbonded_cutoff = kwargs.get("nonbonded_cutoff", 7.0)
                 vdw_cutoff = kwargs.get("nonbonded_cutoff", 8.5)
                 vdw_cutoff = kwargs.get("vdw_cutoff", vdw_cutoff)

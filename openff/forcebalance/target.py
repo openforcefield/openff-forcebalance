@@ -39,7 +39,7 @@ from openff.forcebalance.output import getLogger
 logger = getLogger(__name__)
 
 
-class Target(abc.ABCMeta, BaseClass):
+class Target(abc.ABC, BaseClass):
 
     """
     Base class for all fitting targets.

@@ -1739,7 +1739,6 @@ class Molecule:
             "qcout": self.read_qcout,
             "qcesp": self.read_qcesp,
             "qdata": self.read_qdata,
-            "tinker": self.read_arc,
             "psi4in": self.read_psi4in,
             "psi4out": self.read_psi4out,
         }
@@ -1755,7 +1754,6 @@ class Molecule:
             "pdb": self.write_pdb,
             "qcin": self.write_qcin,
             "qdata": self.write_qdata,
-            "tinker": self.write_arc,
             "psi4in": self.write_psi4in,
         }
         ## A funnel dictionary that takes redundant file types
@@ -3786,10 +3784,7 @@ class Molecule:
 
     def read_xyz(self, fnm, **kwargs):
         """.xyz files can be TINKER formatted which is why we have the try/except here."""
-        try:
-            return self.read_xyz0(fnm, **kwargs)
-        except ActuallyArcError:
-            return self.read_arc(fnm, **kwargs)
+        return self.read_xyz0(fnm, **kwargs)
 
     def read_xyz0(self, fnm, **kwargs):
         """Parse a .xyz file which contains several xyz coordinates, and return their elements.
@@ -5656,30 +5651,6 @@ class Molecule:
                     ]
                 )
             )
-        return out
-
-    def write_arc(self, selection, **kwargs):
-        self.require("elem", "xyzs")
-        out = []
-        for I in selection:
-            xyz = self.xyzs[I]
-            out.append("%6i  %s" % (self.na, self.comms[I]))
-            if "boxes" in self.Data:
-                b = self.boxes[I]
-                out.append(
-                    " {:11.6f} {:11.6f} {:11.6f} {:11.6f} {:11.6f} {:11.6f}".format(
-                        b.a, b.b, b.c, b.alpha, b.beta, b.gamma
-                    )
-                )
-            for i in range(self.na):
-                out.append(
-                    "%6i  %s%s"
-                    % (
-                        i + 1,
-                        format_xyz_coord(self.elem[i], xyz[i], tinker=True),
-                        self.tinkersuf[i] if "tinkersuf" in self.Data else "",
-                    )
-                )
         return out
 
     def write_gro(self, selection, **kwargs):
