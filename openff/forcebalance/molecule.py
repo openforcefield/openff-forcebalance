@@ -7,15 +7,20 @@ import sys
 from collections import Counter, OrderedDict, namedtuple
 from ctypes import *
 from datetime import date
+from itertools import zip_longest as zip_longest
 
 import numpy as np
-import openmm.unit
 from numpy import arccos, cos, sin
 from numpy.linalg import multi_dot
 from openmm import *
 from openmm.app import *
+from openmm.unit import *
 from pkg_resources import parse_version
 
+try:
+    input = raw_input
+except NameError:
+    pass
 
 # Special error which is thrown when TINKER .arc data is detected in a .xyz file
 class ActuallyArcError(IOError):
@@ -124,9 +129,6 @@ class ActuallyArcError(IOError):
 # qm_grads   = List of arrays of gradients (i.e. negative of the atomistic forces) from QM calculations
 # qm_espxyzs = List of arrays of xyz coordinates for ESP evaluation
 # qm_espvals = List of arrays of ESP values
-# qm_zpe     = Zero point energy, kcal/mol (from a qchem freq calculation)
-# qm_entropy = Entropy contribution at STP, cal/mol.K (from a qchem freq calculation)
-# qm_enthalpy= Enthalpic contribution at STP, excluding electronic energy and ZPE, kcal/mol (from a qchem freq calculation)
 
 FrameVariableNames = {
     "xyzs",
@@ -155,7 +157,6 @@ FrameVariableNames = {
 # partial_charge = List of atomic partial charges
 # atomname   = List of atom names (can come from MM coordinate file)
 # atomtype   = List of atom types (can come from MM force field)
-# tinkersuf  = String that comes after the XYZ coordinates in TINKER .xyz or .arc files
 # resid      = Residue IDs (can come from MM coordinate file)
 # resname    = Residue names
 # terminal   = List of true/false denoting whether this atom is followed by a terminal group.
@@ -164,7 +165,6 @@ AtomVariableNames = {
     "partial_charge",
     "atomname",
     "atomtype",
-    "tinkersuf",
     "resid",
     "resname",
     "qcsuf",
@@ -182,14 +182,11 @@ AtomVariableNames = {
 # =========================================#
 # bonds      = A list of 2-tuples representing bonds.  Carefully pruned when atom subselection is done.
 # fnm        = The file name that the class was built from
-# qcrems     = The Q-Chem 'rem' variables stored as a list of OrderedDicts
-# qctemplate = The Q-Chem template file, not including the coordinates or rem variables
 # charge     = The net charge of the molecule
 # mult       = The spin multiplicity of the molecule
 MetaVariableNames = {
     "fnm",
     "ftype",
-    "qcrems",
     "qctemplate",
     "qcerr",
     "charge",
@@ -197,22 +194,15 @@ MetaVariableNames = {
     "bonds",
     "topology",
     "molecules",
-    "psi4template",
-    "psi4fragn",
-    "psi4args",
 }
 # Variable names relevant to quantum calculations explicitly
 QuantumVariableNames = {
-    "qcrems",
     "qctemplate",
     "charge",
     "mult",
     "qcsuf",
     "qm_ghost",
     "qm_bondorder",
-    "psi4template",
-    "psi4fragn",
-    "psi4args",
 }
 # Superset of all variable names.
 AllVariableNames = (
@@ -653,14 +643,6 @@ if "forcebalance" in __name__:
         logger.debug(
             "Note: Cannot import optional pdb module to read/write PDB files.\n"
         )
-
-    # =============================#
-    # | Mol2 read/write functions |#
-    # =============================#
-    try:
-        from . import Mol2
-    except ImportError:
-        logger.debug("Note: Cannot import optional Mol2 module to read .mol2 files.\n")
 elif "geometric" in __name__:
     # ============================#
     # | PDB read/write functions |#
@@ -907,30 +889,6 @@ except ImportError:
     logger.warning(
         "Cannot import optional NetworkX module, topology tools won't work\n."
     )
-
-
-def TopEqual(mol1, mol2):
-    """For the nanoreactor project: Determine whether two Molecule objects have the same topologies."""
-    # Checks to see if the two molecule objects have the same fragments.
-    GraphEqual = Counter(mol1.molecules) == Counter(mol2.molecules)
-    # Checks to see whether the molecule objects have the same atoms in each fragment.
-    AtomEqual = Counter([tuple(m.L()) for m in mol1.molecules]) == Counter(
-        [tuple(m.L()) for m in mol2.molecules]
-    )
-    return GraphEqual and AtomEqual
-
-
-def MolEqual(mol1, mol2):
-    """
-    Determine whether two Molecule objects have the same fragments by
-    looking at elements and connectivity graphs.  This is less strict
-    than TopEqual (i.e. more often returns True).
-    """
-    if mol1.na != mol2.na:
-        return False
-    if Counter(mol1.elem) != Counter(mol2.elem):
-        return False
-    return Counter(mol1.molecules) == Counter(mol2.molecules)
 
 
 def format_xyz_coord(element, xyz, tinker=False):
@@ -1725,36 +1683,22 @@ class Molecule:
         # =========================================#
         ## The table of file readers
         self.Read_Tab = {
-            "gaussian": self.read_com,
             "gromacs": self.read_gro,
             "charmm": self.read_charmm,
-            "dcd": self.read_dcd,
-            "mdcrd": self.read_mdcrd,
-            "inpcrd": self.read_inpcrd,
             "pdb": self.read_pdb,
             "xyz": self.read_xyz,
             "qcschema": self.read_qcschema,
-            "mol2": self.read_mol2,
-            "qcin": self.read_qcin,
-            "qcout": self.read_qcout,
             "qcesp": self.read_qcesp,
             "qdata": self.read_qdata,
-            "psi4in": self.read_psi4in,
-            "psi4out": self.read_psi4out,
         }
         ## The table of file writers
         self.Write_Tab = {
             "gromacs": self.write_gro,
             "xyz": self.write_xyz,
             "lammps": self.write_lammps_data,
-            "molproq": self.write_molproq,
-            "dcd": self.write_dcd,
-            "inpcrd": self.write_inpcrd,
-            "mdcrd": self.write_mdcrd,
             "pdb": self.write_pdb,
             "qcin": self.write_qcin,
             "qdata": self.write_qdata,
-            "psi4in": self.write_psi4in,
         }
         ## A funnel dictionary that takes redundant file types
         ## and maps them down to a few.
@@ -1765,16 +1709,6 @@ class Molecule:
             "gmx": "gromacs",
             "in": "qcin",
             "qcin": "qcin",
-            "com": "gaussian",
-            "rst": "inpcrd",
-            "out": "qcout",
-            "esp": "qcesp",
-            "txt": "qdata",
-            "crd": "charmm",
-            "cor": "charmm",
-            "arc": "tinker",
-            "psi4in": "psi4in",
-            "psi4out": "psi4out",
         }
         ## Creates entries like 'gromacs' : 'gromacs' and 'xyz' : 'xyz'
         ## in the Funnel
@@ -1954,7 +1888,6 @@ class Molecule:
                 "partial_charge",
                 "atomname",
                 "atomtype",
-                "tinkersuf",
                 "resid",
                 "resname",
                 "qcsuf",
@@ -1963,8 +1896,6 @@ class Molecule:
                 "altloc",
                 "icode",
                 "terminal",
-                "psi4template",
-                "psi4fragn",
             ]:
                 if not isinstance(self.Data[key], list):
                     raise RuntimeError(
@@ -1989,11 +1920,6 @@ class Molecule:
                 New.Data[key] = []
                 for SectName, SectData in self.Data[key]:
                     New.Data[key].append((SectName, SectData[:]))
-            elif key in ["psi4args"]:
-                # Dictionary with items of a list and another dictionary
-                New.Data[key] = {}
-                for k, v in self.Data[key].items():
-                    New.Data[key][k] = v
             else:
                 raise RuntimeError("Failed to copy key %s" % key)
         return New
@@ -2428,22 +2354,6 @@ class Molecule:
                 ]
             else:
                 self.comms = [i.expandtabs() for i in self.comms]
-
-    def edit_qcrems(self, in_dict, subcalc=None):
-        """Edit Q-Chem rem variables with a dictionary.  Pass a value of None to delete a rem variable."""
-        if subcalc is None:
-            for qcrem in self.qcrems:
-                for key, val in in_dict.items():
-                    if val is None:
-                        qcrem.pop(key, None)
-                    else:
-                        qcrem[key] = val
-        else:
-            for key, val in in_dict.items():
-                if val is None:
-                    self.qcrems[subcalc].pop(key, None)
-                else:
-                    self.qcrems[subcalc][key] = val
 
     def add_quantum(self, other):
         if type(other) is Molecule:
@@ -3862,113 +3772,6 @@ class Molecule:
         Answer = {"elem": elem, "xyzs": xyzs, "comms": comms}
         return Answer
 
-    def read_mdcrd(self, fnm, **kwargs):
-        """Parse an AMBER .mdcrd file.  This requires at least the number of atoms.
-        This will FAIL for monatomic trajectories (but who the heck makes those?)
-
-        @param[in] fnm The input file name
-        @return xyzs  A list of XYZ coordinates (number of snapshots times number of atoms)
-        @return boxes Boxes (if present.)
-
-        """
-        self.require("na")
-        xyz = []
-        xyzs = []
-        boxes = []
-        ln = 0
-        for line in open(fnm):
-            sline = line.split()
-            if ln == 0:
-                pass
-            else:
-                if xyz == [] and len(sline) == 3:
-                    a, b, c = (float(i) for i in line.split())
-                    boxes.append(
-                        BuildLatticeFromLengthsAngles(a, b, c, 90.0, 90.0, 90.0)
-                    )
-                else:
-                    xyz += [float(i) for i in line.split()]
-                    if len(xyz) == self.na * 3:
-                        xyzs.append(np.array(xyz).reshape(-1, 3))
-                        xyz = []
-            ln += 1
-        Answer = {"xyzs": xyzs}
-        if len(boxes) > 0:
-            Answer["boxes"] = boxes
-        return Answer
-
-    def read_inpcrd(self, fnm, **kwargs):
-        """Parse an AMBER .inpcrd or .rst file.
-
-        @param[in] fnm The input file name
-        @return xyzs  A list of XYZ coordinates (number of snapshots times number of atoms)
-        @return boxes Boxes (if present.)
-
-        """
-        xyz = []
-        xyzs = []
-        # We read in velocities but never use them.
-        vel = []
-        vels = []
-        boxes = []
-        ln = 0
-        an = 0
-        mode = "x"
-        for line in open(fnm):
-            line = line.replace("\n", "")
-            if ln == 0:
-                comms = [line]
-            elif ln == 1:
-                # Although is isn't exactly up to spec,
-                # it seems that some .rst7 files have spaces that precede the "integer"
-                # and others have >99999 atoms
-                # na = int(line[:5])
-                na = int(line.split()[0])
-            elif mode == "x":
-                xyz.append([float(line[:12]), float(line[12:24]), float(line[24:36])])
-                an += 1
-                if an == na:
-                    xyzs.append(np.array(xyz))
-                    mode = "v"
-                    an = 0
-                if len(line) > 36:
-                    xyz.append(
-                        [float(line[36:48]), float(line[48:60]), float(line[60:72])]
-                    )
-                    an += 1
-                    if an == na:
-                        xyzs.append(np.array(xyz))
-                        mode = "v"
-                        an = 0
-            elif mode == "v":
-                vel.append([float(line[:12]), float(line[12:24]), float(line[24:36])])
-                an += 1
-                if an == na:
-                    vels.append(np.array(vel))
-                    mode = "b"
-                    an = 0
-                if len(line) > 36:
-                    vel.append(
-                        [float(line[36:48]), float(line[48:60]), float(line[60:72])]
-                    )
-                    an += 1
-                    if an == na:
-                        vels.append(np.array(vel))
-                        mode = "b"
-                        an = 0
-            elif mode == "b":
-                a, b, c = (float(line[:12]), float(line[12:24]), float(line[24:36]))
-                boxes.append(BuildLatticeFromLengthsAngles(a, b, c, 90.0, 90.0, 90.0))
-            ln += 1
-        # If there is only one velocity, then it should actually be a periodic box.
-        if len(vel) == 1:
-            a, b, c = vel[0]
-            boxes.append(BuildLatticeFromLengthsAngles(a, b, c, 90.0, 90.0, 90.0))
-        Answer = {"xyzs": xyzs, "comms": comms}
-        if len(boxes) > 0:
-            Answer["boxes"] = boxes
-        return Answer
-
     def read_qdata(self, fnm, **kwargs):
         xyzs = []
         energies = []
@@ -4011,145 +3814,6 @@ class Molecule:
             Answer["qm_espxyzs"] = espxyzs
         if len(espvals) > 0:
             Answer["qm_espvals"] = espvals
-        return Answer
-
-    def read_mol2(self, fnm, **kwargs):
-        xyz = []
-        charge = []
-        atomname = []
-        atomtype = []
-        elem = []
-        resname = []
-        resid = []
-        data = Mol2.mol2_set(fnm)
-        if len(data.compounds) > 1:
-            sys.stderr.write(
-                "Not sure what to do if the MOL2 file contains multiple compounds\n"
-            )
-        for i, atom in enumerate(list(data.compounds.items())[0][1].atoms):
-            xyz.append([atom.x, atom.y, atom.z])
-            charge.append(atom.charge)
-            atomname.append(atom.atom_name)
-            atomtype.append(atom.atom_type)
-            resname.append(atom.subst_name)
-            resid.append(atom.subst_id)
-            thiselem = atom.atom_name
-            if len(thiselem) > 1:
-                thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
-            elem.append(thiselem)
-
-        # resname = [list(data.compounds.items())[0][0] for i in range(len(elem))]
-        # resid = [1 for i in range(len(elem))]
-
-        # Deprecated 'abonds' format.
-        # bonds    = [[] for i in range(len(elem))]
-        # for bond in data.compounds.items()[0][1].bonds:
-        #     a1 = bond.origin_atom_id - 1
-        #     a2 = bond.target_atom_id - 1
-        #     aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
-        #     bonds[aL].append(aH)
-
-        bonds = []
-        for bond in list(data.compounds.items())[0][1].bonds:
-            a1 = bond.origin_atom_id - 1
-            a2 = bond.target_atom_id - 1
-            aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
-            bonds.append((aL, aH))
-
-        self.top_settings["read_bonds"] = True
-        Answer = {
-            "xyzs": [np.array(xyz)],
-            "partial_charge": charge,
-            "atomname": atomname,
-            "atomtype": atomtype,
-            "elem": elem,
-            "resname": resname,
-            "resid": resid,
-            "bonds": bonds,
-        }
-
-        return Answer
-
-    def read_dcd(self, fnm, **kwargs):
-        xyzs = []
-        boxes = []
-        if _dcdlib.vmdplugin_init() != 0:
-            logger.error("Unable to init DCD plugin\n")
-            raise OSError
-        natoms = c_int(-1)
-        frame = 0
-        dcd = _dcdlib.open_dcd_read(fnm, "dcd", byref(natoms))
-        ts = MolfileTimestep()
-        _xyz = c_float * (natoms.value * 3)
-        xyzvec = _xyz()
-        ts.coords = xyzvec
-        while True:
-            result = _dcdlib.read_next_timestep(dcd, natoms, byref(ts))
-            if result == 0:
-                frame += 1
-            elif result == -1:
-                break
-            # npa    = np.array(xyzvec)
-            xyz = np.asfarray(xyzvec)
-            xyzs.append(xyz.reshape(-1, 3))
-            boxes.append(
-                BuildLatticeFromLengthsAngles(ts.A, ts.B, ts.C, 90.0, 90.0, 90.0)
-            )
-        _dcdlib.close_file_read(dcd)
-        dcd = None
-        Answer = {"xyzs": xyzs, "boxes": boxes}
-        return Answer
-
-    def read_com(self, fnm, **kwargs):
-        """Parse a Gaussian .com file and return a SINGLE-ELEMENT list of xyz coordinates (no multiple file support)
-
-        @param[in] fnm The input file name
-        @return elem   A list of chemical elements in the XYZ file
-        @return comms  A single-element list for the comment.
-        @return xyzs   A single-element list for the  XYZ coordinates.
-        @return charge The total charge of the system.
-        @return mult   The spin multiplicity of the system.
-
-        """
-        elem = []
-        xyz = []
-        ln = 0
-        absln = 0
-        comfile = open(fnm).readlines()
-        inxyz = 0
-        for line in comfile:
-            line = line.strip().expandtabs()
-            # Everything after exclamation point is a comment
-            sline = line.split("!")[0].split()
-            if len(sline) == 2:
-                if isint(sline[0]) and isint(sline[1]):
-                    charge = int(sline[0])
-                    mult = int(sline[1])
-                    title_ln = ln - 2
-            elif len(sline) == 4:
-                inxyz = 1
-                if (
-                    sline[0].capitalize() in PeriodicTable
-                    and isfloat(sline[1])
-                    and isfloat(sline[2])
-                    and isfloat(sline[3])
-                ):
-                    elem.append(sline[0])
-                    xyz.append(
-                        np.array([float(sline[1]), float(sline[2]), float(sline[3])])
-                    )
-            elif inxyz:
-                break
-            ln += 1
-            absln += 1
-
-        Answer = {
-            "xyzs": [np.array(xyz)],
-            "elem": elem,
-            "comms": [comfile[title_ln].strip()],
-            "charge": charge,
-            "mult": mult,
-        }
         return Answer
 
     def read_gro(self, fnm, **kwargs):
@@ -4296,166 +3960,6 @@ class Molecule:
         }
         return Answer
 
-    def read_qcin(self, fnm, **kwargs):
-        """Read a Q-Chem input file.
-
-        These files can be very complicated, and I can't write a completely
-        general parser for them.  It is important to keep our goal in
-        mind:
-
-        1) The main goal is to convert a trajectory to Q-Chem input
-        files with identical calculation settings.
-
-        2) When we print the Q-Chem file, we should preserve the line
-        ordering of the 'rem' section, but also be able to add 'rem'
-        options at the end.
-
-        3) We should accommodate the use case that the Q-Chem file may have
-        follow-up calculations delimited by '@@@'.
-
-        4) We can read in all of the xyz's as a trajectory, but only the
-        Q-Chem settings belonging to the first xyz will be saved.
-
-        """
-
-        qcrem = OrderedDict()
-        qcrems = []
-        xyz = []
-        xyzs = []
-        elem = []
-        section = None
-        # The Z-matrix printing in new versions throws me off.
-        # This could appear at the end of an optimization.
-        # We detect when "Z-matrix Print" appears and skip the
-        # section that follows.
-        zmatrix = False
-        template = []
-        fff = False
-        inside_section = False
-        reading_template = True
-        charge = 0
-        mult = 0
-        Answer = {}
-        SectionData = []
-        template_cut = 0
-        readsuf = True
-        suffix = (
-            []
-        )  # The suffix, which comes after every atom line in the $molecule section, is for determining the MM atom type and topology.
-        ghost = (
-            []
-        )  # If the element in the $molecule section is preceded by an '@' sign, it's a ghost atom for counterpoise calculations.
-        infsm = False
-
-        for line in open(fnm).readlines():
-            line = line.strip().expandtabs()
-            sline = line.split()
-            dline = line.split("!")[0].split()
-            if "Z-matrix Print" in line:
-                zmatrix = True
-            if re.match(r"^\$", line):
-                wrd = re.sub(r"\$", "", line).lower()
-                if zmatrix:
-                    if wrd == "end":
-                        zmatrix = False
-                else:
-                    if wrd == "end":
-                        inside_section = False
-                        if section == "molecule":
-                            if len(xyz) > 0:
-                                xyzs.append(np.array(xyz))
-                            xyz = []
-                            fff = True
-                            if suffix:
-                                readsuf = False
-                        elif section == "rem":
-                            if reading_template:
-                                qcrems.append(qcrem)
-                                qcrem = OrderedDict()
-                        if reading_template:
-                            if (
-                                section != "external_charges"
-                            ):  # Ignore the external charges section because it varies from frame to frame.
-                                template.append((section, SectionData))
-                        SectionData = []
-                    else:
-                        section = wrd
-                        inside_section = True
-            elif inside_section:
-                if zmatrix:
-                    raise RuntimeError(
-                        "Parse error - zmatrix should not activate inside_section"
-                    )
-                if section == "molecule":
-                    if line.startswith("*"):
-                        infsm = True
-                    if (not infsm) and (
-                        len(dline) >= 4
-                        and all([isfloat(dline[i]) for i in range(1, 4)])
-                    ):
-                        if fff:
-                            reading_template = False
-                            template_cut = list(
-                                i for i, dat in enumerate(template) if "@@@" in dat[0]
-                            )[-1]
-                        else:
-                            if re.match("^@", sline[0]):  # This is a ghost atom
-                                ghost.append(True)
-                            else:
-                                ghost.append(False)
-                            elem.append(re.sub("@", "", sline[0]))
-                        xyz.append([float(i) for i in sline[1:4]])
-                        if readsuf and len(sline) > 4:
-                            whites = re.split("[^ ]+", line)
-                            suffix.append(
-                                "".join(
-                                    [whites[j] + sline[j] for j in range(4, len(sline))]
-                                )
-                            )
-                    elif re.match("[+-]?[0-9]+ +[0-9]+$", line.split("!")[0].strip()):
-                        if not fff:
-                            charge = int(sline[0])
-                            mult = int(sline[1])
-                    else:
-                        SectionData.append(line)
-                elif reading_template:
-                    if section == "basis":
-                        SectionData.append(line.split("!")[0])
-                    elif section == "rem":
-                        S = splitter.findall(line)
-                        if S[0] == "!":
-                            qcrem["".join(S[0:3]).lower()] = "".join(S[4:])
-                        else:
-                            qcrem[S[0].lower()] = "".join(S[2:])
-                    else:
-                        SectionData.append(line)
-            elif re.match("^@+$", line) and reading_template:
-                template.append(("@@@", []))
-            elif re.match("Welcome to Q-Chem", line) and reading_template and fff:
-                template.append(("@@@", []))
-
-        if template_cut != 0:
-            template = template[:template_cut]
-
-        Answer = {
-            "qctemplate": template,
-            "qcrems": qcrems,
-            "charge": charge,
-            "mult": mult,
-        }
-        if suffix:
-            Answer["qcsuf"] = suffix
-
-        if len(xyzs) > 0:
-            Answer["xyzs"] = xyzs
-        else:
-            Answer["xyzs"] = [np.array([])]
-        if len(elem) > 0:
-            Answer["elem"] = elem
-        if len(ghost) > 0:
-            Answer["qm_ghost"] = ghost
-        return Answer
-
     def read_pdb(self, fnm, **kwargs):
         """Loads a PDB and returns a dictionary containing its data."""
 
@@ -4584,774 +4088,12 @@ class Molecule:
         }
         return Answer
 
-    def read_qcout(self, fnm, errok=None, **kwargs):
-        """Q-Chem output file reader, adapted for our parser.
-
-        Q-Chem output files are very flexible and there's no way I can account for all of them.  Here's what
-        I am able to account for:
-
-        A list of:
-        - Coordinates
-        - Energies
-        - Forces
-
-        Calling with errok will proceed with reading file even if the specified error messages are encountered.
-
-        Note that each step in a geometry optimization counts as a frame.
-
-        As with all Q-Chem output files, note that successive calculations can have different numbers of atoms.
-
-        """
-
-        if errok is None:
-            errok = []
-        Answer = {}
-        xyzs = []
-        xyz = []
-        elem = []
-        elemThis = []
-        mkchg = []
-        mkspn = []
-        mkchgThis = []
-        mkspnThis = []
-        frqs = []
-        modes = []
-        XMode = 0
-        MMode = 0
-        VMode = 0
-        conv = []
-        energy_scf = []
-        float_match = {
-            "energy_scfThis": (
-                r"^[1-9][0-9]* +[-+]?([0-9]*\.)?[0-9]+ +[-+]?([0-9]*\.)?[0-9]+([eE][-+]?[0-9]+)[A-Za-z0 ]*$",
-                1,
-            ),
-            "energy_opt": (r"^Final energy is +[-+]?([0-9]*\.)?[0-9]+$", -1),
-            "charge": ("Sum of atomic charges", -1),
-            "mult": ("Sum of spin +charges", -1),
-            "energy_mp2": (
-                r"^(ri)*(-)*mp2 +total energy += +[-+]?([0-9]*\.)?[0-9]+ +au$",
-                -2,
-            ),
-            "energy_ccsd": (r"^CCSD Total Energy += +[-+]?([0-9]*\.)?[0-9]+$", -1),
-            "energy_ccsdt": (
-                r"^CCSD\(T\) Total Energy += +[-+]?([0-9]*\.)?[0-9]+$",
-                -1,
-            ),
-            "zpe": (
-                r"^(\s+)?Zero point vibrational energy:\s+[-+]?([0-9]*\.)?[0-9]+\s+kcal\/mol$",
-                -2,
-            ),
-            "entropy": (
-                r"^(\s+)?Total Entropy:\s+[-+]?([0-9]*\.)?[0-9]+\s+cal\/mol\.K$",
-                -2,
-            ),
-            "enthalpy": (
-                r"^(\s+)?Total Enthalpy:\s+[-+]?([0-9]*\.)?[0-9]+\s+kcal\/mol$",
-                -2,
-            ),
-        }
-        matrix_match = {
-            "analytical_grad": "Full Analytical Gradient",
-            "gradient_scf": "Gradient of SCF Energy",
-            "gradient_mp2": "Gradient of MP2 Energy",
-            "gradient_dualbas": "Gradient of the Dual-Basis Energy",
-            "hessian_scf": "Hessian of the SCF Energy",
-            "mayer": "Mayer SCF Bond Order",
-        }
-        OrderedDict()
-
-        matblank = {"match": "", "All": [], "This": [], "Strip": [], "Mode": 0}
-        Mats = {}
-        Floats = {}
-        for key, val in matrix_match.items():
-            Mats[key] = copy.deepcopy(matblank)
-        for key, val in float_match.items():
-            Floats[key] = []
-
-        ## Detect freezing string
-        FSM = False
-        ## Intrinsic reaction coordinate stuff
-        IRCDir = 0
-        RPLine = False
-        ## Finite difference stuff
-        FDiff = False
-        # ---- Intrinsic reaction coordinate data.
-        # stat: Status, X : Coordinates, E : Energies, Q : Charges, Sz: Spin-Z
-        # Explanation of Status:
-        # -1 : IRC calculation does not exist in this direction.
-        #  0 : IRC calculation finished successfully.
-        #  1 : IRC calculation did not finish but we can start a geometry optimization from the final point.
-        #  2 : IRC calculation failed in this direction (i.e. set to 2 once we encounter first_irc_step).
-        # Two dictionaries of coordinates, energies, Mulliken Charges and Spin Populations.
-        IRCData = [
-            OrderedDict([("stat", -1), ("X", []), ("E", []), ("Q", []), ("Sz", [])])
-            for i in range(2)
-        ]
-
-        Answer["qcerr"] = ""
-        fatal = 0
-        pcmgradmode = False
-        pcmgrads = []
-        pcmgrad = []
-        for line in open(fnm):
-            line = line.strip().expandtabs()
-            if "Welcome to Q-Chem" in line:
-                Answer["qcerr"] = ""
-            if "total processes killed" in line:
-                Answer["qcerr"] = "killed"
-            if fatal and len(line.split()) > 0:
-                # Print the error message that comes after the "fatal error" line.
-                if line in errok:
-                    Answer["qcerr"] = line.strip()
-                    fatal = 0
-                else:
-                    logger.error("Calculation encountered a fatal error! (%s)\n" % line)
-                    raise RuntimeError
-            if "Q-Chem fatal error" in line:
-                fatal = 1
-            if XMode >= 1:
-                # Perfectionist here; matches integer, element, and three floating points
-                if re.match(
-                    r"^[0-9]+ +[A-Z][A-Za-z]?( +[-+]?([0-9]*\.)?[0-9]+){3}$", line
-                ):
-                    XMode = 2
-                    sline = line.split()
-                    elemThis.append(sline[1])
-                    xyz.append([float(i) for i in sline[2:]])
-                elif (
-                    XMode == 2
-                ):  # Break out of the loop if we encounter anything other than atomic data
-                    if not elem:
-                        elem = elemThis
-                    elif elem != elemThis:
-                        logger.error(
-                            "Q-Chem output parser will not work if successive calculations have different numbers of atoms!\n"
-                        )
-                        raise RuntimeError
-                    elemThis = []
-                    xyzs.append(np.array(xyz))
-                    xyz = []
-                    XMode = 0
-            elif re.match("Standard Nuclear Orientation".lower(), line.lower()):
-                XMode = 1
-            if MMode >= 1:
-                # Perfectionist here; matches integer, element, and two floating points
-                if re.match(
-                    r"^[0-9]+ +[A-Z][a-z]?( +[-+]?([0-9]*\.)?[0-9]+){2}$", line
-                ):
-                    MMode = 2
-                    sline = line.split()
-                    mkchgThis.append(float(sline[2]))
-                    mkspnThis.append(float(sline[3]))
-                elif re.match(
-                    r"^[0-9]+ +[A-Z][a-z]?( +[-+]?([0-9]*\.)?[0-9]+){1}$", line
-                ):
-                    MMode = 2
-                    sline = line.split()
-                    mkchgThis.append(float(sline[2]))
-                    mkspnThis.append(0.0)
-                elif (
-                    MMode == 2
-                ):  # Break out of the loop if we encounter anything other than Mulliken charges
-                    mkchg.append(mkchgThis[:])
-                    mkspn.append(mkspnThis[:])
-                    mkchgThis = []
-                    mkspnThis = []
-                    MMode = 0
-            elif re.match(
-                "Ground-State Mulliken Net Atomic Charges".lower(), line.lower()
-            ):
-                MMode = 1
-            for key, val in float_match.items():
-                if re.match(val[0].lower(), line.lower()):
-                    Floats[key].append(float(line.split()[val[1]]))
-            # ----- Begin Intrinsic reaction coordinate stuff
-            if line.startswith("IRC") and IRCData[IRCDir]["stat"] == -1:
-                IRCData[IRCDir]["stat"] = 2
-            if "Reaction path following." in line:
-                RPLine = True
-                IRCData[IRCDir]["X"].append(xyzs[-1])
-            ## Assumes the IRC energy comes right after the coordinates.
-            elif RPLine:
-                RPLine = False
-                IRCData[IRCDir]["E"].append(float(line.split()[3]))
-                IRCData[IRCDir]["Q"].append(mkchg[-1])
-                IRCData[IRCDir]["Sz"].append(mkspn[-1])
-            ## Geometry optimization info can also get appended to IRC data.
-            ## This is because my qchem.py script recovers IRC jobs
-            ## that have failed from SCF convergence failures with geometry optimizations.
-            if "GEOMETRY OPTIMIZATION" in line:
-                IRCData[IRCDir]["X"].append(xyzs[-1])
-                IRCData[IRCDir]["E"].append(energy_scf[-1])
-                IRCData[IRCDir]["Q"].append(mkchg[-1])
-                IRCData[IRCDir]["Sz"].append(mkspn[-1])
-            # Determine whether we are in the forward or the backward part of the IRC.
-            if (
-                "IRC -- convergence criterion reached." in line
-                or "OPTIMIZATION CONVERGED" in line
-            ):
-                IRCData[IRCDir]["stat"] = 0
-                IRCDir = 1
-            if "MAXIMUM OPTIMIZATION CYCLES REACHED" in line:
-                IRCData[IRCDir]["stat"] = 1
-            # Output file indicates whether we can start a geometry optimization from this point.
-            if "geom opt from" in line:
-                IRCData[IRCDir]["stat"] = 1
-                IRCDir = 1
-            # ----- End IRC stuff
-            # Look for SCF energy
-            # Note that COSMO has two SCF energies per calculation so this parser won't work.
-            # Need to think of a better way.
-            if re.match(".*Convergence criterion met$".lower(), line.lower()):
-                conv.append(1)
-                energy_scf.append(Floats["energy_scfThis"][-1])
-                Floats["energy_scfThis"] = []
-            elif re.match(".*Including correction$".lower(), line.lower()):
-                energy_scf[-1] = Floats["energy_scfThis"][-1]
-                Floats["energy_scfThis"] = []
-            elif re.match(".*Convergence failure$".lower(), line.lower()):
-                conv.append(0)
-                Floats["energy_scfThis"] = []
-                energy_scf.append(0.0)
-            # ----- If doing freezing string calculation, do NOT treat as a geometry optimization.
-            if "Starting FSM Calculation" in line:
-                FSM = True
-            if "needFdiff: TRUE" in line:
-                FDiff = True
-            # ----- Gradient from PCM
-            if "total gradient after adding PCM contribution" in line:
-                pcmgradmode = True
-            if pcmgradmode:
-                # Perfectionist here; matches integer, and three floating points
-                if re.match(r"^[0-9]+ +( +[-+]?([0-9]*\.)?[0-9]+){3}$", line):
-                    pcmgrad.append([float(i) for i in line.split()[1:]])
-                if "Gradient time" in line:
-                    pcmgradmode = False
-                    pcmgrads.append(np.array(pcmgrad).T)
-                    pcmgrad = []
-            # ----- Vibrational stuff
-            VModeNxt = None
-            if "VIBRATIONAL ANALYSIS" in line:
-                VMode = 1
-            if VMode > 0 and line.strip().startswith("Mode:"):
-                VMode = 2
-            if VMode == 2:
-                s = line.split()
-                if "Frequency:" in line:
-                    nfrq = len(s) - 1
-                    frqs += [float(i) for i in s[1:]]
-                if re.match("^X +Y +Z", line):
-                    VModeNxt = 3
-                    readmodes = [[] for i in range(nfrq)]
-                if "Imaginary Frequencies" in line:
-                    VMode = 0
-            if VMode == 3:
-                s = line.split()
-                if len(s) != nfrq * 3 + 1:
-                    VMode = 2
-                    modes += readmodes[:]
-                elif "TransDip" not in s:
-                    for i in range(nfrq):
-                        readmodes[i].append(
-                            [float(s[j]) for j in range(1 + 3 * i, 4 + 3 * i)]
-                        )
-            if VModeNxt is not None:
-                VMode = VModeNxt
-            for key, val in matrix_match.items():
-                if Mats[key]["Mode"] >= 1:
-                    # Match any number of integers on a line.  This signifies a column header to start the matrix
-                    if re.match("^[0-9]+( +[0-9]+)*$", line):
-                        Mats[key]["This"] = add_strip_to_mat(
-                            Mats[key]["This"], Mats[key]["Strip"]
-                        )
-                        Mats[key]["Strip"] = []
-                        Mats[key]["Mode"] = 2
-                    # Match a single integer followed by any number of floats.  This is a strip of data to be added to the matrix
-                    elif re.match(r"^[0-9]+( +[-+]?([0-9]*\.)?[0-9]+)+$", line):
-                        Mats[key]["Strip"].append([float(i) for i in line.split()[1:]])
-                    # In any other case, the matrix is terminated.
-                    elif Mats[key]["Mode"] >= 2:
-                        Mats[key]["This"] = add_strip_to_mat(
-                            Mats[key]["This"], Mats[key]["Strip"]
-                        )
-                        Mats[key]["Strip"] = []
-                        Mats[key]["All"].append(np.array(Mats[key]["This"]))
-                        Mats[key]["This"] = []
-                        Mats[key]["Mode"] = 0
-                elif re.match(val.lower(), line.lower()):
-                    Mats[key]["Mode"] = 1
-
-        if len(Floats["mult"]) == 0:
-            Floats["mult"] = [0]
-
-        # Copy out the coordinate lists; Q-Chem output cannot be trusted to get the chemical elements
-        Answer["xyzs"] = xyzs
-        Answer["elem"] = elem
-        # Read the output file as an input file to get a Q-Chem template.
-        Aux = self.read_qcin(fnm)
-        for i in ["qctemplate", "qcrems", "elem", "qm_ghost", "charge", "mult"]:
-            if i in Aux:
-                Answer[i] = Aux[i]
-        # Copy out the charge and multiplicity
-        if len(Floats["charge"]) > 0:
-            Answer["charge"] = int(Floats["charge"][0])
-        if len(Floats["mult"]) > 0:
-            Answer["mult"] = int(Floats["mult"][0]) + 1
-        # Copy out the energies and forces
-        # Q-Chem can print out gradients with several different headings.
-        # We start with the most reliable heading and work our way down.
-        if len(pcmgrads) > 0:
-            Answer["qm_grads"] = pcmgrads
-        elif len(Mats["analytical_grad"]["All"]) > 0:
-            Answer["qm_grads"] = Mats["analytical_grad"]["All"]
-        elif len(Mats["gradient_mp2"]["All"]) > 0:
-            Answer["qm_grads"] = Mats["gradient_mp2"]["All"]
-        elif len(Mats["gradient_dualbas"]["All"]) > 0:
-            Answer["qm_grads"] = Mats["gradient_dualbas"]["All"]
-        elif len(Mats["gradient_scf"]["All"]) > 0:
-            Answer["qm_grads"] = Mats["gradient_scf"]["All"]
-        # Mayer bond order matrix from SCF_FINAL_PRINT=1
-        if len(Mats["mayer"]["All"]) > 0:
-            Answer["qm_bondorder"] = Mats["mayer"]["All"]
-        if len(Mats["hessian_scf"]["All"]) > 0:
-            Answer["qm_hessians"] = Mats["hessian_scf"]["All"]
-        # else:
-        #    raise RuntimeError('There are no forces in %s' % fnm)
-        # Also work our way down with the energies.
-        if len(Floats["energy_ccsdt"]) > 0:
-            Answer["qm_energies"] = Floats["energy_ccsdt"]
-        elif len(Floats["energy_ccsd"]) > 0:
-            Answer["qm_energies"] = Floats["energy_ccsd"]
-        elif len(Floats["energy_mp2"]) > 0:
-            Answer["qm_energies"] = Floats["energy_mp2"]
-        elif len(energy_scf) > 0:
-            if (
-                len(Answer["qcrems"]) > 0
-                and "correlation" in Answer["qcrems"][0]
-                and Answer["qcrems"][0]["correlation"].lower()
-                in ["mp2", "rimp2", "ccsd", "ccsd(t)"]
-            ):
-                logger.error(
-                    "Q-Chem was called with a post-HF theory but we only got the SCF energy\n"
-                )
-                raise RuntimeError
-            Answer["qm_energies"] = energy_scf
-        elif "SCF failed to converge" not in errok:
-            logger.error("There are no energies in %s\n" % fnm)
-            raise RuntimeError
-        # Process ZPE, entropy, and enthalpy from a freq calculation
-        if len(Floats["zpe"]) > 0:
-            Answer["qm_zpe"] = Floats["zpe"]
-        if len(Floats["entropy"]) > 0:
-            Answer["qm_entropy"] = Floats["entropy"]
-        if len(Floats["enthalpy"]) > 0:
-            Answer["qm_enthalpy"] = Floats["enthalpy"]
-
-        #### Sanity checks
-        # We currently don't have a graceful way of dealing with SCF convergence failures in the output file.
-        # For instance, a failed calculation will have elem / xyz but no forces. :/
-        if 0 in conv and "SCF failed to converge" not in errok:
-            logger.error("SCF convergence failure encountered in parsing %s\n" % fnm)
-            raise RuntimeError
-        elif 0 not in conv:
-            # The molecule should have only one charge and one multiplicity
-            if len(set(Floats["charge"])) != 1 or len(set(Floats["mult"])) != 1:
-                logger.error(
-                    "Unexpected number of charges or multiplicities in parsing %s\n"
-                    % fnm
-                )
-                raise RuntimeError
-
-        # If we have any QM energies (not the case if SCF convergence failure)
-        if "qm_energies" in Answer:
-            # Catch the case of failed geometry optimizations.
-            if len(Answer["xyzs"]) == len(Answer["qm_energies"]) + 1:
-                Answer["xyzs"] = Answer["xyzs"][:-1]
-            # Catch the case of freezing string method, it prints out two extra coordinates.
-            if len(Answer["xyzs"]) == len(Answer["qm_energies"]) + 2:
-                for i in range(2):
-                    Answer["qm_energies"].append(0.0)
-                    mkchg.append([0.0 for j in mkchg[-1]])
-                    mkspn.append([0.0 for j in mkchg[-1]])
-            # Q-Chem 4.4 prints out three more coordinates.
-            if FSM and (len(Answer["xyzs"]) == len(Answer["qm_energies"]) + 3):
-                Answer["xyzs"] = Answer["xyz"][1:]
-                for i in range(2):
-                    Answer["qm_energies"].append(0.0)
-                    mkchg.append([0.0 for j in mkchg[-1]])
-                    mkspn.append([0.0 for j in mkchg[-1]])
-            if FDiff and (len(Answer["qm_energies"]) == (len(Answer["xyzs"]) + 1)):
-                logger.info(
-                    "Aligning energies because finite difference calculation prints one extra"
-                )
-                Answer["qm_energies"] = Answer["qm_energies"][:-1]
-            lens = [len(i) for i in (Answer["qm_energies"], Answer["xyzs"])]
-            if len(set(lens)) != 1:
-                logger.error(
-                    "The number of energies and coordinates in {} are not the same : {}\n".format(
-                        fnm, str(lens)
-                    )
-                )
-                raise RuntimeError
-
-        # The number of atoms should all be the same
-        if len({len(i) for i in Answer["xyzs"]}) > 1:
-            logger.error(
-                "The numbers of atoms across frames in %s are not all the same\n" % fnm
-            )
-            raise RuntimeError
-
-        if "qm_grads" in Answer:
-            for i, frc in enumerate(Answer["qm_grads"]):
-                Answer["qm_grads"][i] = frc.T
-            for i in np.where(np.array(conv) == 0)[0]:
-                Answer["qm_grads"].insert(i, Answer["qm_grads"][0] * 0.0)
-            if len(Answer["qm_grads"]) != len(Answer["qm_energies"]):
-                logger.warning(
-                    "Number of energies and gradients is inconsistent (composite jobs?)  Deleting gradients."
-                )
-                del Answer["qm_grads"]
-        # A strange peculiarity; Q-Chem sometimes prints out the final Mulliken charges a second time, after the geometry optimization.
-        if mkchg:
-            Answer["qm_mulliken_charges"] = list(np.array(mkchg))
-            for i in np.where(np.array(conv) == 0)[0]:
-                Answer["qm_mulliken_charges"].insert(
-                    i, np.array([0.0 for i in mkchg[-1]])
-                )
-            Answer["qm_mulliken_charges"] = Answer["qm_mulliken_charges"][
-                : len(Answer["qm_energies"])
-            ]
-        if mkspn:
-            Answer["qm_mulliken_spins"] = list(np.array(mkspn))
-            for i in np.where(np.array(conv) == 0)[0]:
-                Answer["qm_mulliken_spins"].insert(
-                    i, np.array([0.0 for i in mkspn[-1]])
-                )
-            Answer["qm_mulliken_spins"] = Answer["qm_mulliken_spins"][
-                : len(Answer["qm_energies"])
-            ]
-
-        Answer["Irc"] = IRCData
-        if len(modes) > 0:
-            unnorm = [np.array(i) for i in modes]
-            Answer["freqs"] = np.array(frqs)
-            Answer["modes"] = [i / np.linalg.norm(i) for i in unnorm]
-
-        return Answer
-
-    def read_psi4in(self, fnm, **kwargs):
-        """Written by John Stoppelman read in Psi4 input file.
-
-        Reads a Psi4 input file and forms a template (psi4template)
-
-        Mainly follows similar procedure as in geomeTRIC.engine.Psi4.load_psi4_input
-        and only works with xyz-style cartesian coordinates for now. There are a wide variety
-        of calculation types. The script can theoretically read in any type of Psi4 calculation
-        type, but read_psi4out is only designed to read the outputs of energy, gradient and
-        optimization calculation types.
-
-        A 'geomeTRIC' boolean can be passed in through kwargs in order to enforce geomeTRIC
-        checs to the input format.
-        """
-        elem, fragn, xyz, xyzs, charge, mult, psi4_template = [], [], [], [], [], [], []
-        geomeTRIC = kwargs.get("geomeTRIC", False)
-        units_conv = 1.0
-        (
-            found_molecule,
-            found_geo,
-            found_calc,
-            found_set,
-            found_symmetry,
-            found_no_reorient,
-            found_no_com,
-            read_temp,
-        ) = (False, False, False, False, False, False, False, True)
-        psi4_args = {"calc": [], "set": {}}
-        num_calcs = 0
-        for line in open(fnm):
-            if "molecule" in line:
-                found_molecule = True
-                if any("molecule" in i for i in psi4_template):
-                    read_temp = False
-                if read_temp:
-                    psi4_template.append(line.rstrip())
-            elif found_molecule is True:
-                ls = line.split()
-                if len(ls) == 4:
-                    if found_geo == False:
-                        found_geo = True
-                        if read_temp:
-                            psi4_template.append("$!geometry@here")
-                    if read_temp:
-                        elem.append(ls[0])
-                    xyz.append([float(i) for i in ls[1:4]])
-                elif len(ls) == 2 and isint(ls[0]):
-                    if read_temp:
-                        charge.append(int(ls[0]))
-                        mult.append(int(ls[1]))
-                elif "--" in line:
-                    if read_temp:
-                        fragn.append(len(elem))
-                elif "symmetry" in line:
-                    found_symmetry = True
-                    if read_temp:
-                        psi4_template.append(line.rstrip())
-                    if line.split()[1].lower() != "c1" and geomeTRIC:
-                        logger.error(
-                            "Input will used for geomeTRIC and symmetry must be set to c1"
-                        )
-                        raise RuntimeError
-                elif "no_reorient" in line or "noreorient" in line:
-                    found_no_reorient = True
-                    if read_temp:
-                        psi4_template.append(line.rstrip())
-                elif "no_com" in line or "nocom" in line:
-                    found_no_com = True
-                    if read_temp:
-                        psi4_template.append(line.rstrip())
-                elif "units" in line:
-                    if line.split()[1].lower()[:3] != "ang":
-                        units_conv = bohr2ang
-                    if read_temp:
-                        psi4_template.append(line.rstrip())
-                else:
-                    if "}" in line:
-                        found_molecule = False
-                        found_geo = False
-                        xyzs.append(np.array(xyz))
-                        xyz = []
-                        if read_temp:
-                            if geomeTRIC:
-                                if not found_no_com:
-                                    psi4_template.append("no_com")
-                                if not found_no_reorient:
-                                    psi4_template.append("no_reorient")
-                                if not found_symmetry:
-                                    psi4_template.append("symmetry c1")
-                    if read_temp:
-                        psi4_template.append(line.rstrip())
-            elif "set" in line and "_" not in line and "optking" not in line:
-                found_set = True
-                if not len(psi4_args["set"]):
-                    if read_temp:
-                        psi4_template.append("\nset globals{")
-                        psi4_template.append("$!set@here")
-                        psi4_template.append("}")
-                if "{" not in line:
-                    ls = line.split()
-                    if read_temp:
-                        psi4_args["set"][ls[1]] = ls[2:]
-                    found_set = False
-            elif found_set:
-                ls = line.split()
-                if read_temp:
-                    if len(ls) >= 2:
-                        psi4_args["set"][ls[0]] = ls[1:]
-                    if "}" in line:
-                        found_set = False
-            elif "energy(" in line or "gradient(" in line or "optimize(" in line:
-                found_calc = True
-                if read_temp:
-                    if num_calcs == 0:
-                        psi4_template.append("$!calc@here")
-                    num_calcs += 1
-                    psi4_args["calc"].append(line.rstrip())
-                    if geomeTRIC:
-                        if "gradient(" not in line:
-                            logger.error(
-                                "Calculation type should be gradient if running geomeTRIC calculation"
-                            )
-                            raise RuntimeError
-            # If this is an output file, don't read past the input file writeout
-            elif (
-                "--------------------------------------------------------------------------"
-                in line
-            ):
-                if any("molecule" in i for i in psi4_template):
-                    read_temp = False
-                else:
-                    psi4_template.append(line.rstrip())
-            else:
-                if read_temp:
-                    psi4_template.append(line.rstrip())
-        if found_calc == False:
-            logger.error("Psi4 input file should have a calculation type")
-            raise RuntimeError
-        if geomeTRIC and num_calcs > 1:
-            logger.error(
-                "geomeTRIC input should only have 1 input gradient calculation."
-            )
-            raise RuntimeError
-        for i in range(len(xyzs)):
-            xyzs[i] *= units_conv
-        Answer = {
-            "psi4template": psi4_template,
-            "psi4fragn": fragn,
-            "psi4args": psi4_args,
-        }
-        if len(xyzs) > 0:
-            Answer["xyzs"] = xyzs
-        else:
-            Answer["xyzs"] = [np.array([])]
-        if len(elem) > 0:
-            Answer["elem"] = elem
-        if not len(charge):
-            for i in range(len(fragn) + 1):
-                charge.append(0)
-        Answer["charge"] = charge
-        if not len(mult):
-            for i in range(len(fragn) + 1):
-                mult.append(1)
-        Answer["mult"] = mult
-        return Answer
-
-    def read_psi4out(self, fnm, **kwargs):
-        """
-        Written by John Stoppelman Read result from Psi4 output file. Can return outputs from energy, gradient
-        or optimization calculations. The script returns
-        - Coordinates
-        - Energies
-        - Gradients
-        Also makes a psi4template from the output file
-
-        Partly follows the procedure from geomeTRIC engine.Psi4.read_result
-        """
-        Answer = {}
-        (
-            xyz,
-            xyzs,
-            energy,
-            grad,
-            gradient,
-            cbs_energy,
-            cbs_xyzs,
-            cbs_gradient,
-            psi4_temp,
-        ) = ([], [], [], [], [], [], [], [], [])
-        found_scf, found_xyz, found_energy, found_grad, found_num_grad, found_cbs = (
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-        )
-        Tmp_Answ = self.read_psi4in(fnm)
-        # Remove sections before input file
-        psi4_temp = Tmp_Answ["psi4template"]
-        psi4_temp = psi4_temp[
-            psi4_temp.index(
-                "--------------------------------------------------------------------------"
-            )
-            + 1 :
-        ]
-        Tmp_Answ["psi4template"] = psi4_temp
-        for key, val in Tmp_Answ.items():
-            if key in [
-                "psi4template",
-                "psi4args",
-                "elem",
-                "charge",
-                "mult",
-                "psi4fragn",
-            ]:
-                Answer[key] = val
-        with open(fnm) as outfile:
-            for line in outfile:
-                line_strip = line.strip()
-                ls = line_strip.split()
-                if line_strip == "SCF" and not found_scf:
-                    found_scf, found_xyz = True, True
-                if found_xyz and len(ls) == 5:
-                    if isfloat(ls[1]) and isfloat(ls[2]) and isfloat(ls[3]):
-                        xyz.append([float(s) for s in ls[1:4]])
-                # Determines when out of SCF geometry section
-                if "Running in" in line:
-                    found_xyz = False
-                    xyzs.append(np.array(xyz))
-                    xyz = []
-                if line_strip.startswith("*"):
-                    # this works for CCSD and CCSD(T) total energy
-                    if len(ls) > 4 and ls[2] == "total" and ls[3] == "energy":
-                        # Remove HF energy that was appended to energy list
-                        energy.pop(-1)
-                        energy.append(float(ls[-1]))
-                        found_scf = False
-                elif line_strip.startswith("Total Energy"):
-                    # this works for DF-MP2 total energy
-                    if ls[-1] == "[Eh]":
-                        energy.pop(-1)
-                        energy.append(float(ls[-2]))
-                    else:
-                        # this works for HF and DFT total energy
-                        try:
-                            energy.append(float(ls[-1]))
-                        except:
-                            pass
-                    found_scf = False
-                elif line_strip.startswith("total"):
-                    if ls[1] == "CBS":
-                        found_cbs = True
-                        cbs_energy.append(float(ls[-1]))
-                        cbs_xyzs.append(xyzs[-1])
-                elif (
-                    line_strip == "-Total Gradient:"
-                    or line_strip == "-Total gradient:"
-                    or "CURRENT GRADIENT" in line
-                ):
-                    # this works for most of the analytic gradients
-                    found_grad = True
-                elif found_grad is True:
-                    if len(ls) == 4:
-                        if ls[0].isdigit():
-                            grad.append([float(g) for g in ls[1:4]])
-                    else:
-                        found_grad = False
-                        found_num_grad = False
-                        gradient.append(np.array(grad))
-                        if found_cbs:
-                            cbs_gradient.append(gradient[-1])
-                        grad = []
-                elif line_strip == "Gradient written.":
-                    # this works for CCSD(T) gradients computed by numerical displacements
-                    found_num_grad = True
-                    logger.info("found num grad\n")
-                elif found_num_grad is True and line_strip.startswith(
-                    "------------------------------"
-                ):
-                    for _ in range(4):
-                        line = next(outfile)
-                    found_grad = True
-        if found_cbs:
-            xyzs = cbs_xyzs
-            energy = cbs_energy
-            gradient = cbs_gradient
-        if len(xyzs) > 0:
-            Answer["xyzs"] = xyzs
-        else:
-            Answer["xyzs"] = [np.array([])]
-        if not energy:
-            logger.error("Psi4 output does not have energy result")
-            raise RuntimeError
-        Answer["qm_energies"] = energy
-        if gradient:
-            Answer["qm_grads"] = gradient
-        # Repeated from read_qcout
-        if "qm_grads" in Answer:
-            if len(energy) != len(gradient):
-                logger.warning(
-                    "Number of energies and gradients is inconsistent (composite jobs?)  Deleting gradients."
-                )
-                del Answer["qm_grads"]
-        return Answer
-
     # =====================================#
     # |         Writing functions         |#
     # =====================================#
 
     def write_qcin(self, selection, **kwargs):
-        self.require("qctemplate", "qcrems", "charge", "mult")
+        self.require("qctemplate", "charge", "mult")
         out = []
         if "read" in kwargs:
             read = kwargs["read"]
@@ -5448,35 +4190,6 @@ class Molecule:
             if I != selection[-1]:
                 out.append("@@@")
                 out.append("")
-        return out
-
-    def write_psi4in(self, selection, **kwargs):
-        self.require("psi4template", "psi4fragn", "psi4args", "charge", "mult")
-        out = []
-        opts = self.psi4args["set"]
-        calcs = self.psi4args["calc"]
-        for SI, I in enumerate(selection):
-            chg = 0
-            for i in self.psi4template:
-                if "$!geometry@here" in i:
-                    out.append(f" {self.charge[chg]}  {self.mult[chg]}")
-                    for i, (e, c) in enumerate(zip(self.elem, self.xyzs[I])):
-                        if i in self.psi4fragn:
-                            out.append("--")
-                            chg += 1
-                            out.append(f" {self.charge[chg]}  {self.mult[chg]}")
-                        out.append(f"{e:7s} {c[0]:13.7f} {c[1]:13.7f} {c[2]:13.7f}")
-                elif "$!set@here" in i:
-                    for key, vals in opts.items():
-                        opt = f" {key}"
-                        for j in vals:
-                            opt += f" {j}"
-                        out.append(opt)
-                elif "$!calc@here" in i:
-                    for c in range(len(calcs)):
-                        out.append(calcs[c])
-                else:
-                    out.append(i)
         return out
 
     def write_xyz(self, selection, **kwargs):
@@ -5586,22 +4299,6 @@ class Molecule:
             )
         return out
 
-    def write_molproq(self, selection, **kwargs):
-        self.require("xyzs", "partial_charge")
-        out = []
-        for I in selection:
-            xyz = self.xyzs[I]
-            # Comment comes first, then number of atoms.
-            out.append(self.comms[I])
-            out.append("%-5i" % self.na)
-            for i in range(self.na):
-                out.append(
-                    "{: 15.10f} {: 15.10f} {: 15.10f} {: 15.10f}   0".format(
-                        xyz[i, 0], xyz[i, 1], xyz[i, 2], self.partial_charge[i]
-                    )
-                )
-        return out
-
     def write_mdcrd(self, selection, **kwargs):
         self.require("xyzs")
         # In mdcrd files, there is only one comment line
@@ -5621,36 +4318,6 @@ class Molecule:
                         ]
                     )
                 )
-        return out
-
-    def write_inpcrd(self, selection, sn=None, **kwargs):
-        self.require("xyzs")
-        if len(self.xyzs) != 1 and sn is None:
-            logger.error("inpcrd can only be written for a single-frame trajectory\n")
-            raise RuntimeError
-        if sn is not None:
-            self.xyzs = [self.xyzs[sn]]
-            self.comms = [self.comms[sn]]
-        # In inp files, there is only one comment line
-        # I believe 20A4 means 80 characters.
-        out = [self.comms[0][:80], "%5i" % self.na]
-        xyz = self.xyzs[0]
-        strout = ""
-        for ix, x in enumerate(xyz):
-            strout += f"{x[0]:12.7f}{x[1]:12.7f}{x[2]:12.7f}"
-            if ix % 2 == 1 or ix == (len(xyz) - 1):
-                out.append(strout)
-                strout = ""
-        # From reading the AMBER file specification I am not sure if this is correct.
-        if "boxes" in self.Data:
-            out.append(
-                "".join(
-                    [
-                        "%12.7f" % i
-                        for i in [self.boxes[0].a, self.boxes[0].b, self.boxes[0].c]
-                    ]
-                )
-            )
         return out
 
     def write_gro(self, selection, **kwargs):
@@ -5694,32 +4361,6 @@ class Molecule:
                 )
             out.append(format_gro_box(self.boxes[I]))
         return out
-
-    def write_dcd(self, selection, **kwargs):
-        if _dcdlib.vmdplugin_init() != 0:
-            logger.error("Unable to init DCD plugin\n")
-            raise OSError
-        natoms = c_int(self.na)
-        fname = self.fout.encode("ascii")
-        dcd = _dcdlib.open_dcd_write(create_string_buffer(fname), "dcd", natoms)
-        ts = MolfileTimestep()
-        _xyz = c_float * (natoms.value * 3)
-        for I in selection:
-            xyz = self.xyzs[I]
-            ts.coords = _xyz(*list(xyz.flatten()))
-            ts.A = c_float(self.boxes[I].a if "boxes" in self.Data else 1.0)
-            ts.B = c_float(self.boxes[I].b if "boxes" in self.Data else 1.0)
-            ts.C = c_float(self.boxes[I].c if "boxes" in self.Data else 1.0)
-            ts.alpha = c_float(self.boxes[I].alpha if "boxes" in self.Data else 90.0)
-            ts.beta = c_float(self.boxes[I].beta if "boxes" in self.Data else 90.0)
-            ts.gamma = c_float(self.boxes[I].gamma if "boxes" in self.Data else 90.0)
-            result = _dcdlib.write_timestep(dcd, byref(ts))
-            if result != 0:
-                logger.error("Error encountered when writing DCD\n")
-                raise OSError
-        ## Close the DCD file
-        _dcdlib.close_file_write(dcd)
-        dcd = None
 
     def write_pdb(self, selection, **kwargs):
         standardResidues = [
