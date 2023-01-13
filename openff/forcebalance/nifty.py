@@ -163,12 +163,6 @@ cm2au = (
 ambervel2au = 9.349961132249932e-04  # Multiply to go from AMBER velocity unit Ang/(1/20.455 ps) to bohr/atu.
 
 
-## Q-Chem to GMX unit conversion for energy
-eqcgmx = au2kj  # Previous value: 2625.5002
-## Q-Chem to GMX unit conversion for force
-fqcgmx = -grad_au2gmx  # Previous value: -49621.9
-
-
 # =========================#
 #     I/O formatting      #
 # =========================#
@@ -1831,16 +1825,11 @@ def _exec(
     # ===============================================================#
     # stdout and stderr streams of the process.
     streams = [p.stdout, p.stderr]
-    # Are we using Python 2?
-    p2 = sys.version_info.major == 2
     # These are functions that take chunks of lines (read) as inputs.
     def process_out(read):
         if print_to_screen:
             # LPW 2019-11-25: We should be writing a string, not a representation of bytes
-            if p2:
-                sys.stdout.write(str(read.encode("utf-8")))
-            else:
-                sys.stdout.write(read)
+            sys.stdout.write(read)
         if copy_stdout:
             process_out.stdout.append(read)
             wtf(read)
@@ -1849,10 +1838,7 @@ def _exec(
 
     def process_err(read):
         if print_to_screen:
-            if p2:
-                sys.stderr.write(str(read.encode("utf-8")))
-            else:
-                sys.stderr.write(read)
+            sys.stderr.write(read)
         process_err.stderr.append(read)
         if copy_stderr:
             process_out.stdout.append(read)

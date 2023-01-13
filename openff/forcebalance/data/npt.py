@@ -82,10 +82,6 @@ elif engname == "gromacs" or engname == "gmx":
     from openff.forcebalance.gmxio import *
 
     Engine = GMX
-elif engname == "amber":
-    from openff.forcebalance.amberio import *
-
-    Engine = AMBER
 elif engname == "smirnoff":
     from openff.forcebalance.smirnoffio import *
 

@@ -25,7 +25,6 @@ from openff.forcebalance.moments import Moments
 from openff.forcebalance.nifty import *
 from openff.forcebalance.nifty import _exec
 from openff.forcebalance.output import getLogger
-from openff.forcebalance.qchemio import QChem_Dielectric_Energy
 from openff.forcebalance.thermo import Thermo
 from openff.forcebalance.vibration import Vibration
 

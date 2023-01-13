@@ -107,16 +107,7 @@ import networkx as nx
 import numpy as np
 from numpy import cos, cosh, exp, log, pi, sin, sinh, sqrt, tan, tanh
 
-from openff.forcebalance import (
-    BaseClass,
-    amberio,
-    custom_io,
-    gmxio,
-    openmmio,
-    psi4io,
-    qchemio,
-    smirnoffio,
-)
+from openff.forcebalance import BaseClass, custom_io, gmxio, openmmio, smirnoffio
 from openff.forcebalance.finite_difference import in_fd
 from openff.forcebalance.nifty import *
 from openff.forcebalance.output import getLogger
@@ -132,28 +123,17 @@ except:
 FF_Extensions = {
     "itp": "gmx",
     "top": "gmx",
-    "in": "qchem",
-    "prm": "tinker",
     "gen": "custom",
     "xml": "openmm",
     "offxml": "smirnoff",
-    "frcmod": "frcmod",
-    "mol2": "mol2",
-    "gbs": "gbs",
-    "grid": "grid",
 }
 
 """ Recognized force field formats. """
 FF_IOModules = {
     "gmx": gmxio.ITP_Reader,
-    "qchem": qchemio.QCIn_Reader,
     "custom": custom_io.Gen_Reader,
     "openmm": openmmio.OpenMM_Reader,
     "smirnoff": smirnoffio.SMIRNOFF_Reader,
-    "frcmod": amberio.FrcMod_Reader,
-    "mol2": amberio.Mol2_Reader,
-    "gbs": psi4io.GBS_Reader,
-    "grid": psi4io.Grid_Reader,
 }
 
 
@@ -503,14 +483,6 @@ class FF(BaseClass):
                     allow_cosmetic_attributes=True,
                     load_plugins=True,
                 )
-
-        self.amber_mol2 = []
-        if fftype == "mol2":
-            self.amber_mol2.append(ffname)
-
-        self.amber_frcmod = []
-        if fftype == "frcmod":
-            self.amber_frcmod.append(ffname)
 
         # Determine the appropriate parser from the FF_IOModules dictionary.
         # If we can't figure it out, then use the base reader, it ain't so bad. :)

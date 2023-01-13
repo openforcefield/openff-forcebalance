@@ -89,22 +89,9 @@ except:
     logger.warning(traceback.format_exc())
     logger.warning("Counterpoise module import failed\n")
 
-try:
-    from openff.forcebalance.amberio import (
-        AbInitio_AMBER,
-        Interaction_AMBER,
-        Liquid_AMBER,
-        Vibration_AMBER,
-    )
 except:
     logger.warning(traceback.format_exc())
     logger.warning("Amber module import failed\n")
-
-try:
-    from openff.forcebalance.psi4io import RDVR3_Psi4, THCDF_Psi4
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("PSI4 module import failed\n")
 
 try:
     from openff.forcebalance.target import RemoteTarget
@@ -117,10 +104,8 @@ Implemented_Targets = {
     "ABINITIO_GMX": AbInitio_GMX,
     "ABINITIO_OPENMM": AbInitio_OpenMM,
     "ABINITIO_SMIRNOFF": AbInitio_SMIRNOFF,
-    "ABINITIO_AMBER": AbInitio_AMBER,
     "ABINITIO_INTERNAL": AbInitio_Internal,
     "VIBRATION_GMX": Vibration_GMX,
-    "VIBRATION_AMBER": Vibration_AMBER,
     "VIBRATION_OPENMM": Vibration_OpenMM,
     "VIBRATION_SMIRNOFF": Vibration_SMIRNOFF,
     "HESSIAN_SMIRNOFF": Hessian_SMIRNOFF,
@@ -128,12 +113,8 @@ Implemented_Targets = {
     "LIQUID_OPENMM": Liquid_OpenMM,
     "LIQUID_SMIRNOFF": Liquid_SMIRNOFF,
     "LIQUID_GMX": Liquid_GMX,
-    "LIQUID_AMBER": Liquid_AMBER,
     "LIPID_GMX": Lipid_GMX,
     "COUNTERPOISE": Counterpoise,
-    "THCDF_PSI4": THCDF_Psi4,
-    "RDVR3_PSI4": RDVR3_Psi4,
-    "INTERACTION_AMBER": Interaction_AMBER,
     "INTERACTION_GMX": Interaction_GMX,
     "INTERACTION_OPENMM": Interaction_OpenMM,
     "BINDINGENERGY_GMX": BindingEnergy_GMX,
