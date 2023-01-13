@@ -3,13 +3,17 @@ import shutil
 
 import numpy as np
 import openmm
-import pytest
+from openff.utilities import get_data_file_path
 from openmm import app, unit
 
-import openff.forcebalance
-from openff.forcebalance.openmmio import PrepareVirtualSites, ResetVirtualSites_fast
-
-from .test_target import TargetTests  # general targets tests defined in test_target.py
+from openff.forcebalance.forcefield import FF
+from openff.forcebalance.openmmio import (
+    Interaction_OpenMM,
+    Liquid_OpenMM,
+    PrepareVirtualSites,
+    ResetVirtualSites_fast,
+)
+from openff.forcebalance.tests.unit_tests.test_target import TargetTests
 
 """
 The testing functions for this class are located in test_target.py.
@@ -34,15 +38,13 @@ class TestLiquid_OpenMM(TargetTests):
             }
         )
 
-        self.ff = openff.forcebalance.forcefield.FF(self.options)
+        self.ff = FF(self.options)
 
         self.ffname = self.options["forcefield"][0][:-3]
         self.filetype = self.options["forcefield"][0][-3:]
         self.mvals = np.array([0.5] * self.ff.np)
 
-        self.target = openff.forcebalance.openmmio.Liquid_OpenMM(
-            self.options, self.tgt_opt, self.ff
-        )
+        self.target = Liquid_OpenMM(self.options, self.tgt_opt, self.ff)
         self.target.stage(self.mvals, AGrad=True, use_iterdir=False)
 
     def teardown_method(self):
@@ -66,15 +68,13 @@ class TestInteraction_OpenMM(TargetTests):
             }
         )
 
-        self.ff = openff.forcebalance.forcefield.FF(self.options)
+        self.ff = FF(self.options)
 
         self.ffname = self.options["forcefield"][0][:-3]
         self.filetype = self.options["forcefield"][0][-3:]
         self.mvals = [0.5] * self.ff.np
 
-        self.target = openff.forcebalance.openmmio.Interaction_OpenMM(
-            self.options, self.tgt_opt, self.ff
-        )
+        self.target = Interaction_OpenMM(self.options, self.tgt_opt, self.ff)
 
     def teardown_method(self):
         shutil.rmtree("temp")
@@ -83,9 +83,13 @@ class TestInteraction_OpenMM(TargetTests):
 
 def test_local_coord_sites():
     """Make sure that the internal prep of vs positions matches that given by OpenMM."""
-    mol = app.PDBFile(os.path.join("files", "vs_mol.pdb"))
+    mol = app.PDBFile(
+        get_data_file_path("files/vs_mol.pdb", "openff.forcebalance.tests")
+    )
     modeller = app.Modeller(topology=mol.topology, positions=mol.positions)
-    forcefield = app.ForceField(os.path.join("files", "forcefield", "vs_mol.xml"))
+    forcefield = app.ForceField(
+        get_data_file_path("files/forcefield/vs_mol.xml", "openff.forcebalance.tests")
+    )
     modeller.addExtraParticles(forcefield)
     system = forcefield.createSystem(modeller.topology, constraints=None)
     integrator = openmm.VerletIntegrator(1.0 * unit.femtoseconds)

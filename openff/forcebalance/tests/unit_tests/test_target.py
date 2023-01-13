@@ -1,23 +1,24 @@
 import os
+from pathlib import Path
 
 import numpy
+from openff.utilities import get_data_file_path
 
-import openff.forcebalance
-
-from .__init__ import ForceBalanceTestCase
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.parser import gen_opts_defaults, tgt_opts_defaults
+from openff.forcebalance.tests import ForceBalanceTestCase
+from openff.forcebalance.tests import __file__ as test_root
 
 
 class TargetTests(ForceBalanceTestCase):
     def setup_method(self, method):
         super().setup_method(method)
-        self.logger = openff.forcebalance.output.getLogger(
-            "openff.forcebalance.test." + __name__[5:]
-        )
+        self.logger = getLogger("openff.forcebalance.tests." + __name__[5:])
         self.logger.debug("\nBuilding options for target...\n")
-        self.options = openff.forcebalance.parser.gen_opts_defaults.copy()
-        self.tgt_opt = openff.forcebalance.parser.tgt_opts_defaults.copy()
+        self.options = gen_opts_defaults.copy()
+        self.tgt_opt = tgt_opts_defaults.copy()
         self.ff = None  # Forcefield this target is fitting
-        self.options.update({"root": os.path.join(os.getcwd(), "files")})
+        self.options.update({"root": Path(test_root).parent / "files"})
         self.check_grad_fd = True  # Whether to check gradient vs. finite difference. Set to False for liquid targets.
 
         os.chdir(self.options["root"])
