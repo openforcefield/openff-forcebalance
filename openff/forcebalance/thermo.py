@@ -268,7 +268,7 @@ class Thermo(Target):
             )
 
             # Dump the force field to a pickle file
-            lp_dump((self.FF, mvals, self.OptionDict, AGrad), "forcebalance.p")
+            lp_dump((self.FF, mvals, self.option_dict, AGrad), "forcebalance.p")
 
             # Run the simulation chain for point.
             cmdstr = (

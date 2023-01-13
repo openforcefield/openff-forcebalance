@@ -265,7 +265,7 @@ class Liquid(Target):
         self.prepare_temp_directory()
         # Build keyword dictionary to pass to engine.
         if self.do_self_pol:
-            self.gas_engine_args.update(self.OptionDict)
+            self.gas_engine_args.update(self.option_dict)
             self.gas_engine_args.update(options)
             del self.gas_engine_args["name"]
             # Create engine object for gas molecule to do the polarization correction.
@@ -709,9 +709,9 @@ class Liquid(Target):
             )
 
         if AGrad and self.pure_num_grad:
-            lp_dump((self.FF, mvals, self.OptionDict, False), "forcebalance.p")
+            lp_dump((self.FF, mvals, self.option_dict, False), "forcebalance.p")
         else:
-            lp_dump((self.FF, mvals, self.OptionDict, AGrad), "forcebalance.p")
+            lp_dump((self.FF, mvals, self.option_dict, AGrad), "forcebalance.p")
 
         # Give the user an opportunity to copy over data from a previous (perhaps failed) run.
         if (not self.evaluated) and self.manual:
@@ -762,7 +762,7 @@ class Liquid(Target):
                     new_mvals[i_m] += delta_m
                     # create a new forcebalance.p, turn off gradient
                     lp_dump(
-                        (self.FF, new_mvals, self.OptionDict, False), "forcebalance.p"
+                        (self.FF, new_mvals, self.option_dict, False), "forcebalance.p"
                     )
                     # link files from parent folder to here
                     link_dir_contents(os.path.join(self.root, self.rundir), os.getcwd())

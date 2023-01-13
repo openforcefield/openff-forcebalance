@@ -94,7 +94,9 @@ class OptGeoTarget(Target):
         )
         self.sys_opts = self.parse_optgeo_options(self.optgeo_options)
         ## Build keyword dictionaries to pass to engine.
-        engine_args = OrderedDict(list(self.OptionDict.items()) + list(options.items()))
+        engine_args = OrderedDict(
+            list(self.option_dict.items()) + list(options.items())
+        )
         engine_args.pop("name", None)
         ## Create engine objects
         self.create_engines(engine_args)

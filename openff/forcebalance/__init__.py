@@ -13,15 +13,15 @@ del get_versions, versions
 class BaseClass:
     """Provides some nifty functions that are common to all ForceBalance classes."""
 
+    def __init__(self):
+        self.option_dict = dict()
+        self.option_keys = set()
+
     def __setattr__(self, key, value):
-        if not hasattr(self, "OptionDict"):
-            super().__setattr__("OptionDict", OrderedDict())
-        if not hasattr(self, "OptionKeys"):
-            super().__setattr__("OptionKeys", set())
         ## These attributes return a list of attribute names defined in this class, that belong in the chosen category.
         ## For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
-        if key in self.OptionKeys:
-            self.OptionDict[key] = value
+        if key in self.option_keys:
+            self.option_dict[key] = value
         return super().__setattr__(key, value)
 
     def __init__(self, options):
@@ -60,7 +60,7 @@ class BaseClass:
             and dest_key != "root"
         ) or forceprint:
             self.PrintOptionDict[dest_key] = val
-        self.OptionKeys.add(dest_key)
+        self.option_keys.add(dest_key)
         return self.__setattr__(dest_key, val)
 
 

@@ -77,7 +77,9 @@ class Vibration(Target):
         ## Read in the reference data
         self.na, _, self.ref_eigvals, self.ref_eigvecs = read_reference_vdata(self.vfnm)
         ## Build keyword dictionaries to pass to engine.
-        engine_args = OrderedDict(list(self.OptionDict.items()) + list(options.items()))
+        engine_args = OrderedDict(
+            list(self.option_dict.items()) + list(options.items())
+        )
         engine_args.pop("name", None)
         ## Create engine object.
         self.engine = self.engine_(target=self, **engine_args)
