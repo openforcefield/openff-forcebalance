@@ -4,29 +4,22 @@ author Lee-Ping Wang
 @date 04/2012
 """
 
+import copy
+import csv
+import itertools
 import os
+from collections import OrderedDict, defaultdict
 from re import sub
 
 import numpy as np
+from pymbar import pymbar
 
 from openff.forcebalance.finite_difference import *
 from openff.forcebalance.molecule import Molecule
 from openff.forcebalance.nifty import *
 from openff.forcebalance.nifty import _exec
-from openff.forcebalance.target import Target
-
-try:
-    from lxml import etree
-except:
-    pass
-import copy
-import csv
-import itertools
-from collections import OrderedDict, defaultdict
-
-from pymbar import pymbar
-
 from openff.forcebalance.output import getLogger
+from openff.forcebalance.target import Target
 
 logger = getLogger(__name__)
 

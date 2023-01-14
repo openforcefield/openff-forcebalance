@@ -2,8 +2,6 @@
 
 import traceback
 
-from numpy import dot
-
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)

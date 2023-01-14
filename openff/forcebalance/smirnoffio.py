@@ -9,23 +9,16 @@ import os
 from collections import Counter, OrderedDict, defaultdict
 from copy import deepcopy
 
-import networkx as nx
 import numpy as np
 
 from openff.forcebalance import BaseReader
 from openff.forcebalance.abinitio import AbInitio
-from openff.forcebalance.binding import BindingEnergy
 from openff.forcebalance.chemistry import *
-from openff.forcebalance.engine import Engine
 from openff.forcebalance.finite_difference import *
 from openff.forcebalance.hessian import Hessian
-from openff.forcebalance.hydration import Hydration
-from openff.forcebalance.interaction import Interaction
 from openff.forcebalance.liquid import Liquid
 from openff.forcebalance.molecule import *
-from openff.forcebalance.moments import Moments
 from openff.forcebalance.nifty import *
-from openff.forcebalance.nifty import _exec
 from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
 from openff.forcebalance.opt_geo_target import OptGeoTarget
 from openff.forcebalance.output import getLogger
@@ -35,29 +28,15 @@ from openff.forcebalance.vibration import Vibration
 logger = getLogger(__name__)
 
 import openmm.unit
+from openff.toolkit import ForceField as OFFForceField
+from openff.toolkit import Molecule as OFFMolecule
+from openff.toolkit import Topology as OFFTopology
+from openff.units import unit
+from openff.units.openmm import ensure_quantity
 from openmm import *
-from openmm import _openmm
 from openmm.app import *
 
-try:
-    # import the hack for openff.toolkit to improve performance by 10x
-    # QYD: name of class are modified to avoid colliding with ForceBalance Molecule
-    from openff.toolkit.topology import Molecule as OffMolecule
-    from openff.toolkit.topology import Topology as OffTopology
-
-    # Import the SMIRNOFF forcefield engine and some useful tools
-    from openff.toolkit.typing.engines.smirnoff import ForceField as OpenFF_ForceField
-    from openff.units import unit
-    from openff.units.openmm import ensure_quantity
-
-    from openff.forcebalance import smirnoff_hack
-
-    toolkit_import_success = True
-except ImportError:
-    toolkit_import_success = False
-
-## pdict is a useless variable if the force field is XML.
-pdict = "XML_Override"
+from openff.forcebalance import smirnoff_hack
 
 
 def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
@@ -92,8 +71,8 @@ def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
         # analyze SMIRKs terms
         for mol_fnm in mol2_paths:
             # we work with one file at a time to avoid the topology sliently combine "same" molecules
-            openff_mol = OffMolecule.from_file(mol_fnm)
-            off_topology = OffTopology.from_molecules([openff_mol])
+            openff_mol = OFFMolecule.from_file(mol_fnm)
+            off_topology = OFFTopology.from_molecules([openff_mol])
             molecule_force_list = ff.label_molecules(off_topology)
             for mol_idx, mol_forces in enumerate(molecule_force_list):
                 for force_tag, force_dict in mol_forces.items():
@@ -138,10 +117,8 @@ class SMIRNOFF_Reader(BaseReader):
     """Class for parsing OpenMM force field files."""
 
     def __init__(self, fnm):
-        ## Initialize the superclass. :)
         super().__init__(fnm)
-        ## The parameter dictionary (defined in this file)
-        self.pdict = pdict
+        self.pdict = "XML_Override"
 
     def build_pid(self, element, parameter):
         """Build the parameter identifier (see _link_ for an example)
@@ -422,18 +399,18 @@ class SMIRNOFF(OpenMM):
             self.forcefield = self.FF.openff_forcefield
         else:
             self.offxml = listfiles(kwargs.get("offxml"), "offxml", err=True)
-            self.forcefield = OpenFF_ForceField(*self.offxml, load_plugins=True)
+            self.forcefield = OFFForceField(*self.offxml, load_plugins=True)
 
         ## Load mol2 files for smirnoff topology
         openff_mols = []
         for fnm in self.mol2:
             try:
-                mol = OffMolecule.from_file(fnm)
+                mol = OFFMolecule.from_file(fnm)
             except Exception as e:
                 logger.error("Error when loading %s" % fnm)
                 raise e
             openff_mols.append(mol)
-        self.off_topology = OffTopology.from_openmm(
+        self.off_topology = OFFTopology.from_openmm(
             self.pdb.topology, unique_molecules=openff_mols
         )
 

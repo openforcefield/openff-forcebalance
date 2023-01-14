@@ -6,8 +6,6 @@
 @date 12/2011
 """
 
-import itertools
-import os
 import random
 import re
 from collections import OrderedDict, defaultdict
@@ -27,8 +25,6 @@ from openff.forcebalance.nifty import _exec
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.thermo import Thermo
 from openff.forcebalance.vibration import Vibration
-
-# import IPython
 
 logger = getLogger(__name__)
 

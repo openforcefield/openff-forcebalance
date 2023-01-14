@@ -52,9 +52,8 @@ import re
 from collections import OrderedDict
 from copy import deepcopy
 
+from openff.forcebalance.nifty import isfloat, printcool, which
 from openff.forcebalance.output import getLogger
-
-from .nifty import isfloat, printcool, printcool_dictionary, which
 
 logger = getLogger(__name__)
 
@@ -1434,7 +1433,6 @@ def printsection(heading, optdict, typedict):
 
     """
     from openff.forcebalance.objective import Implemented_Targets
-    from openff.forcebalance.optimizer import Optimizer
 
     def FilterTargets(search):
         if type(search) == str:

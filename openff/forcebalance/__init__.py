@@ -16,6 +16,9 @@ class BaseClass:
     def __init__(self):
         self.option_dict = dict()
         self.option_keys = set()
+        self.verbose_options = (
+            options["verbose_options"] if "verbose_options" in options else False
+        )
 
     def __setattr__(self, key, value):
         ## These attributes return a list of attribute names defined in this class, that belong in the chosen category.
@@ -23,11 +26,6 @@ class BaseClass:
         if key in self.option_keys:
             self.option_dict[key] = value
         return super().__setattr__(key, value)
-
-    def __init__(self, options):
-        self.verbose_options = (
-            options["verbose_options"] if "verbose_options" in options else False
-        )
 
     def set_option(
         self, in_dict, src_key, dest_key=None, val=None, default=None, forceprint=False

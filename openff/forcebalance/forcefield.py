@@ -105,20 +105,14 @@ from re import match, split
 
 import networkx as nx
 import numpy as np
-from numpy import cos, cosh, exp, log, pi, sin, sinh, sqrt, tan, tanh
+from lxml import etree
 
-from openff.forcebalance import BaseClass, custom_io, gmxio, openmmio, smirnoffio
-from openff.forcebalance.finite_difference import in_fd
+from openff.forcebalance import BaseClass, gmxio, openmmio, smirnoffio
 from openff.forcebalance.nifty import *
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.smirnoffio import assign_openff_parameter
 
 logger = getLogger(__name__)
-
-try:
-    from lxml import etree
-except:
-    logger.warning("Failed to import lxml module, needed by OpenMM engine")
 
 FF_Extensions = {
     "itp": "gmx",
@@ -131,7 +125,6 @@ FF_Extensions = {
 """ Recognized force field formats. """
 FF_IOModules = {
     "gmx": gmxio.ITP_Reader,
-    "custom": custom_io.Gen_Reader,
     "openmm": openmmio.OpenMM_Reader,
     "smirnoff": smirnoffio.SMIRNOFF_Reader,
 }
