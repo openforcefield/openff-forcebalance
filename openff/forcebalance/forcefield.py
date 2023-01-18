@@ -107,7 +107,7 @@ import networkx as nx
 import numpy as np
 from lxml import etree
 
-from openff.forcebalance import BaseClass, gmxio, openmmio, smirnoffio
+from openff.forcebalance import BaseClass, BaseReader, gmxio, openmmio, smirnoffio
 from openff.forcebalance.nifty import *
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.smirnoffio import assign_openff_parameter
