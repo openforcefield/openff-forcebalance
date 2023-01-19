@@ -13,14 +13,17 @@ del get_versions, versions
 class BaseClass:
     """Provides some nifty functions that are common to all ForceBalance classes."""
 
-    def __init__(self):
+    def __init__(self, options):
         self.option_dict = dict()
         self.option_keys = set()
-        self.verbose_options = (
-            options["verbose_options"] if "verbose_options" in options else False
-        )
+        self.verbose_options = options.get("verbose_options", False)
 
     def __setattr__(self, key, value):
+        if not hasattr(self, "option_dict"):
+            super().__setattr__("option_dict", dict())
+        if not hasattr(self, "option_keys"):
+            super().__setattr__("option_keys", set())
+
         ## These attributes return a list of attribute names defined in this class, that belong in the chosen category.
         ## For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
         if key in self.option_keys:

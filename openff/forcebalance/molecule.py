@@ -8,6 +8,7 @@ from collections import OrderedDict, namedtuple
 from ctypes import *
 from datetime import date
 from itertools import zip_longest
+from typing import Dict
 
 import numpy as np
 from numpy import arccos, cos, sin
@@ -256,105 +257,110 @@ else:
 module_name = __name__.replace(".molecule", "")
 
 # Covalent radii from Cordero et al. 'Covalent radii revisited' Dalton Transactions 2008, 2832-2838.
-Radii = [
-    0.31,
-    0.28,  # H and He
-    1.28,
-    0.96,
-    0.84,
-    0.76,
-    0.71,
-    0.66,
-    0.57,
-    0.58,  # First row elements
-    0.00,
-    1.41,
-    1.21,
-    1.11,
-    1.07,
-    1.05,
-    1.02,
-    1.06,  # Second row elements
-    # 1.66, 1.41, 1.21, 1.11, 1.07, 1.05, 1.02, 1.06, # Second row elements
-    2.03,
-    1.76,
-    1.70,
-    1.60,
-    1.53,
-    1.39,
-    1.61,
-    1.52,
-    1.50,
-    1.24,
-    1.32,
-    1.22,
-    1.22,
-    1.20,
-    1.19,
-    1.20,
-    1.20,
-    1.16,  # Third row elements, K through Kr
-    2.20,
-    1.95,
-    1.90,
-    1.75,
-    1.64,
-    1.54,
-    1.47,
-    1.46,
-    1.42,
-    1.39,
-    1.45,
-    1.44,
-    1.42,
-    1.39,
-    1.39,
-    1.38,
-    1.39,
-    1.40,  # Fourth row elements, Rb through Xe
-    2.44,
-    2.15,
-    2.07,
-    2.04,
-    2.03,
-    2.01,
-    1.99,
-    1.98,
-    1.98,
-    1.96,
-    1.94,
-    1.92,
-    1.92,
-    1.89,
-    1.90,
-    1.87,  # Fifth row elements, s and f blocks
-    1.87,
-    1.75,
-    1.70,
-    1.62,
-    1.51,
-    1.44,
-    1.41,
-    1.36,
-    1.36,
-    1.32,
-    1.45,
-    1.46,
-    1.48,
-    1.40,
-    1.50,
-    1.50,  # Fifth row elements, d and p blocks
-    2.60,
-    2.21,
-    2.15,
-    2.06,
-    2.00,
-    1.96,
-    1.90,
-    1.87,
-    1.80,
-    1.69,
-]  # Sixth row elements
+RADII: Dict[int, float] = {
+    index + 1: value
+    for index, value in enumerate(
+        [
+            0.31,
+            0.28,  # H and He
+            1.28,
+            0.96,
+            0.84,
+            0.76,
+            0.71,
+            0.66,
+            0.57,
+            0.58,  # First row elements
+            0.00,
+            1.41,
+            1.21,
+            1.11,
+            1.07,
+            1.05,
+            1.02,
+            1.06,  # Second row elements
+            # 1.66, 1.41, 1.21, 1.11, 1.07, 1.05, 1.02, 1.06, # Second row elements
+            2.03,
+            1.76,
+            1.70,
+            1.60,
+            1.53,
+            1.39,
+            1.61,
+            1.52,
+            1.50,
+            1.24,
+            1.32,
+            1.22,
+            1.22,
+            1.20,
+            1.19,
+            1.20,
+            1.20,
+            1.16,  # Third row elements, K through Kr
+            2.20,
+            1.95,
+            1.90,
+            1.75,
+            1.64,
+            1.54,
+            1.47,
+            1.46,
+            1.42,
+            1.39,
+            1.45,
+            1.44,
+            1.42,
+            1.39,
+            1.39,
+            1.38,
+            1.39,
+            1.40,  # Fourth row elements, Rb through Xe
+            2.44,
+            2.15,
+            2.07,
+            2.04,
+            2.03,
+            2.01,
+            1.99,
+            1.98,
+            1.98,
+            1.96,
+            1.94,
+            1.92,
+            1.92,
+            1.89,
+            1.90,
+            1.87,  # Fifth row elements, s and f blocks
+            1.87,
+            1.75,
+            1.70,
+            1.62,
+            1.51,
+            1.44,
+            1.41,
+            1.36,
+            1.36,
+            1.32,
+            1.45,
+            1.46,
+            1.48,
+            1.40,
+            1.50,
+            1.50,  # Fifth row elements, d and p blocks
+            2.60,
+            2.21,
+            2.15,
+            2.06,
+            2.00,
+            1.96,
+            1.90,
+            1.87,
+            1.80,
+            1.69,
+        ]
+    )
+}
 
 
 # Dictionary of atomic masses ; also serves as the list of elements (periodic table)
@@ -2337,14 +2343,22 @@ class Molecule:
         mindist = 1.0  # Any two atoms that are closer than this distance are bonded.
         # Create an atom-wise list of covalent radii.
         # Molecule object can have its own set of radii that overrides the global ones
-        R = np.array(
+
+        from openff.units.elements import SYMBOLS
+
+        NUMBERS = {v: k for k, v in SYMBOLS.items()}
+
+        def get_radii(element: str) -> float:
+            """Given an element abbreviation, look up the radii."""
+            return RADII.get(NUMBERS.get(element), 0.0)
+
+        radii = np.array(
             [
-                self.top_settings["radii"].get(
-                    i, (Radii[Elements.index(i) - 1] if i in Elements else 0.0)
-                )
-                for i in self.elem
+                self.top_settings["radii"].get(element, get_radii(element))
+                for element in self.elem
             ]
         )
+
         # Create a list of 2-tuples corresponding to combinations of atomic indices using a grid algorithm.
         mins = np.min(self.xyzs[sn], axis=0)
         maxs = np.max(self.xyzs[sn], axis=0)
@@ -2495,8 +2509,9 @@ class Molecule:
             )
 
         # Create a list of thresholds for determining whether a certain interatomic distance is considered to be a bond.
-        BT0 = R[AtomIterator[:, 0]]
-        BT1 = R[AtomIterator[:, 1]]
+        BT0 = radii[AtomIterator[:, 0]]
+        BT1 = radii[AtomIterator[:, 1]]
+
         BondThresh = (BT0 + BT1) * Fac
         BondThresh = (BondThresh > mindist) * BondThresh + (
             BondThresh < mindist

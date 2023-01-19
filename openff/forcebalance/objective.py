@@ -1,7 +1,6 @@
 """@package forcebalance.objective
 
 ForceBalance objective function."""
-
 import traceback
 from collections import OrderedDict, defaultdict
 
@@ -88,10 +87,6 @@ try:
 except:
     logger.warning(traceback.format_exc())
     logger.warning("Counterpoise module import failed\n")
-
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("Amber module import failed\n")
 
 try:
     from openff.forcebalance.target import RemoteTarget

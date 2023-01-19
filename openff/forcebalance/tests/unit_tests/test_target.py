@@ -6,11 +6,10 @@ import pytest
 
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.parser import gen_opts_defaults, tgt_opts_defaults
-from openff.forcebalance.tests import ForceBalanceTestCase
 from openff.forcebalance.tests import __file__ as test_root
 
 
-class TargetTests(ForceBalanceTestCase):
+class TargetTests:
     def setup_method(self, method):
         super().setup_method(method)
         self.logger = getLogger("openff.forcebalance.tests." + __name__[5:])

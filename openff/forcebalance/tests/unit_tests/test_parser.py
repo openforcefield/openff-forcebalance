@@ -9,10 +9,9 @@ from openff.forcebalance.parser import (
     parse_inputs,
     tgt_opts_defaults,
 )
-from openff.forcebalance.tests import ForceBalanceTestCase
 
 
-class TestParser(ForceBalanceTestCase):
+class TestParser:
     def test_parse_inputs_returns_tuple(self):
         """Check parse_inputs() returns type"""
         output = parse_inputs(
