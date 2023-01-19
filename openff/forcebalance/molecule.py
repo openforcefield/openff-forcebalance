@@ -10,6 +10,7 @@ from datetime import date
 from itertools import zip_longest
 from typing import Dict
 
+import networkx as nx
 import numpy as np
 from numpy import arccos, cos, sin
 from numpy.linalg import multi_dot
@@ -18,10 +19,6 @@ from openmm.app import *
 from openmm.unit import *
 from pkg_resources import parse_version
 
-try:
-    input = raw_input
-except NameError:
-    pass
 
 # Special error which is thrown when TINKER .arc data is detected in a .xyz file
 class ActuallyArcError(IOError):
@@ -375,15 +372,6 @@ RADII: Dict[int, float] = {
 # With parentheses(uncert) as in 4.002602(2) : The parentheses was split off and all significant digits are used.
 # A single number in brackets as in [98] : The single number was used
 # Not provided (for Am, Z=95 and up): The mass number of the lightest isotope was used
-def getElement(mass):
-    return PeriodicTable.keys()[
-        np.argmin([np.abs(m - mass) for m in PeriodicTable.values()])
-    ]
-
-
-def elem_from_atomname(atomname):
-    """Given an atom name, attempt to get the element in most cases."""
-    return re.search("[A-Z][a-z]*", atomname).group(0)
 
 
 if "forcebalance" in __name__:
@@ -460,47 +448,6 @@ splitter = re.compile(r"(\s+|\S+)")
 # Container for Bravais lattice vector.  Three cell lengths, three angles, three vectors, volume, and TINKER trig functions.
 Box = namedtuple("Box", ["a", "b", "c", "alpha", "beta", "gamma", "A", "B", "C", "V"])
 radian = 180.0 / np.pi
-
-
-def CubicLattice(a):
-    """This function takes in three lattice lengths and three lattice angles, and tries to return a complete box specification."""
-    b = a
-    c = a
-    alpha = 90
-    beta = 90
-    gamma = 90
-    alph = alpha * np.pi / 180
-    bet = beta * np.pi / 180
-    gamm = gamma * np.pi / 180
-    v = np.sqrt(
-        1
-        - cos(alph) ** 2
-        - cos(bet) ** 2
-        - cos(gamm) ** 2
-        + 2 * cos(alph) * cos(bet) * cos(gamm)
-    )
-    Mat = np.array(
-        [
-            [a, b * cos(gamm), c * cos(bet)],
-            [0, b * sin(gamm), c * ((cos(alph) - cos(bet) * cos(gamm)) / sin(gamm))],
-            [0, 0, c * v / sin(gamm)],
-        ]
-    )
-    L1 = Mat.dot(np.array([[1], [0], [0]]))
-    L2 = Mat.dot(np.array([[0], [1], [0]]))
-    L3 = Mat.dot(np.array([[0], [0], [1]]))
-    return Box(
-        a,
-        b,
-        c,
-        alpha,
-        beta,
-        gamma,
-        np.array(L1).flatten(),
-        np.array(L2).flatten(),
-        np.array(L3).flatten(),
-        v * a * b * c,
-    )
 
 
 def BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma):
@@ -581,67 +528,50 @@ def BuildLatticeFromVectors(v1, v2, v3):
     )
 
 
-# ===========================#
-# |   Connectivity graph    |#
-# |  Good for doing simple  |#
-# |     topology tricks     |#
-# ===========================#
-try:
-    import networkx as nx
+class CustomGraph(nx.Graph):
+    def __init__(self):
+        super().__init__()
+        self.Alive = True
 
-    class MyG(nx.Graph):
-        def __init__(self):
-            super().__init__()
-            self.Alive = True
+    def __eq__(self, other):
+        # This defines whether two CustomGraph objects are "equal" to one another.
+        if not self.Alive:
+            return False
+        if not other.Alive:
+            return False
+        return nx.is_isomorphic(self, other, node_match=nodematch)
 
-        def __eq__(self, other):
-            # This defines whether two MyG objects are "equal" to one another.
-            if not self.Alive:
-                return False
-            if not other.Alive:
-                return False
-            return nx.is_isomorphic(self, other, node_match=nodematch)
+    def __hash__(self):
+        """The hash function is something we can use to discard two things that are obviously not equal.  Here we neglect the hash."""
+        return 1
 
-        def __hash__(self):
-            """The hash function is something we can use to discard two things that are obviously not equal.  Here we neglect the hash."""
-            return 1
+    def L(self):
+        """Return a list of the sorted atom numbers in this graph."""
+        return sorted(list(self.nodes()))
 
-        def L(self):
-            """Return a list of the sorted atom numbers in this graph."""
-            return sorted(list(self.nodes()))
+    def AStr(self):
+        """Return a string of atoms, which serves as a rudimentary 'fingerprint' : '99,100,103,151' ."""
+        return ",".join(["%i" % i for i in self.L()])
 
-        def AStr(self):
-            """Return a string of atoms, which serves as a rudimentary 'fingerprint' : '99,100,103,151' ."""
-            return ",".join(["%i" % i for i in self.L()])
+    def e(self):
+        """Return an array of the elements.  For instance ['H' 'C' 'C' 'H']."""
+        elems = nx.get_node_attributes(self, "e")
+        return [elems[i] for i in self.L()]
 
-        def e(self):
-            """Return an array of the elements.  For instance ['H' 'C' 'C' 'H']."""
-            elems = nx.get_node_attributes(self, "e")
-            return [elems[i] for i in self.L()]
+    def ef(self):
+        """Create an Empirical Formula"""
+        Formula = list(self.e())
+        return "".join(
+            [
+                ("%s%i" % (k, Formula.count(k)) if Formula.count(k) > 1 else "%s" % k)
+                for k in sorted(set(Formula))
+            ]
+        )
 
-        def ef(self):
-            """Create an Empirical Formula"""
-            Formula = list(self.e())
-            return "".join(
-                [
-                    (
-                        "%s%i" % (k, Formula.count(k))
-                        if Formula.count(k) > 1
-                        else "%s" % k
-                    )
-                    for k in sorted(set(Formula))
-                ]
-            )
-
-        def x(self):
-            """Get a list of the coordinates."""
-            coors = nx.get_node_attributes(self, "x")
-            return np.array([coors[i] for i in self.L()])
-
-except ImportError:
-    logger.warning(
-        "Cannot import optional NetworkX module, topology tools won't work\n."
-    )
+    def x(self):
+        """Get a list of the coordinates."""
+        coors = nx.get_node_attributes(self, "x")
+        return np.array([coors[i] for i in self.L()])
 
 
 def format_xyz_coord(element, xyz, tinker=False):
@@ -2591,29 +2521,31 @@ class Molecule:
         if (not self.top_settings["read_bonds"]) or force_bonds:
             self.build_bonds()
         # Create a NetworkX graph object to hold the bonds.
-        G = MyG()
+        graph = CustomGraph()
         for i, a in enumerate(self.elem):
-            G.add_node(i)
+            graph.add_node(i)
             if parse_version(nx.__version__) >= parse_version("2.0"):
                 if "atomname" in self.Data:
-                    nx.set_node_attributes(G, {i: self.atomname[i]}, name="n")
-                nx.set_node_attributes(G, {i: a}, name="e")
-                nx.set_node_attributes(G, {i: self.xyzs[sn][i]}, name="x")
+                    nx.set_node_attributes(graph, {i: self.atomname[i]}, name="n")
+                nx.set_node_attributes(graph, {i: a}, name="e")
+                nx.set_node_attributes(graph, {i: self.xyzs[sn][i]}, name="x")
             else:
                 if "atomname" in self.Data:
-                    nx.set_node_attributes(G, "n", {i: self.atomname[i]})
-                nx.set_node_attributes(G, "e", {i: a})
-                nx.set_node_attributes(G, "x", {i: self.xyzs[sn][i]})
+                    nx.set_node_attributes(graph, "n", {i: self.atomname[i]})
+                nx.set_node_attributes(graph, "e", {i: a})
+                nx.set_node_attributes(graph, "x", {i: self.xyzs[sn][i]})
         for (i, j) in self.bonds:
-            G.add_edge(i, j)
+            graph.add_edge(i, j)
+
         # The Topology is simply the NetworkX graph object.
-        self.topology = G
+        self.topology = graph
+
         # LPW: Molecule.molecules is a funny misnomer... it should be fragments or substructures or something
-        self.molecules = [G.subgraph(c).copy() for c in nx.connected_components(G)]
+        self.molecules = [
+            graph.subgraph(c).copy() for c in nx.connected_components(graph)
+        ]
         for g in self.molecules:
-            g.__class__ = MyG
-        # Deprecated in networkx 2.2
-        # self.molecules = list(nx.connected_component_subgraphs(G))
+            g.__class__ = CustomGraph
 
     def distance_matrix(self, pbc=True):
         """Obtain distance matrix between all pairs of atoms."""
@@ -4446,16 +4378,3 @@ class Molecule:
             else:
                 mybox = buildbox(boxstr)
                 self.boxes = [mybox for i in range(self.ns)]
-
-
-def main():
-    logger.info(
-        "Basic usage as an executable: molecule.py input.format1 output.format2"
-    )
-    logger.info("where format stands for xyz, pdb, gro, etc.")
-    Mao = Molecule(sys.argv[1])
-    Mao.write(sys.argv[2])
-
-
-if __name__ == "__main__":
-    main()
