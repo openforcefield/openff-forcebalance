@@ -2509,13 +2509,9 @@ class Molecule:
             )
 
         # Create a list of thresholds for determining whether a certain interatomic distance is considered to be a bond.
-        try:
-            BT0 = radii[AtomIterator[:, 0]]
-        except IndexError:
-            import ipdb
-
-            ipdb.set_trace()
+        BT0 = radii[AtomIterator[:, 0]]
         BT1 = radii[AtomIterator[:, 1]]
+
         BondThresh = (BT0 + BT1) * Fac
         BondThresh = (BondThresh > mindist) * BondThresh + (
             BondThresh < mindist

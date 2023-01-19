@@ -3,7 +3,6 @@
 ForceBalance objective function."""
 import traceback
 from collections import OrderedDict, defaultdict
-from typing import Dict
 
 # from implemented import Implemented_Targets
 import numpy as np

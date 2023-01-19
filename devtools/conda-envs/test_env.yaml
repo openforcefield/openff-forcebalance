@@ -1,6 +1,7 @@
 name: openff-forcebalance-test
 channels:
   - conda-forge
+  - bioconda
   - openeye
 dependencies:
   - python
@@ -18,4 +19,6 @@ dependencies:
   - ndcctools
   - geometric
   - openff-toolkit >=0.11.3
+  - openff-utilities >=0.1.8
   - openeye-toolkits
+  - gromacs=2019
