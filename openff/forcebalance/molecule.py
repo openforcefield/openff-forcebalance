@@ -18,6 +18,8 @@ from openmm.app import *
 from openmm.unit import *
 from pkg_resources import parse_version
 
+from openff.forcebalance import Mol2
+
 try:
     input = raw_input
 except NameError:
@@ -1439,6 +1441,7 @@ class Molecule:
             "pdb": self.read_pdb,
             "xyz": self.read_xyz,
             "qcschema": self.read_qcschema,
+            "mol2": self.read_mol2,
             "qcesp": self.read_qcesp,
             "qdata": self.read_qdata,
         }
@@ -3574,6 +3577,63 @@ class Molecule:
             Answer["qm_espxyzs"] = espxyzs
         if len(espvals) > 0:
             Answer["qm_espvals"] = espvals
+        return Answer
+
+    def read_mol2(self, fnm, **kwargs):
+        xyz = []
+        charge = []
+        atomname = []
+        atomtype = []
+        elem = []
+        resname = []
+        resid = []
+        data = Mol2.mol2_set(fnm)
+        if len(data.compounds) > 1:
+            sys.stderr.write(
+                "Not sure what to do if the MOL2 file contains multiple compounds\n"
+            )
+        for i, atom in enumerate(list(data.compounds.items())[0][1].atoms):
+            xyz.append([atom.x, atom.y, atom.z])
+            charge.append(atom.charge)
+            atomname.append(atom.atom_name)
+            atomtype.append(atom.atom_type)
+            resname.append(atom.subst_name)
+            resid.append(atom.subst_id)
+            thiselem = atom.atom_name
+            if len(thiselem) > 1:
+                thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
+            elem.append(thiselem)
+
+        # resname = [list(data.compounds.items())[0][0] for i in range(len(elem))]
+        # resid = [1 for i in range(len(elem))]
+
+        # Deprecated 'abonds' format.
+        # bonds    = [[] for i in range(len(elem))]
+        # for bond in data.compounds.items()[0][1].bonds:
+        #     a1 = bond.origin_atom_id - 1
+        #     a2 = bond.target_atom_id - 1
+        #     aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
+        #     bonds[aL].append(aH)
+
+        bonds = []
+        for bond in list(data.compounds.items())[0][1].bonds:
+            a1 = bond.origin_atom_id - 1
+            a2 = bond.target_atom_id - 1
+            aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
+            bonds.append((aL, aH))
+
+        self.top_settings["read_bonds"] = True
+        Answer = {
+            "xyzs": [np.array(xyz)],
+            "partial_charge": charge,
+            "atomname": atomname,
+            "atomtype": atomtype,
+            "elem": elem,
+            "resname": resname,
+            "resid": resid,
+            "bonds": bonds,
+        }
+
         return Answer
 
     def read_gro(self, fnm, **kwargs):

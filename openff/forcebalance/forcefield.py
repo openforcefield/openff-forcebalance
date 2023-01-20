@@ -352,7 +352,7 @@ class FF(BaseClass):
         self.prmdestroy_this = []
         ## Print the optimizer options.
         if printopt:
-            printcool_dictionary(self.PrintOptionDict, title="Setup for force field")
+            printcool_dictionary(self.print_option_dict, title="Setup for force field")
 
     @classmethod
     def fromfile(cls, fnm):

@@ -33,8 +33,8 @@ class BaseClass:
     def set_option(
         self, in_dict, src_key, dest_key=None, val=None, default=None, forceprint=False
     ):
-        if not hasattr(self, "PrintOptionDict"):
-            self.PrintOptionDict = OrderedDict()
+        if not hasattr(self, "print_option_dict"):
+            self.print_option_dict = OrderedDict()
         if dest_key is None:
             dest_key = src_key
         if val is None:
@@ -60,7 +60,7 @@ class BaseClass:
             )
             and dest_key != "root"
         ) or forceprint:
-            self.PrintOptionDict[dest_key] = val
+            self.print_option_dict[dest_key] = val
         self.option_keys.add(dest_key)
         return self.__setattr__(dest_key, val)
 

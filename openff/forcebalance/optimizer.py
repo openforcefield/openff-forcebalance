@@ -225,7 +225,7 @@ class Optimizer(BaseClass):
             self.recover()
 
         ## Print the optimizer options.
-        printcool_dictionary(self.PrintOptionDict, title="Setup for optimizer")
+        printcool_dictionary(self.print_option_dict, title="Setup for optimizer")
         ## Load the checkpoint file.
         self.readchk()
 
