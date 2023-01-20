@@ -37,6 +37,7 @@ def Run_ForceBalance(input_file, debug=False, continue_=False):
     try:
         ## The general options and target options that come from parsing the input file
         options, tgt_opts = parse_inputs(input_file)
+
         ## Set the continue_ option.
         if continue_:
             options["continue"] = True

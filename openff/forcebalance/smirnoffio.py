@@ -8,6 +8,7 @@ import json
 import os
 from collections import Counter, OrderedDict, defaultdict
 from copy import deepcopy
+from typing import List, Tuple
 
 import numpy as np
 
@@ -33,7 +34,7 @@ from openff.toolkit import Molecule as OFFMolecule
 from openff.toolkit import Topology as OFFTopology
 from openff.units import unit
 from openff.units.openmm import ensure_quantity
-from openmm import *
+from openmm import Vec3
 from openmm.app import *
 
 from openff.forcebalance import smirnoff_hack
@@ -274,10 +275,7 @@ class SMIRNOFF(OpenMM):
             "restrain_k",
             "freeze_atoms",
         ]
-        if not toolkit_import_success:
-            warn_once(
-                "Note: Failed to import the OpenFF Toolkit - SMIRNOFF Engine will not work. "
-            )
+
         super().__init__(name=name, **kwargs)
 
     def readsrc(self, **kwargs):
@@ -324,6 +322,7 @@ class SMIRNOFF(OpenMM):
         # But we can assume that these files should exist when this function is called.
 
         self.mol2 = kwargs.get("mol2")
+
         if self.mol2:
             for fnm in self.mol2:
                 if not os.path.exists(fnm):
@@ -403,6 +402,7 @@ class SMIRNOFF(OpenMM):
 
         ## Load mol2 files for smirnoff topology
         openff_mols = []
+
         for fnm in self.mol2:
             try:
                 mol = OFFMolecule.from_file(fnm)
@@ -447,8 +447,46 @@ class SMIRNOFF(OpenMM):
 
         self._has_virtual_sites = False
         if "VirtualSites" in interchange.handlers:
-            if len(interchange["VirtualSites"].slot_map) > 0:
+            n_virtual_sites = len(interchange["VirtualSites"].slot_map)
+            if n_virtual_sites > 0:
                 self._has_virtual_sites = True
+
+        self.xyz_omms: List[Tuple[openmm.unit.Quantity, ...]] = list()
+
+        for molecule_index in range(len(self.mol)):
+
+            xyz = self.mol.xyzs[molecule_index]
+            # TODO: Replace with helper function from Interchange
+            xyz_omm: openmm.unit.Quantity = (
+                [Vec3(i[0], i[1], i[2]) for i in xyz]
+                # Add placeholder positions for an v-sites.
+                + [Vec3(0.0, 0.0, 0.0)] * n_virtual_sites
+            ) * angstrom
+
+            if self.pbc:
+                # Replace with helper function a la Molecule.is_orthoganol
+                if (
+                    self.mol.boxes[molecule_index].alpha != 90.0
+                    or self.mol.boxes[molecule_index].beta != 90.0
+                    or self.mol.boxes[molecule_index].gamma != 90.0
+                ):
+                    logger.error("OpenMM cannot handle nonorthogonal boxes.\n")
+                    raise RuntimeError
+                box_omm: openmm.unit.Quantity = (
+                    np.diag(
+                        [
+                            self.mol.boxes[molecule_index].a,
+                            self.mol.boxes[molecule_index].b,
+                            self.mol.boxes[molecule_index].c,
+                        ]
+                    )
+                    * angstrom
+                )
+            else:
+                box_omm = None
+
+            # Finally append it to list.
+            self.xyz_omms.append((xyz_omm, box_omm))
 
         positions = ensure_quantity(interchange.positions, "openmm")
         self.xyz_omms = ensure_quantity(interchange.positions, "openmm")
@@ -459,7 +497,9 @@ class SMIRNOFF(OpenMM):
             ):
                 logger.error("Nonorthogonal boxes not implemented.\n")
                 raise RuntimeError
-            box = np.diag(interchange.box.m_as(unit.angstrom))
+            box = np.diag(
+                ensure_quantity(interchange.box.m_as(unit.angstrom)), "openmm"
+            )
         else:
             box = None
 
