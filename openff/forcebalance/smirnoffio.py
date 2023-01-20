@@ -445,23 +445,26 @@ class SMIRNOFF(OpenMM):
         # determine if the FF will apply virtual sites to the system.
         interchange = self.forcefield.create_interchange(self.off_topology)
 
-        self._has_virtual_sites = False
         if "VirtualSites" in interchange.handlers:
             n_virtual_sites = len(interchange["VirtualSites"].slot_map)
-            if n_virtual_sites > 0:
-                self._has_virtual_sites = True
+        else:
+            n_virtual_sites = 0
+
+        self._has_virtual_sites = n_virtual_sites > 0
 
         self.xyz_omms: List[Tuple[openmm.unit.Quantity, ...]] = list()
 
         for molecule_index in range(len(self.mol)):
 
-            xyz = self.mol.xyzs[molecule_index]
+            _xyz = self.mol.xyzs[molecule_index]
+
             # TODO: Replace with helper function from Interchange
-            xyz_omm: openmm.unit.Quantity = (
-                [Vec3(i[0], i[1], i[2]) for i in xyz]
-                # Add placeholder positions for an v-sites.
-                + [Vec3(0.0, 0.0, 0.0)] * n_virtual_sites
-            ) * angstrom
+            # Remap to openmm.unit.Quantity with placeholders for a virtual sites.
+            xyz_omm: openmm.unit.Quantity = openmm.unit.Quantity(
+                [Vec3(i[0], i[1], i[2]) for i in _xyz]
+                + [Vec3(0.0, 0.0, 0.0)] * n_virtual_sites,
+                openmm.unit.angstrom,
+            )
 
             if self.pbc:
                 # Replace with helper function a la Molecule.is_orthoganol
@@ -472,15 +475,15 @@ class SMIRNOFF(OpenMM):
                 ):
                     logger.error("OpenMM cannot handle nonorthogonal boxes.\n")
                     raise RuntimeError
-                box_omm: openmm.unit.Quantity = (
+                box_omm: openmm.unit.Quantity = openmm.unit.Quantity(
                     np.diag(
                         [
                             self.mol.boxes[molecule_index].a,
                             self.mol.boxes[molecule_index].b,
                             self.mol.boxes[molecule_index].c,
                         ]
-                    )
-                    * angstrom
+                    ),
+                    openmm.unit.angstrom,
                 )
             else:
                 box_omm = None
@@ -488,25 +491,12 @@ class SMIRNOFF(OpenMM):
             # Finally append it to list.
             self.xyz_omms.append((xyz_omm, box_omm))
 
-        positions = ensure_quantity(interchange.positions, "openmm")
-        self.xyz_omms = ensure_quantity(interchange.positions, "openmm")
-
-        if interchange.box:
-            if not np.all(
-                interchange.box.m.diagonal() * np.eye(3) == interchange.box.m
-            ):
-                logger.error("Nonorthogonal boxes not implemented.\n")
-                raise RuntimeError
-            box = np.diag(
-                ensure_quantity(interchange.box.m_as(unit.angstrom)), "openmm"
-            )
-        else:
-            box = None
-
-        self.xyz_omms.append((positions, box))
-
         openmm_topology = interchange.to_openmm_topology()
-        self.mod = openmm.app.Modeller(openmm_topology, positions)
+        openmm_positions = (
+            self.pdb.positions.value_in_unit(openmm.unit.angstrom)
+            + [openmm.Vec3(0.0, 0.0, 0.0)] * n_virtual_sites
+        )
+        self.mod = openmm.app.Modeller(openmm_topology, openmm_positions)
 
         ## Build a topology and atom lists.
         Top = self.mod.getTopology()
@@ -562,12 +552,9 @@ class SMIRNOFF(OpenMM):
         #         delattr(self, 'simulation')
         # self.vsprm = vsprm.copy()
 
-        if openff_topology.n_topology_virtual_sites > 0:
-            # For now always assume that the v-sites have changed. This is currently
-            # needed as the FB checks don't support the ``LocalCoordinatesSite`` based
-            # virtual sites that OpenFF uses.
-            if hasattr(self, "simulation"):
-                delattr(self, "simulation")
+        for particle_index in range(self.system.getNumParticles()):
+            if self.system.isVirtualSite(particle_index):
+                raise Exception("SMIRNOFF virtual sites not yet supported.")
 
         if hasattr(self, "simulation"):
             UpdateSimulationParameters(self.system, self.simulation)
