@@ -1760,7 +1760,7 @@ class OpenMM(Engine):
                     "Minimizing the energy... (starting energy % .3f kJ/mol)"
                     % self.simulation.context.getState(getEnergy=True)
                     .getPotentialEnergy()
-                    .value_in_unit(kilojoule_per_mole)
+                    .value_in_unit(openmm.unit.kilojoule_per_mole)
                 )
             self.simulation.minimizeEnergy()
             if verbose:
@@ -1768,7 +1768,7 @@ class OpenMM(Engine):
                     "Done (final energy % .3f kJ/mol)\n"
                     % self.simulation.context.getState(getEnergy=True)
                     .getPotentialEnergy()
-                    .value_in_unit(kilojoule_per_mole)
+                    .value_in_unit(openmm.unit.kilojoule_per_mole)
                 )
 
         # Serialize the system if we want.
