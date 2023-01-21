@@ -1,6 +1,6 @@
 import re
 import sys
-from logging import *
+from logging import INFO, FileHandler, Logger, StreamHandler, getLogger, setLoggerClass
 
 
 class ForceBalanceLogger(Logger):

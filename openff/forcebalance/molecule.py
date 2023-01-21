@@ -5,23 +5,19 @@ import os
 import re
 import sys
 from collections import OrderedDict, namedtuple
-from ctypes import *
-from datetime import date
+from ctypes import POINTER, Structure, c_double, c_float
 from itertools import zip_longest
 from typing import Dict
 
 import numpy as np
+import openmm
 from numpy import arccos, cos, sin
 from numpy.linalg import multi_dot
-from openmm import *
-from openmm.app import *
-from openmm.unit import *
+from openmm import unit
 from pkg_resources import parse_version
 
-try:
-    input = raw_input
-except NameError:
-    pass
+from openff.forcebalance import Mol2
+
 
 # Special error which is thrown when TINKER .arc data is detected in a .xyz file
 class ActuallyArcError(IOError):
@@ -1439,6 +1435,7 @@ class Molecule:
             "pdb": self.read_pdb,
             "xyz": self.read_xyz,
             "qcschema": self.read_qcschema,
+            "mol2": self.read_mol2,
             "qcesp": self.read_qcesp,
             "qdata": self.read_qdata,
         }
@@ -3371,7 +3368,7 @@ class Molecule:
         for xyz in self.xyzs:
             Pos = []
             for xyzi in xyz:
-                Pos.append(Vec3(xyzi[0] / 10, xyzi[1] / 10, xyzi[2] / 10))
+                Pos.append(openmm.Vec3(xyzi[0] / 10, xyzi[1] / 10, xyzi[2] / 10))
             Positions.append(Pos * nanometer)
         return Positions
 
@@ -3384,7 +3381,14 @@ class Molecule:
 
         self.require("boxes")
         return [
-            (Vec3(*box.A) / 10.0, Vec3(*box.B) / 10.0, Vec3(*box.C) / 10.0) * nanometer
+            unit.Quantity(
+                [
+                    openmm.Vec3(*box.A) / 10.0,
+                    openmm.Vec3(*box.B) / 10.0,
+                    openmm.Vec3(*box.C) / 10.0,
+                ],
+                unit.nanometer,
+            )
             for box in self.boxes
         ]
 
@@ -3574,6 +3578,63 @@ class Molecule:
             Answer["qm_espxyzs"] = espxyzs
         if len(espvals) > 0:
             Answer["qm_espvals"] = espvals
+        return Answer
+
+    def read_mol2(self, fnm, **kwargs):
+        xyz = []
+        charge = []
+        atomname = []
+        atomtype = []
+        elem = []
+        resname = []
+        resid = []
+        data = Mol2.mol2_set(fnm)
+        if len(data.compounds) > 1:
+            sys.stderr.write(
+                "Not sure what to do if the MOL2 file contains multiple compounds\n"
+            )
+        for i, atom in enumerate(list(data.compounds.items())[0][1].atoms):
+            xyz.append([atom.x, atom.y, atom.z])
+            charge.append(atom.charge)
+            atomname.append(atom.atom_name)
+            atomtype.append(atom.atom_type)
+            resname.append(atom.subst_name)
+            resid.append(atom.subst_id)
+            thiselem = atom.atom_name
+            if len(thiselem) > 1:
+                thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
+            elem.append(thiselem)
+
+        # resname = [list(data.compounds.items())[0][0] for i in range(len(elem))]
+        # resid = [1 for i in range(len(elem))]
+
+        # Deprecated 'abonds' format.
+        # bonds    = [[] for i in range(len(elem))]
+        # for bond in data.compounds.items()[0][1].bonds:
+        #     a1 = bond.origin_atom_id - 1
+        #     a2 = bond.target_atom_id - 1
+        #     aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
+        #     bonds[aL].append(aH)
+
+        bonds = []
+        for bond in list(data.compounds.items())[0][1].bonds:
+            a1 = bond.origin_atom_id - 1
+            a2 = bond.target_atom_id - 1
+            aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
+            bonds.append((aL, aH))
+
+        self.top_settings["read_bonds"] = True
+        Answer = {
+            "xyzs": [np.array(xyz)],
+            "partial_charge": charge,
+            "atomname": atomname,
+            "atomtype": atomtype,
+            "elem": elem,
+            "resname": resname,
+            "resid": resid,
+            "bonds": bonds,
+        }
+
         return Answer
 
     def read_gro(self, fnm, **kwargs):

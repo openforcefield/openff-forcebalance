@@ -3,11 +3,8 @@
 import os
 from collections import OrderedDict
 
-import numpy as np
-
 from openff.forcebalance import BaseClass
 from openff.forcebalance.nifty import *
-from openff.forcebalance.optimizer import Counter
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
@@ -51,10 +48,9 @@ class Engine(BaseClass):
         kwargs = {i: j for i, j in kwargs.items() if j is not None and i in self.valkwd}
         super().__init__(kwargs)
         self.name = name
-        if "verbose" in kwargs:
-            self.verbose = verbose
-        else:
-            self.verbose = False
+
+        self.verbose = kwargs.get("verbose", False)
+
         ## Engines can get properties from the Target that creates them.
         if "target" in kwargs:
             self.target = kwargs["target"]

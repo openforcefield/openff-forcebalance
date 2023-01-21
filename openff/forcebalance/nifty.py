@@ -1732,7 +1732,7 @@ def _exec(
     stdin="",
     print_command=True,
     copy_stdout=True,
-    copy_stderr=False,
+    copy_stderr=True,
     persist=False,
     expand_cr=False,
     print_error=True,
@@ -1933,8 +1933,11 @@ def _exec(
                 )
         else:
             # This code (commented out) would not throw an exception, but instead exit with the returncode of the crashed program.
-            # sys.stderr.write("\x1b[1;94m%s\x1b[0m gave a return code of %i (\x1b[91mit may have crashed\x1b[0m)\n" % (command, p.returncode))
-            # sys.exit(p.returncode)
+            sys.stderr.write(
+                "\x1b[1;94m%s\x1b[0m gave a return code of %i (\x1b[91mit may have crashed\x1b[0m)\n"
+                % (command, p.returncode)
+            )
+            sys.exit(p.returncode)
             logger.error(
                 "\x1b[1;94m%s\x1b[0m gave a return code of %i (\x1b[91mit may have crashed\x1b[0m)\n\n"
                 % (command, p.returncode)

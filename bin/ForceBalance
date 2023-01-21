@@ -135,7 +135,6 @@ if [ $errlines -ne 0 ] || [ $exitstat -ne 0 ] ; then
         find $filename.tmp -name npt.out -mmin -600 | sort
         echo "Error messages may also appear in the above files."
     fi
-    echo "If error does not make sense, please contact me (Lee-Ping)."
 elif [ $nerr -ne 0 ] ; then
     echo "Look in $error for more (possibly relevant) printout."
 else

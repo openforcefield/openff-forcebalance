@@ -8,35 +8,34 @@ import json
 import os
 from collections import Counter, OrderedDict, defaultdict
 from copy import deepcopy
+from typing import List, Tuple
 
-import numpy as np
-
-from openff.forcebalance import BaseReader
-from openff.forcebalance.abinitio import AbInitio
-from openff.forcebalance.chemistry import *
-from openff.forcebalance.finite_difference import *
-from openff.forcebalance.hessian import Hessian
-from openff.forcebalance.liquid import Liquid
-from openff.forcebalance.molecule import *
-from openff.forcebalance.nifty import *
-from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
-from openff.forcebalance.opt_geo_target import OptGeoTarget
-from openff.forcebalance.output import getLogger
-from openff.forcebalance.torsion_profile import TorsionProfileTarget
-from openff.forcebalance.vibration import Vibration
-
-logger = getLogger(__name__)
-
+import numpy
 import openmm.unit
 from openff.toolkit import ForceField as OFFForceField
 from openff.toolkit import Molecule as OFFMolecule
 from openff.toolkit import Topology as OFFTopology
-from openff.units import unit
-from openff.units.openmm import ensure_quantity
-from openmm import *
-from openmm.app import *
+from openmm import Vec3, app
 
-from openff.forcebalance import smirnoff_hack
+from openff.forcebalance import BaseReader
+from openff.forcebalance.abinitio import AbInitio
+
+# from openff.forcebalance.chemistry import *
+# from openff.forcebalance.finite_difference import *
+from openff.forcebalance.hessian import Hessian
+from openff.forcebalance.liquid import Liquid
+from openff.forcebalance.molecule import Molecule
+from openff.forcebalance.nifty import printcool
+from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
+from openff.forcebalance.opt_geo_target import OptGeoTarget
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.smirnoff_hack import use_caches
+from openff.forcebalance.torsion_profile import TorsionProfileTarget
+from openff.forcebalance.vibration import Vibration
+
+use_caches()
+
+logger = getLogger(__name__)
 
 
 def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
@@ -274,10 +273,7 @@ class SMIRNOFF(OpenMM):
             "restrain_k",
             "freeze_atoms",
         ]
-        if not toolkit_import_success:
-            warn_once(
-                "Note: Failed to import the OpenFF Toolkit - SMIRNOFF Engine will not work. "
-            )
+
         super().__init__(name=name, **kwargs)
 
     def readsrc(self, **kwargs):
@@ -324,6 +320,7 @@ class SMIRNOFF(OpenMM):
         # But we can assume that these files should exist when this function is called.
 
         self.mol2 = kwargs.get("mol2")
+
         if self.mol2:
             for fnm in self.mol2:
                 if not os.path.exists(fnm):
@@ -386,11 +383,11 @@ class SMIRNOFF(OpenMM):
         """
 
         if hasattr(self, "abspdb"):
-            self.pdb = PDBFile(self.abspdb)
+            self.pdb = app.PDBFile(self.abspdb)
         else:
             pdb1 = "%s-1.pdb" % os.path.splitext(os.path.basename(self.mol.fnm))[0]
             self.mol[0].write(pdb1)
-            self.pdb = PDBFile(pdb1)
+            self.pdb = app.PDBFile(pdb1)
             os.unlink(pdb1)
 
         # Create the OpenFF ForceField object.
@@ -403,6 +400,7 @@ class SMIRNOFF(OpenMM):
 
         ## Load mol2 files for smirnoff topology
         openff_mols = []
+
         for fnm in self.mol2:
             try:
                 mol = OFFMolecule.from_file(fnm)
@@ -431,7 +429,7 @@ class SMIRNOFF(OpenMM):
                 # If the parameter files don't already exist, create them for the purpose of
                 # preparing the engine, but then delete them afterward.
                 fftmp = True
-                self.FF.make(np.zeros(self.FF.np))
+                self.FF.make(numpy.zeros(self.FF.np))
 
         ## Set system options from periodic boundary conditions.
         self.pbc = pbc
@@ -445,28 +443,58 @@ class SMIRNOFF(OpenMM):
         # determine if the FF will apply virtual sites to the system.
         interchange = self.forcefield.create_interchange(self.off_topology)
 
-        self._has_virtual_sites = False
         if "VirtualSites" in interchange.handlers:
-            if len(interchange["VirtualSites"].slot_map) > 0:
-                self._has_virtual_sites = True
-
-        positions = ensure_quantity(interchange.positions, "openmm")
-        self.xyz_omms = ensure_quantity(interchange.positions, "openmm")
-
-        if interchange.box:
-            if not np.all(
-                interchange.box.m.diagonal() * np.eye(3) == interchange.box.m
-            ):
-                logger.error("Nonorthogonal boxes not implemented.\n")
-                raise RuntimeError
-            box = np.diag(interchange.box.m_as(unit.angstrom))
+            n_virtual_sites = len(interchange["VirtualSites"].slot_map)
         else:
-            box = None
+            n_virtual_sites = 0
 
-        self.xyz_omms.append((positions, box))
+        self._has_virtual_sites = n_virtual_sites > 0
+
+        self.xyz_omms: List[Tuple[openmm.unit.Quantity, ...]] = list()
+
+        for molecule_index in range(len(self.mol)):
+
+            _xyz = self.mol.xyzs[molecule_index]
+
+            # TODO: Replace with helper function from Interchange
+            # Remap to openmm.unit.Quantity with placeholders for a virtual sites.
+            xyz_omm: openmm.unit.Quantity = openmm.unit.Quantity(
+                [Vec3(i[0], i[1], i[2]) for i in _xyz]
+                + [Vec3(0.0, 0.0, 0.0)] * n_virtual_sites,
+                openmm.unit.angstrom,
+            )
+
+            if self.pbc:
+                # Replace with helper function a la Molecule.is_orthoganol
+                if (
+                    self.mol.boxes[molecule_index].alpha != 90.0
+                    or self.mol.boxes[molecule_index].beta != 90.0
+                    or self.mol.boxes[molecule_index].gamma != 90.0
+                ):
+                    logger.error("OpenMM cannot handle nonorthogonal boxes.\n")
+                    raise RuntimeError
+                box_omm: openmm.unit.Quantity = openmm.unit.Quantity(
+                    numpy.diag(
+                        [
+                            self.mol.boxes[molecule_index].a,
+                            self.mol.boxes[molecule_index].b,
+                            self.mol.boxes[molecule_index].c,
+                        ]
+                    ),
+                    openmm.unit.angstrom,
+                )
+            else:
+                box_omm = None
+
+            # Finally append it to list.
+            self.xyz_omms.append((xyz_omm, box_omm))
 
         openmm_topology = interchange.to_openmm_topology()
-        self.mod = openmm.app.Modeller(openmm_topology, positions)
+        openmm_positions = (
+            self.pdb.positions.value_in_unit(openmm.unit.angstrom)
+            + [openmm.Vec3(0.0, 0.0, 0.0)] * n_virtual_sites
+        )
+        self.mod = openmm.app.Modeller(openmm_topology, openmm_positions)
 
         ## Build a topology and atom lists.
         Top = self.mod.getTopology()
@@ -476,7 +504,9 @@ class SMIRNOFF(OpenMM):
         #            for i in range(system.getNumParticles()) if system.isVirtualSite(i)]
         self.AtomLists = defaultdict(list)
         self.AtomLists["Mass"] = [
-            a.element.mass.value_in_unit(dalton) if a.element is not None else 0
+            a.element.mass.value_in_unit(openmm.unit.dalton)
+            if a.element is not None
+            else 0
             for a in Atoms
         ]
         self.AtomLists["ParticleType"] = [
@@ -510,24 +540,21 @@ class SMIRNOFF(OpenMM):
             raise error
         # Commenting out all virtual site stuff for now.
         # self.vsinfo = PrepareVirtualSites(self.system)
-        self.nbcharges = np.zeros(self.system.getNumParticles())
+        self.nbcharges = numpy.zeros(self.system.getNumParticles())
 
         # ----
         # If the virtual site parameters have changed,
         # the simulation object must be remade.
         # ----
         # vsprm = GetVirtualSiteParameters(self.system)
-        # if hasattr(self,'vsprm') and len(self.vsprm) > 0 and np.max(np.abs(vsprm - self.vsprm)) != 0.0:
+        # if hasattr(self,'vsprm') and len(self.vsprm) > 0 and numpy.max(np.abs(vsprm - self.vsprm)) != 0.0:
         #     if hasattr(self, 'simulation'):
         #         delattr(self, 'simulation')
         # self.vsprm = vsprm.copy()
 
-        if openff_topology.n_topology_virtual_sites > 0:
-            # For now always assume that the v-sites have changed. This is currently
-            # needed as the FB checks don't support the ``LocalCoordinatesSite`` based
-            # virtual sites that OpenFF uses.
-            if hasattr(self, "simulation"):
-                delattr(self, "simulation")
+        for particle_index in range(self.system.getNumParticles()):
+            if self.system.isVirtualSite(particle_index):
+                raise Exception("SMIRNOFF virtual sites not yet supported.")
 
         if hasattr(self, "simulation"):
             UpdateSimulationParameters(self.system, self.simulation)
@@ -546,10 +573,10 @@ class SMIRNOFF(OpenMM):
         )
 
         # Add placeholder positions for an v-sites.
-        if isinstance(X1, np.ndarray):
-            X1 = numpy.vstack([X1, np.zeros((n_v_sites, 3))]) * angstrom
+        if isinstance(X1, numpy.ndarray):
+            X1 = numpy.vstack([X1, numpy.zeros((n_v_sites, 3))]) * openmm.unit.angstrom
         else:
-            X1 = (X1 + [Vec3(0.0, 0.0, 0.0)] * n_v_sites) * angstrom
+            X1 = (X1 + [Vec3(0.0, 0.0, 0.0)] * n_v_sites) * openmm.unit.angstrom
 
         self.simulation.context.setPositions(X1)
         self.simulation.context.computeVirtualSites()
@@ -823,7 +850,7 @@ class OptGeoTarget_SMIRNOFF(OptGeoTarget):
         n_params = len(self.FF.map)
         # default mask with all False
         system_mval_masks = {
-            sysname: np.zeros(n_params, dtype=bool) for sysname in self.sys_opts
+            sysname: numpy.zeros(n_params, dtype=bool) for sysname in self.sys_opts
         }
         set(self.pgrad)
         # smirks to param_idxs map

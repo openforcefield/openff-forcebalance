@@ -16,6 +16,7 @@ import shutil
 import time
 from collections import OrderedDict
 from copy import deepcopy
+from logging import DEBUG, getLogger
 
 import numpy as np
 from numpy.linalg import multi_dot
@@ -37,7 +38,6 @@ from openff.forcebalance.nifty import (
     warn_press_key,
     wopen,
 )
-from openff.forcebalance.output import DEBUG, getLogger
 from openff.forcebalance.parser import parse_inputs
 
 logger = getLogger(__name__)
@@ -225,7 +225,7 @@ class Optimizer(BaseClass):
             self.recover()
 
         ## Print the optimizer options.
-        printcool_dictionary(self.PrintOptionDict, title="Setup for optimizer")
+        printcool_dictionary(self.print_option_dict, title="Setup for optimizer")
         ## Load the checkpoint file.
         self.readchk()
 

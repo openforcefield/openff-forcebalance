@@ -30,7 +30,7 @@ from openff.forcebalance.nifty import (
     wq_wait1,
 )
 from openff.forcebalance.optimizer import Counter
-from openff.forcebalance.output import getLogger
+from openff.forcebalance.output import RawFileHandler, getLogger
 
 logger = getLogger(__name__)
 
@@ -633,13 +633,13 @@ class Target(abc.ABC, BaseClass):
                     raise RuntimeError
                 # Add a handler for printing to screen and file
                 logger = getLogger("openff.forcebalance")
-                hdlr = openff.forcebalance.output.RawFileHandler("indicate.log")
-                logger.addHandler(hdlr)
+                handler = RawFileHandler("indicate.log")
+                logger.addHandler(handler)
             # Execute the indicate function
             self.indicate()
             if self.write_indicate:
                 # Remove the handler (return to normal printout)
-                logger.removeHandler(hdlr)
+                logger.removeHandler(handler)
                 # Return to the module level logger
                 logger = getLogger(__name__)
                 # The module level logger now prints the indicator

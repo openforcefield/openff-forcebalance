@@ -6,12 +6,13 @@ import pytest
 
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.parser import gen_opts_defaults, tgt_opts_defaults
+from openff.forcebalance.tests import BaseTest
 from openff.forcebalance.tests import __file__ as test_root
 
 
-class TargetTests:
+class TargetTests(BaseTest):
     def setup_method(self, method):
-        super().setup_method(method)
+        # super().setup_method(method)
         self.logger = getLogger("openff.forcebalance.tests." + __name__[5:])
         self.logger.debug("\nBuilding options for target...\n")
         self.options = gen_opts_defaults.copy()

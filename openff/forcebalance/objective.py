@@ -187,7 +187,7 @@ class Objective(BaseClass):
                 Tgt = Implemented_Targets[opts["type"]](options, opts, forcefield)
             self.Targets.append(Tgt)
             printcool_dictionary(
-                Tgt.PrintOptionDict, "Setup for target %s :" % Tgt.name
+                Tgt.print_option_dict, "Setup for target %s :" % Tgt.name
             )
         if len({Tgt.name for Tgt in self.Targets}) != len(
             [Tgt.name for Tgt in self.Targets]
@@ -221,7 +221,7 @@ class Objective(BaseClass):
             createWorkQueue(self.wq_port)
             logger.info("Work Queue is listening on %d\n" % self.wq_port)
 
-        printcool_dictionary(self.PrintOptionDict, "Setup for objective function :")
+        printcool_dictionary(self.print_option_dict, "Setup for objective function :")
 
     def Target_Terms(self, mvals, Order=0, verbose=False, customdir=None):
         ## This is the objective function; it's a dictionary containing the value, first and second derivatives

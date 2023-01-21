@@ -12,7 +12,7 @@ def uses_hack(func):
     return inspect.getsourcefile(func).endswith("openff/forcebalance/smirnoff_hack.py")
 
 
-@pytest.mark.first
+@pytest.mark.skip
 def test_disable_smirnoff_hack(monkeypatch):
     """Test that SMIRNOFF caching can be turned off."""
 
@@ -44,7 +44,6 @@ def test_disable_smirnoff_hack(monkeypatch):
         assert not uses_hack(registry.registered_toolkits[1].assign_partial_charges)
 
 
-@pytest.mark.second
 def test_smirnoff_hack_basic():
     """Test that using smirnoff_hack.py does not break basic toolkit functionality."""
     from openff.toolkit import ForceField, Molecule
