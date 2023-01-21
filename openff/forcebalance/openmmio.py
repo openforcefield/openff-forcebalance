@@ -4,7 +4,7 @@
 @date 04/2012
 """
 import os
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from typing import List
 
@@ -15,7 +15,6 @@ from openmm import _openmm, app, unit
 from openff.forcebalance import BaseReader
 from openff.forcebalance.abinitio import AbInitio
 from openff.forcebalance.binding import BindingEnergy
-from openff.forcebalance.chemistry import *
 from openff.forcebalance.engine import Engine
 from openff.forcebalance.hydration import Hydration
 from openff.forcebalance.interaction import Interaction
@@ -95,7 +94,7 @@ def get_multipoles(simulation, q=None, mass=None, positions=None, rmcom=True):
                 )
             x = numpy.array(positions.value_in_unit(unit.nanometer))
             if rmcom:
-                com = numpy.sum(x * mass.reshape(-1, 1), axis=0) / np.sum(mass)
+                com = numpy.sum(x * mass.reshape(-1, 1), axis=0) / numpy.sum(mass)
                 x -= com
             xx, xy, xz, yy, yz, zz = (
                 x[:, k] * x[:, l]
@@ -207,8 +206,6 @@ def PrepareVirtualSites(system):
                 ]
 
                 def vsfunc(pos, idx_, wt_):
-                    """Calculate the vsite position within a orthonormal coordinate system described here
-                    http://docs.openmm.org/latest/api-c++/generated/OpenMM.LocalCoordinatesSite.html#localcoordinatessite"""
                     # origin weights
                     ows = wt_[0]
                     # xdir weights
@@ -568,11 +565,11 @@ suffix_dict = {
     "CustomNonbondedForce": {"Atom": ["class"]},
     "GBSAOBCForce": {"Atom": ["type"]},
     "Residues.Residue": {"VirtualSite": ["index"]},
-    ## LPW's custom parameter definitions
+    # LPW's custom parameter definitions
     "ForceBalance": {"GB": ["type"]},
 }
 
-## pdict is a useless variable if the force field is XML.
+# pdict is a useless variable if the force field is XML.
 pdict = "XML_Override"
 
 
@@ -580,9 +577,7 @@ class OpenMM_Reader(BaseReader):
     """Class for parsing OpenMM force field files."""
 
     def __init__(self, fnm):
-        ## Initialize the superclass. :)
         super().__init__(fnm)
-        ## The parameter dictionary (defined in this file)
         self.pdict = pdict
 
     def build_pid(self, element, parameter):
@@ -631,8 +626,8 @@ class OpenMM_Reader(BaseReader):
             return "/".join([InteractionType, parameter, Involved])
         except:
             logger.info(
-                "Minor warning: Parameter ID %s doesn't contain any atom types, redundancies are possible\n"
-                % ("/".join([InteractionType, parameter]))
+                "Minor warning: Parameter ID %s doesn't contain any atom types, "
+                "redundancies are possible\n" % ("/".join([InteractionType, parameter]))
             )
             return "/".join([InteractionType, parameter])
 
@@ -659,7 +654,7 @@ class OpenMM(Engine):
 
         """Called by __init__ ; Set OpenMM-specific options."""
 
-        ## Target settings override.
+        # Target settings override.
         if hasattr(self, "target"):
             self.platname = self.target.platname
             self.precision = self.target.precision
@@ -681,14 +676,13 @@ class OpenMM(Engine):
         if self.precision not in available_precisions:
             raise ValueError(self.precision)
 
-        ## Set the simulation platform
         if self.verbose:
             logger.info("Setting Platform to %s\n" % self.platname)
 
         self.platform = openmm.Platform.getPlatformByName(self.platname)
 
         if self.platname == "CUDA":
-            ## Set the device to the environment variable or zero otherwise
+            # Set the device to the environment variable or zero otherwise
             device = os.environ.get("CUDA_DEVICE", "0")
             if self.verbose:
                 logger.info("Setting CUDA Device to %s\n" % device)
@@ -758,7 +752,8 @@ class OpenMM(Engine):
         # if pbc and not hasattr(self.mol, 'boxes'):
         #     logger.error('Requested periodic boundary conditions but coordinate file contains no boxes')
         #     raise RuntimeError
-        ## Create the OpenMM PDB object.
+
+        # Create the OpenMM PDB object.
         if hasattr(self, "abspdb"):
             self.pdb = app.PDBFile(self.abspdb)
         else:
@@ -767,7 +762,7 @@ class OpenMM(Engine):
             self.pdb = app.PDBFile(pdb1)
             os.unlink(pdb1)
 
-        ## Create the OpenMM ForceField object.
+        # Create the OpenMM ForceField object.
         if hasattr(self, "FF"):
             self.ffxml = [self.FF.openmmxml]
             self.forcefield = app.ForceField(
@@ -777,34 +772,34 @@ class OpenMM(Engine):
             self.ffxml = listfiles(kwargs.get("ffxml"), "xml", err=True)
             self.forcefield = app.ForceField(*self.ffxml)
 
-        ## Create bonds between virtual sites and their host atoms.
-        ## This is mainly for setting up AMOEBA multipoles.
+        # Create bonds between virtual sites and their host atoms.
+        # This is mainly for setting up AMOEBA multipoles.
         self.vbonds = kwargs.get("vsite_bonds", 0)
 
-        ## OpenMM options for setting up the System.
+        # OpenMM options for setting up the System.
         self.mmopts = dict(mmopts)
 
-        ## Specify frozen atoms and restraint force constant
+        # Specify frozen atoms and restraint force constant
         if "restrain_k" in kwargs:
             self.restrain_k = kwargs["restrain_k"]
         if "freeze_atoms" in kwargs:
             self.freeze_atoms = kwargs["freeze_atoms"][:]
 
-        ## Set system options from ForceBalance force field options.
+        # Set system options from ForceBalance force field options.
         if hasattr(self, "FF"):
             self.mmopts["rigidWater"] = self.FF.rigid_water
             if self.FF.constrain_h is True:
                 self.mmopts["constraints"] = app.HBonds
                 logger.info("Constraining hydrogen bond lengths (SHAKE)")
 
-        ## Set system options from periodic boundary conditions.
+        # Set system options from periodic boundary conditions.
         self.pbc = pbc
         if pbc:
             minbox = min(
                 [self.mol.boxes[0].a, self.mol.boxes[0].b, self.mol.boxes[0].c]
             )
-            ## Here we will set the CutoffPeriodic so custom nonbonded forces may be used.
-            ## However, we will turn PME on for AmoebaMultipoleForce and NonbondedForce after the system is created.
+            # Here we will set the CutoffPeriodic so custom nonbonded forces may be used.
+            # However, we will turn PME on for AmoebaMultipoleForce and NonbondedForce after the system is created.
             self.SetPME = True
             # LPW: THIS CAUSES ISSUES! (AMOEBA system refuses to be created)
             # self.mmopts.setdefault('nonbondedMethod', CutoffPeriodic)
@@ -870,9 +865,9 @@ class OpenMM(Engine):
             self.mmopts.setdefault("nonbondedMethod", app.NoCutoff)
             self.mmopts["removeCMMotion"] = False
 
-        ## Generate list of OpenMM-compatible positions
+        # Generate list of OpenMM-compatible positions
         mod = self.generate_xyz_omm(self.mol)
-        ## Build a topology and atom lists.
+        # Build a topology and atom lists.
         Top = mod.getTopology()
         Atoms = list(Top.atoms())
         [(a.index, b.index) for a, b in list(Top.bonds())]
@@ -892,7 +887,7 @@ class OpenMM(Engine):
         self.realAtomIdxs = [i for i, a in enumerate(self.AtomMask) if a is True]
 
     def generate_xyz_omm(self, mol):
-        ## Generate OpenMM-compatible positions
+        # Generate OpenMM-compatible positions
         self.xyz_omms = []
         for I in range(len(mol)):
             xyz = mol.xyzs[I]
@@ -943,9 +938,9 @@ class OpenMM(Engine):
         # Divisor for the temperature (RPMD sets it to nonzero.)
         self.tdiv = 1
 
-        ## Determine the integrator.
+        # Determine the integrator.
         if temperature:
-            ## If temperature control is turned on, then run Langevin dynamics.
+            # If temperature control is turned on, then run Langevin dynamics.
             if mts:
                 if rpmd_beads > 0:
                     logger.error(
@@ -978,7 +973,7 @@ class OpenMM(Engine):
                         timestep * unit.femtosecond,
                     )
         else:
-            ## If no temperature control, default to the Verlet integrator.
+            # If no temperature control, default to the Verlet integrator.
             if rpmd_beads > 0:
                 logger.error("No RPMD integrator without temperature control.\n")
                 raise RuntimeError
@@ -988,7 +983,7 @@ class OpenMM(Engine):
                 )
             integrator = openmm.VerletIntegrator(timestep * unit.femtoseconds)
 
-        ## Add the barostat.
+        # Add the barostat.
         if pressure is not None:
             if anisotropic:
                 barostat = openmm.MonteCarloAnisotropicBarostat(
@@ -1028,7 +1023,7 @@ class OpenMM(Engine):
                 j = self.realAtomIdxs[i]
                 self.system.setParticleMass(j, 0.0)
 
-        ## Set up for energy component analysis.
+        # Set up for energy component analysis.
         GrpTogether = [
             "CustomNonbondedForce",
             "NonbondedForce",
@@ -1050,7 +1045,7 @@ class OpenMM(Engine):
         # test: exclude all Amoeba Nonbonded Forces within each residue
         # SetAmoebaNonbondedExcludeAll(self.system, self.mod.topology)
 
-        ## Finally create the simulation object.
+        # Finally create the simulation object.
         self.simulation = app.Simulation(
             self.mod.topology, self.system, integrator, self.platform
         )
@@ -1065,13 +1060,8 @@ class OpenMM(Engine):
         if len(kwargs) > 0:
             self.simkwargs = kwargs
         self.forcefield = app.ForceField(*self.ffxml)
-        # OpenMM classes for force generators
-        ismgens = [
-            app.forcefield.CustomGBGenerator,
-            app.forcefield.GBSAOBCGenerator,
-        ]
 
-        self.mod = Modeller(self.pdb.topology, self.pdb.positions)
+        self.mod = openmm.app.Modeller(self.pdb.topology, self.pdb.positions)
         self.mod.addExtraParticles(self.forcefield)
         # Add bonds for virtual sites. (Experimental)
         if self.vbonds:
@@ -1111,7 +1101,7 @@ class OpenMM(Engine):
         if (
             hasattr(self, "vsprm")
             and len(self.vsprm) > 0
-            and numpy.max(np.abs(vsprm - self.vsprm)) != 0.0
+            and numpy.max(numpy.abs(vsprm - self.vsprm)) != 0.0
         ):
             if hasattr(self, "simulation"):
                 delattr(self, "simulation")
@@ -1133,7 +1123,7 @@ class OpenMM(Engine):
         from the "current" positions that are stored in self.mol and self.xyz_omm.
         """
         if self.restraint_frc_index is not None:
-            ## Generate OpenMM-compatible positions in nanometers
+            # Generate OpenMM-compatible positions in nanometers
             xyz = self.ref_mol.xyzs[shot] / 10.0
             frc = self.simulation.system.getForce(self.restraint_frc_index)
             for i, j in enumerate(self.realAtomIdxs):
@@ -1424,7 +1414,7 @@ class OpenMM(Engine):
         # step 3: convert eigenvalues to frequencies
         coef = 0.5 / numpy.pi * 33.3564095  # 10^12 Hz => cm-1
         negatives = (eigvals >= 0).astype(int) * 2 - 1  # record the negative ones
-        freqs = numpy.sqrt(np.abs(eigvals)) * coef * negatives
+        freqs = numpy.sqrt(numpy.abs(eigvals)) * coef * negatives
         # step 4: convert eigenvectors to normal modes
         # re-arange to row index and shape
         normal_modes = eigvecs.T.reshape(noa * 3, noa, 3)
@@ -1434,12 +1424,12 @@ class OpenMM(Engine):
         ]  # unit in dalton
         for i in range(normal_modes.shape[0]):
             mode = normal_modes[i]
-            mode /= numpy.sqrt(massList[:, np.newaxis])
+            mode /= numpy.sqrt(massList[:, numpy.newaxis])
             mode /= numpy.linalg.norm(mode)
         # step 5: remove the 6 freqs with smallest abs value and corresponding normal modes
         n_remove = 5 if len(self.realAtomIdxs) == 2 else 6
         larger_freq_idxs = numpy.sort(
-            np.argpartition(np.abs(freqs), n_remove)[n_remove:]
+            numpy.argpartition(numpy.abs(freqs), n_remove)[n_remove:]
         )
         freqs = freqs[larger_freq_idxs]
         normal_modes = normal_modes[larger_freq_idxs]
@@ -1508,7 +1498,7 @@ class OpenMM(Engine):
             .value_in_unit(unit.angstrom)[self.realAtomIdxs]
         )
 
-        for logc in numpy.linspace(0, np.log10(crit), steps):
+        for logc in numpy.linspace(0, numpy.log10(crit), steps):
             self.simulation.minimizeEnergy(
                 tolerance=10**logc * unit.kilojoule_per_mole, maxIterations=100000
             )
@@ -1641,7 +1631,7 @@ class OpenMM(Engine):
             E = (
                 self.simulation.context.getState(getEnergy=True)
                 .getPotentialEnergy()
-                .value_in_unit(kilocalories_per_mole)
+                .value_in_unit(openmm.unit.kilocalories_per_mole)
             )
 
         return E, rmsd
@@ -1968,7 +1958,7 @@ class OpenMM(Engine):
                             iteration + 1,
                             state.getTime() / unit.picoseconds,
                             kinetic_temperature / unit.kelvin,
-                            potential / kilojoules_per_mole,
+                            potential / openmm.unit.kilojoules_per_mole,
                         )
                     )
             Temps.append(kinetic_temperature / unit.kelvin)
@@ -2095,7 +2085,7 @@ class AbInitio_OpenMM(AbInitio):
     """Force and energy matching using OpenMM."""
 
     def __init__(self, options, tgt_opts, forcefield):
-        ## Default file names for coordinates and key file.
+        # Default file names for coordinates and key file.
         self.set_option(tgt_opts, "pdb", default="conf.pdb")
         self.set_option(tgt_opts, "coords", default="all.gro")
         self.set_option(
@@ -2105,7 +2095,7 @@ class AbInitio_OpenMM(AbInitio):
             tgt_opts, "openmm_platform", "platname", default="CUDA", forceprint=True
         )
         self.engine_ = OpenMM
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
 
 
@@ -2124,7 +2114,7 @@ class BindingEnergy_OpenMM(BindingEnergy):
             default="Reference",
             forceprint=True,
         )
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
 
 
@@ -2132,7 +2122,7 @@ class Interaction_OpenMM(Interaction):
     """Interaction matching using OpenMM."""
 
     def __init__(self, options, tgt_opts, forcefield):
-        ## Default file names for coordinates and key file.
+        # Default file names for coordinates and key file.
         self.set_option(tgt_opts, "coords", default="all.pdb")
         self.set_option(
             tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
@@ -2145,7 +2135,7 @@ class Interaction_OpenMM(Interaction):
             forceprint=True,
         )
         self.engine_ = OpenMM
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
 
 
@@ -2153,7 +2143,7 @@ class Moments_OpenMM(Moments):
     """Multipole moment matching using OpenMM."""
 
     def __init__(self, options, tgt_opts, forcefield):
-        ## Default file names for coordinates and key file.
+        # Default file names for coordinates and key file.
         self.set_option(tgt_opts, "coords", default="input.pdb")
         self.set_option(
             tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
@@ -2166,7 +2156,7 @@ class Moments_OpenMM(Moments):
             forceprint=True,
         )
         self.engine_ = OpenMM
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
 
 
@@ -2174,7 +2164,7 @@ class Hydration_OpenMM(Hydration):
     """Single point hydration free energies using OpenMM."""
 
     def __init__(self, options, tgt_opts, forcefield):
-        ## Default file names for coordinates and key file.
+        # Default file names for coordinates and key file.
         # self.set_option(tgt_opts,'coords',default="input.pdb")
         self.set_option(
             tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
@@ -2184,17 +2174,17 @@ class Hydration_OpenMM(Hydration):
         )
         self.engine_ = OpenMM
         self.engname = "openmm"
-        ## Scripts to be copied from the ForceBalance installation directory.
+        # Scripts to be copied from the ForceBalance installation directory.
         self.scripts = ["runcuda.sh"]
-        ## Suffix for coordinate files.
+        # Suffix for coordinate files.
         self.crdsfx = ".pdb"
-        ## Command prefix.
+        # Command prefix.
         self.prefix = "bash runcuda.sh"
         if tgt_opts["remote_backup"]:
             self.prefix += " -b"
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
-        ## Send back the trajectory file.
+        # Send back the trajectory file.
         if self.save_traj > 0:
             self.extra_output = ["openmm-md.dcd"]
 
@@ -2203,7 +2193,7 @@ class Vibration_OpenMM(Vibration):
     """Vibrational frequency matching using TINKER."""
 
     def __init__(self, options, tgt_opts, forcefield):
-        ## Default file names for coordinates and key file.
+        # Default file names for coordinates and key file.
         self.set_option(tgt_opts, "coords", default="input.pdb")
         self.set_option(
             tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
@@ -2216,7 +2206,7 @@ class Vibration_OpenMM(Vibration):
             forceprint=True,
         )
         self.engine_ = OpenMM
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
 
 
@@ -2235,7 +2225,7 @@ class OptGeoTarget_OpenMM(OptGeoTarget):
             default="Reference",
             forceprint=True,
         )
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
 
     def create_engines(self, engine_args):
@@ -2260,7 +2250,7 @@ class TorsionProfileTarget_OpenMM(TorsionProfileTarget):
     """Optimized geometry matching using OpenMM."""
 
     def __init__(self, options, tgt_opts, forcefield):
-        ## Default file names for coordinates and key file.
+        # Default file names for coordinates and key file.
         self.set_option(tgt_opts, "pdb", default="conf.pdb")
         self.set_option(tgt_opts, "coords", default="scan.xyz")
         self.set_option(
@@ -2274,5 +2264,5 @@ class TorsionProfileTarget_OpenMM(TorsionProfileTarget):
             forceprint=True,
         )
         self.engine_ = OpenMM
-        ## Initialize base class.
+        # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)

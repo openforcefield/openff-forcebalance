@@ -9,7 +9,7 @@
 # Note: List option types are specified using spaces as the delimiter - i.e. forcefield ff1.itp ff2.itp ; delete empty brackets before use []
 
 $options
-forcefield smirnoff99Frosst.offxml
+forcefield openff-2.0.0.offxml
 jobtype optimize
 criteria 1
 convergence_gradient 0.01
@@ -29,10 +29,10 @@ mintrust 0.05
 normalize_weights 0
 
 priors
-HarmonicBondForce/Bond/length   : 1.0
-HarmonicBondForce/Bond/k        : 1000.0
-HarmonicAngleForce/Angle/angle  : 100.0
-HarmonicAngleForce/Angle/k      : 100.0
+   Bonds/Bond/k             :  1000.0
+   Bonds/Bond/length        :  0.1
+   Angles/Angle/k           :  100.0
+   Angles/Angle/angle       :  100.0
 /priors
 
 $end

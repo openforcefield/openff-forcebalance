@@ -10,34 +10,32 @@ from collections import Counter, OrderedDict, defaultdict
 from copy import deepcopy
 from typing import List, Tuple
 
-import numpy as np
-
-from openff.forcebalance import BaseReader
-from openff.forcebalance.abinitio import AbInitio
-from openff.forcebalance.chemistry import *
-from openff.forcebalance.finite_difference import *
-from openff.forcebalance.hessian import Hessian
-from openff.forcebalance.liquid import Liquid
-from openff.forcebalance.molecule import *
-from openff.forcebalance.nifty import *
-from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
-from openff.forcebalance.opt_geo_target import OptGeoTarget
-from openff.forcebalance.output import getLogger
-from openff.forcebalance.torsion_profile import TorsionProfileTarget
-from openff.forcebalance.vibration import Vibration
-
-logger = getLogger(__name__)
-
+import numpy
 import openmm.unit
 from openff.toolkit import ForceField as OFFForceField
 from openff.toolkit import Molecule as OFFMolecule
 from openff.toolkit import Topology as OFFTopology
-from openff.units import unit
-from openff.units.openmm import ensure_quantity
-from openmm import Vec3
-from openmm.app import *
+from openmm import Vec3, app
 
-from openff.forcebalance import smirnoff_hack
+from openff.forcebalance import BaseReader
+from openff.forcebalance.abinitio import AbInitio
+
+# from openff.forcebalance.chemistry import *
+# from openff.forcebalance.finite_difference import *
+from openff.forcebalance.hessian import Hessian
+from openff.forcebalance.liquid import Liquid
+from openff.forcebalance.molecule import Molecule
+from openff.forcebalance.nifty import printcool
+from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
+from openff.forcebalance.opt_geo_target import OptGeoTarget
+from openff.forcebalance.output import getLogger
+from openff.forcebalance.smirnoff_hack import use_caches
+from openff.forcebalance.torsion_profile import TorsionProfileTarget
+from openff.forcebalance.vibration import Vibration
+
+use_caches()
+
+logger = getLogger(__name__)
 
 
 def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
@@ -385,11 +383,11 @@ class SMIRNOFF(OpenMM):
         """
 
         if hasattr(self, "abspdb"):
-            self.pdb = PDBFile(self.abspdb)
+            self.pdb = app.PDBFile(self.abspdb)
         else:
             pdb1 = "%s-1.pdb" % os.path.splitext(os.path.basename(self.mol.fnm))[0]
             self.mol[0].write(pdb1)
-            self.pdb = PDBFile(pdb1)
+            self.pdb = app.PDBFile(pdb1)
             os.unlink(pdb1)
 
         # Create the OpenFF ForceField object.
@@ -431,7 +429,7 @@ class SMIRNOFF(OpenMM):
                 # If the parameter files don't already exist, create them for the purpose of
                 # preparing the engine, but then delete them afterward.
                 fftmp = True
-                self.FF.make(np.zeros(self.FF.np))
+                self.FF.make(numpy.zeros(self.FF.np))
 
         ## Set system options from periodic boundary conditions.
         self.pbc = pbc
@@ -476,7 +474,7 @@ class SMIRNOFF(OpenMM):
                     logger.error("OpenMM cannot handle nonorthogonal boxes.\n")
                     raise RuntimeError
                 box_omm: openmm.unit.Quantity = openmm.unit.Quantity(
-                    np.diag(
+                    numpy.diag(
                         [
                             self.mol.boxes[molecule_index].a,
                             self.mol.boxes[molecule_index].b,
@@ -506,7 +504,9 @@ class SMIRNOFF(OpenMM):
         #            for i in range(system.getNumParticles()) if system.isVirtualSite(i)]
         self.AtomLists = defaultdict(list)
         self.AtomLists["Mass"] = [
-            a.element.mass.value_in_unit(dalton) if a.element is not None else 0
+            a.element.mass.value_in_unit(openmm.unit.dalton)
+            if a.element is not None
+            else 0
             for a in Atoms
         ]
         self.AtomLists["ParticleType"] = [
@@ -540,14 +540,14 @@ class SMIRNOFF(OpenMM):
             raise error
         # Commenting out all virtual site stuff for now.
         # self.vsinfo = PrepareVirtualSites(self.system)
-        self.nbcharges = np.zeros(self.system.getNumParticles())
+        self.nbcharges = numpy.zeros(self.system.getNumParticles())
 
         # ----
         # If the virtual site parameters have changed,
         # the simulation object must be remade.
         # ----
         # vsprm = GetVirtualSiteParameters(self.system)
-        # if hasattr(self,'vsprm') and len(self.vsprm) > 0 and np.max(np.abs(vsprm - self.vsprm)) != 0.0:
+        # if hasattr(self,'vsprm') and len(self.vsprm) > 0 and numpy.max(np.abs(vsprm - self.vsprm)) != 0.0:
         #     if hasattr(self, 'simulation'):
         #         delattr(self, 'simulation')
         # self.vsprm = vsprm.copy()
@@ -573,10 +573,10 @@ class SMIRNOFF(OpenMM):
         )
 
         # Add placeholder positions for an v-sites.
-        if isinstance(X1, np.ndarray):
-            X1 = numpy.vstack([X1, np.zeros((n_v_sites, 3))]) * angstrom
+        if isinstance(X1, numpy.ndarray):
+            X1 = numpy.vstack([X1, numpy.zeros((n_v_sites, 3))]) * openmm.unit.angstrom
         else:
-            X1 = (X1 + [Vec3(0.0, 0.0, 0.0)] * n_v_sites) * angstrom
+            X1 = (X1 + [Vec3(0.0, 0.0, 0.0)] * n_v_sites) * openmm.unit.angstrom
 
         self.simulation.context.setPositions(X1)
         self.simulation.context.computeVirtualSites()
@@ -850,7 +850,7 @@ class OptGeoTarget_SMIRNOFF(OptGeoTarget):
         n_params = len(self.FF.map)
         # default mask with all False
         system_mval_masks = {
-            sysname: np.zeros(n_params, dtype=bool) for sysname in self.sys_opts
+            sysname: numpy.zeros(n_params, dtype=bool) for sysname in self.sys_opts
         }
         set(self.pgrad)
         # smirks to param_idxs map

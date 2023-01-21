@@ -3,11 +3,8 @@
 import os
 from collections import OrderedDict
 
-import numpy as np
-
 from openff.forcebalance import BaseClass
 from openff.forcebalance.nifty import *
-from openff.forcebalance.optimizer import Counter
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)

@@ -30,7 +30,7 @@ print_hessian
 constrain_charge false
 
 priors
-    /VirtualSites/VirtualSite/charge_increment2  :  0.1
+    /VirtualSites/VirtualSite/charge_increment1  :  0.1
 /priors
 
 $end

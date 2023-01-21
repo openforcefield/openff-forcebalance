@@ -10,8 +10,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from openff.forcebalance.finite_difference import f1d2p, f12d3p, fdwrap, in_fd
-from openff.forcebalance.molecule import Molecule
+from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
 from openff.forcebalance.nifty import (
     LinkFile,
     _exec,
