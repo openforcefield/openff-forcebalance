@@ -1,0 +1,53 @@
+#==================================================================
+#
+# Explanation for the formatting of this file
+# Anything after the octothrope (#) is a comment
+# Note to self: Please don't delete this section
+#
+# 1) The "$global" section contains settings that pertain to all
+# systems, like the openmm .pdb file, which can be overrideen in
+# the "$system" section.
+# The denominators will be used to scale the stdev of each type of
+# internal coordinates.
+# Bond length in unit of Angstrom. Angles use unit degree.
+# Default values are below.
+#
+# $global
+# topology gas.pdb
+# bond_denom 0.02
+# angle_denom 3
+# dihedral_denom 10
+# improper_denom 10
+# $end
+#
+# 2) The "$system" section describes a system that is involved in
+# the interaction energy.  Each system has a name and a geometry
+# file that goes with it.
+#
+# $system
+# name 9HXanthene
+# geometry 9HXanthene.xyz
+# dihedral_denom 0.2 # This will override global value
+# improper_denom 0.0 # This will ignore improper values in fitting
+# $end
+#
+#==================================================================
+
+
+
+$global
+bond_denom 0.01
+angle_denom 3
+dihedral_denom 10
+improper_denom 10
+$end
+
+# The optimized geometry were optimized at the B3LYP/6-31g level of theory.
+# using Psi4
+
+$system
+name 9HXanthene
+geometry 9HXanthene-optimized.xyz
+topology conf.pdb
+mol2 9HXanthene.mol2
+$end
