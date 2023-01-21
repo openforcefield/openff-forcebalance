@@ -21,7 +21,7 @@ from openff.forcebalance.interaction import Interaction
 from openff.forcebalance.liquid import Liquid
 from openff.forcebalance.molecule import Molecule
 from openff.forcebalance.moments import Moments
-from openff.forcebalance.nifty import error, listfiles, warn_once, warn_press_key
+from openff.forcebalance.nifty import listfiles, warn_once, warn_press_key
 from openff.forcebalance.opt_geo_target import OptGeoTarget
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.torsion_profile import TorsionProfileTarget
@@ -1397,7 +1397,9 @@ class OpenMM(Engine):
         # step 0: check number of real atoms
         noa = len(self.realAtomIdxs)
         if noa < 2:
-            error("normal mode analysis not suitable for system with one or less atoms")
+            logger.error(
+                "normal mode analysis not suitable for system with one or less atoms"
+            )
         # step 1: build a full hessian matrix
         (
             coords,

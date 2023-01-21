@@ -5,25 +5,19 @@ import os
 import re
 import sys
 from collections import OrderedDict, namedtuple
-from ctypes import *
-from datetime import date
+from ctypes import POINTER, Structure, c_double, c_float
 from itertools import zip_longest
 from typing import Dict
 
 import numpy as np
+import openmm
 from numpy import arccos, cos, sin
 from numpy.linalg import multi_dot
-from openmm import *
-from openmm.app import *
-from openmm.unit import *
+from openmm import unit
 from pkg_resources import parse_version
 
 from openff.forcebalance import Mol2
 
-try:
-    input = raw_input
-except NameError:
-    pass
 
 # Special error which is thrown when TINKER .arc data is detected in a .xyz file
 class ActuallyArcError(IOError):
@@ -3374,7 +3368,7 @@ class Molecule:
         for xyz in self.xyzs:
             Pos = []
             for xyzi in xyz:
-                Pos.append(Vec3(xyzi[0] / 10, xyzi[1] / 10, xyzi[2] / 10))
+                Pos.append(openmm.Vec3(xyzi[0] / 10, xyzi[1] / 10, xyzi[2] / 10))
             Positions.append(Pos * nanometer)
         return Positions
 
@@ -3387,7 +3381,14 @@ class Molecule:
 
         self.require("boxes")
         return [
-            (Vec3(*box.A) / 10.0, Vec3(*box.B) / 10.0, Vec3(*box.C) / 10.0) * nanometer
+            unit.Quantity(
+                [
+                    openmm.Vec3(*box.A) / 10.0,
+                    openmm.Vec3(*box.B) / 10.0,
+                    openmm.Vec3(*box.C) / 10.0,
+                ],
+                unit.nanometer,
+            )
             for box in self.boxes
         ]
 
