@@ -5,3 +5,7 @@ The conf.pdb file was converted from the xyz file using molecule.py
 The optgeo_options.txt file is prepared similar to the binding target's `interactions.txt` file.
 
 The QM optimized geometry is computed using Psi4 b3lyp/6-31g method.
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/add-fitting-tests
