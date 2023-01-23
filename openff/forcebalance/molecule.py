@@ -6,6 +6,7 @@ import re
 import sys
 from collections import OrderedDict, namedtuple
 from ctypes import POINTER, Structure, c_double, c_float
+from datetime import date
 from itertools import zip_longest
 from typing import Dict
 
@@ -2000,14 +2001,17 @@ class Molecule:
     # =====================================#
 
     def center_of_mass(self):
-        totMass = sum([PeriodicTable.get(self.elem[i], 0.0) for i in range(self.na)])
+        from openff.units.elements import MASSES, SYMBOLS
+
+        NUMBERS = {v: k for k, v in SYMBOLS.items()}
+
+        masses = [MASSES[NUMBERS[element]] for element in self.elem]
+        total_mass = sum(masses)
+
         return np.array(
             [
                 np.sum(
-                    [
-                        xyz[i, :] * PeriodicTable.get(self.elem[i], 0.0) / totMass
-                        for i in range(xyz.shape[0])
-                    ],
+                    [xyz[i, :] * masses[i] / total_mass for i in range(xyz.shape[0])],
                     axis=0,
                 )
                 for xyz in self.xyzs
