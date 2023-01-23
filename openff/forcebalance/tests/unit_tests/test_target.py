@@ -23,7 +23,6 @@ class TargetTests(BaseTest):
 
         os.chdir(self.options["root"])
 
-    @pytest.mark.skip
     def test_get_function(self):
         """Check target get() function output"""
         # os.chdir(self.target.tempdir)
@@ -69,7 +68,6 @@ class TargetTests(BaseTest):
 
         os.chdir("../..")
 
-    @pytest.mark.skip
     def test_get_agrad(self):
         """Check target objective function gradient using finite difference"""
         self.mvals = [0.5] * self.ff.np
