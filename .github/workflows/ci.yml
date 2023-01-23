@@ -47,9 +47,13 @@ jobs:
         python -m pip install .
         python -c "from openff.forcebalance import __version__; print(__version__)"
 
-    - name: Run tests
+    - name: Run unit tests
       run: |
         python -m pytest $COV $PYTEST_ARGS openff/forcebalance/tests/unit_tests/
+
+    - name: Run fitting tests
+      run: |
+        python -m pytest $COV $PYTEST_ARGS openff/forcebalance/tests/fitting_tests/
 
     - name: Codecov
       uses: codecov/codecov-action@v3
