@@ -8,22 +8,14 @@ from collections import OrderedDict, namedtuple
 from ctypes import POINTER, Structure, c_double, c_float
 from datetime import date
 from itertools import zip_longest
-from typing import Dict
 
-import numpy as np
+import numpy
 import openmm
-from numpy import arccos, cos, sin
-from numpy.linalg import multi_dot
+from numpy import cos
 from openmm import unit
-from pkg_resources import parse_version
 
 from openff.forcebalance import Mol2
-
-
-# Special error which is thrown when TINKER .arc data is detected in a .xyz file
-class ActuallyArcError(IOError):
-    pass
-
+from openff.forcebalance.PDB import *
 
 # ======================================================================#
 # |                                                                    |#
@@ -246,10 +238,6 @@ else:
     logger.setLevel(INFO)
     handler = RawStreamHandler()
     logger.addHandler(handler)
-    if __name__ == "__main__":
-        package = "LPW-molecule.py"
-    else:
-        package = __name__.split(".")[0]
 
 module_name = __name__.replace(".molecule", "")
 
@@ -268,7 +256,7 @@ module_name = __name__.replace(".molecule", "")
 # Not provided (for Am, Z=95 and up): The mass number of the lightest isotope was used
 def getElement(mass):
     return PeriodicTable.keys()[
-        np.argmin([np.abs(m - mass) for m in PeriodicTable.values()])
+        numpy.argmin([numpy.abs(m - mass) for m in PeriodicTable.values()])
     ]
 
 
@@ -276,27 +264,6 @@ def elem_from_atomname(atomname):
     """Given an atom name, attempt to get the element in most cases."""
     return re.search("[A-Z][a-z]*", atomname).group(0)
 
-
-if "forcebalance" in __name__:
-    # ============================#
-    # | PDB read/write functions |#
-    # ============================#
-    try:
-        from .PDB import *
-    except ImportError:
-        logger.debug(
-            "Note: Cannot import optional pdb module to read/write PDB files.\n"
-        )
-elif "geometric" in __name__:
-    # ============================#
-    # | PDB read/write functions |#
-    # ============================#
-    try:
-        from .PDB import *
-    except ImportError:
-        logger.debug(
-            "Note: Failed to import optional pdb module to read/write PDB files.\n"
-        )
 
 # ===========================#
 # | Convenience subroutines |#
@@ -313,7 +280,7 @@ def unmangle(M1, M2):
     If we start with atoms in molecule "PDB", and the new molecule "M"
     contains re-numbered atoms, then this code works:
 
-    M.elem = list(np.array(PDB.elem)[unmangled])
+    M.elem = list(numpy.array(PDB.elem)[unmangled])
     """
     if M1.na != M2.na:
         logger.error("Unmangler only deals with same number of atoms\n")
@@ -321,7 +288,7 @@ def unmangle(M1, M2):
     unmangler = {}
     for i in range(M1.na):
         for j in range(M2.na):
-            if np.linalg.norm(M1.xyzs[0][i] - M2.xyzs[0][j]) < 0.1:
+            if numpy.linalg.norm(M1.xyzs[0][i] - M2.xyzs[0][j]) < 0.1:
                 unmangler[j] = i
     unmangled = [unmangler[i] for i in sorted(unmangler.keys())]
     if len(unmangled) != M1.na:
@@ -350,7 +317,7 @@ splitter = re.compile(r"(\s+|\S+)")
 
 # Container for Bravais lattice vector.  Three cell lengths, three angles, three vectors, volume, and TINKER trig functions.
 Box = namedtuple("Box", ["a", "b", "c", "alpha", "beta", "gamma", "A", "B", "C", "V"])
-radian = 180.0 / np.pi
+radian = 180.0 / numpy.pi
 
 
 def CubicLattice(a):
@@ -360,26 +327,34 @@ def CubicLattice(a):
     alpha = 90
     beta = 90
     gamma = 90
-    alph = alpha * np.pi / 180
-    bet = beta * np.pi / 180
-    gamm = gamma * np.pi / 180
-    v = np.sqrt(
+    alph = alpha * numpy.pi / 180
+    bet = beta * numpy.pi / 180
+    gamm = gamma * numpy.pi / 180
+    v = numpy.sqrt(
         1
-        - cos(alph) ** 2
-        - cos(bet) ** 2
-        - cos(gamm) ** 2
-        + 2 * cos(alph) * cos(bet) * cos(gamm)
+        - numpy.cos(alph) ** 2
+        - numpy.cos(bet) ** 2
+        - numpy.cos(gamm) ** 2
+        + 2 * numpy.cos(alph) * numpy.cos(bet) * numpy.cos(gamm)
     )
-    Mat = np.array(
+    Mat = numpy.array(
         [
-            [a, b * cos(gamm), c * cos(bet)],
-            [0, b * sin(gamm), c * ((cos(alph) - cos(bet) * cos(gamm)) / sin(gamm))],
-            [0, 0, c * v / sin(gamm)],
+            [a, b * numpy.cos(gamm), c * numpy.cos(bet)],
+            [
+                0,
+                b * numpy.sin(gamm),
+                c
+                * (
+                    (numpy.cos(alph) - numpy.cos(bet) * numpy.cos(gamm))
+                    / numpy.sin(gamm)
+                ),
+            ],
+            [0, 0, c * v / numpy.sin(gamm)],
         ]
     )
-    L1 = Mat.dot(np.array([[1], [0], [0]]))
-    L2 = Mat.dot(np.array([[0], [1], [0]]))
-    L3 = Mat.dot(np.array([[0], [0], [1]]))
+    L1 = Mat.dot(numpy.array([[1], [0], [0]]))
+    L2 = Mat.dot(numpy.array([[0], [1], [0]]))
+    L3 = Mat.dot(numpy.array([[0], [0], [1]]))
     return Box(
         a,
         b,
@@ -387,35 +362,39 @@ def CubicLattice(a):
         alpha,
         beta,
         gamma,
-        np.array(L1).flatten(),
-        np.array(L2).flatten(),
-        np.array(L3).flatten(),
+        numpy.array(L1).flatten(),
+        numpy.array(L2).flatten(),
+        numpy.array(L3).flatten(),
         v * a * b * c,
     )
 
 
 def BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma):
     """This function takes in three lattice lengths and three lattice angles, and tries to return a complete box specification."""
-    alph = alpha * np.pi / 180
-    bet = beta * np.pi / 180
-    gamm = gamma * np.pi / 180
-    v = np.sqrt(
+    alph = alpha * numpy.pi / 180
+    bet = beta * numpy.pi / 180
+    gamm = gamma * numpy.pi / 180
+    v = numpy.sqrt(
         1
-        - cos(alph) ** 2
-        - cos(bet) ** 2
-        - cos(gamm) ** 2
-        + 2 * cos(alph) * cos(bet) * cos(gamm)
+        - numpy.cos(alph) ** 2
+        - numpy.cos(bet) ** 2
+        - numpy.cos(gamm) ** 2
+        + 2 * numpy.cos(alph) * numpy.cos(bet) * numpy.cos(gamm)
     )
-    Mat = np.array(
+    Mat = numpy.array(
         [
-            [a, b * cos(gamm), c * cos(bet)],
-            [0, b * sin(gamm), c * ((cos(alph) - cos(bet) * cos(gamm)) / sin(gamm))],
-            [0, 0, c * v / sin(gamm)],
+            [a, b * numpy.cos(gamm), c * numpy.cos(bet)],
+            [
+                0,
+                b * numpy.sin(gamm),
+                c * ((cos(alph) - numpy.cos(bet) * numpy.cos(gamm)) / numpy.sin(gamm)),
+            ],
+            [0, 0, c * v / numpy.sin(gamm)],
         ]
     )
-    L1 = Mat.dot(np.array([[1], [0], [0]]))
-    L2 = Mat.dot(np.array([[0], [1], [0]]))
-    L3 = Mat.dot(np.array([[0], [0], [1]]))
+    L1 = Mat.dot(numpy.array([[1], [0], [0]]))
+    L2 = Mat.dot(numpy.array([[0], [1], [0]]))
+    L3 = Mat.dot(numpy.array([[0], [0], [1]]))
     return Box(
         a,
         b,
@@ -423,41 +402,54 @@ def BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma):
         alpha,
         beta,
         gamma,
-        np.array(L1).flatten(),
-        np.array(L2).flatten(),
-        np.array(L3).flatten(),
+        numpy.array(L1).flatten(),
+        numpy.array(L2).flatten(),
+        numpy.array(L3).flatten(),
         v * a * b * c,
     )
 
 
 def BuildLatticeFromVectors(v1, v2, v3):
     """This function takes in three lattice vectors and tries to return a complete box specification."""
-    a = np.linalg.norm(v1)
-    b = np.linalg.norm(v2)
-    c = np.linalg.norm(v3)
-    alpha = arccos(np.dot(v2, v3) / np.linalg.norm(v2) / np.linalg.norm(v3)) * radian
-    beta = arccos(np.dot(v1, v3) / np.linalg.norm(v1) / np.linalg.norm(v3)) * radian
-    gamma = arccos(np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)) * radian
-    alph = alpha * np.pi / 180
-    bet = beta * np.pi / 180
-    gamm = gamma * np.pi / 180
-    v = np.sqrt(
-        1
-        - cos(alph) ** 2
-        - cos(bet) ** 2
-        - cos(gamm) ** 2
-        + 2 * cos(alph) * cos(bet) * cos(gamm)
+    a = numpy.linalg.norm(v1)
+    b = numpy.linalg.norm(v2)
+    c = numpy.linalg.norm(v3)
+    alpha = (
+        numpy.arccos(numpy.dot(v2, v3) / numpy.linalg.norm(v2) / numpy.linalg.norm(v3))
+        * radian
     )
-    Mat = np.array(
+    beta = (
+        numpy.arccos(numpy.dot(v1, v3) / numpy.linalg.norm(v1) / numpy.linalg.norm(v3))
+        * radian
+    )
+    gamma = (
+        numpy.arccos(numpy.dot(v1, v2) / numpy.linalg.norm(v1) / numpy.linalg.norm(v2))
+        * radian
+    )
+    alph = alpha * numpy.pi / 180
+    bet = beta * numpy.pi / 180
+    gamm = gamma * numpy.pi / 180
+    v = numpy.sqrt(
+        1
+        - numpy.cos(alph) ** 2
+        - numpy.cos(bet) ** 2
+        - numpy.cos(gamm) ** 2
+        + 2 * numpy.cos(alph) * numpy.cos(bet) * numpy.cos(gamm)
+    )
+    Mat = numpy.array(
         [
-            [a, b * cos(gamm), c * cos(bet)],
-            [0, b * sin(gamm), c * ((cos(alph) - cos(bet) * cos(gamm)) / sin(gamm))],
-            [0, 0, c * v / sin(gamm)],
+            [a, b * numpy.cos(gamm), c * numpy.cos(bet)],
+            [
+                0,
+                b * numpy.sin(gamm),
+                c * ((cos(alph) - numpy.cos(bet) * numpy.cos(gamm)) / numpy.sin(gamm)),
+            ],
+            [0, 0, c * v / numpy.sin(gamm)],
         ]
     )
-    L1 = Mat.dot(np.array([[1], [0], [0]]))
-    L2 = Mat.dot(np.array([[0], [1], [0]]))
-    L3 = Mat.dot(np.array([[0], [0], [1]]))
+    L1 = Mat.dot(numpy.array([[1], [0], [0]]))
+    L2 = Mat.dot(numpy.array([[0], [1], [0]]))
+    L3 = Mat.dot(numpy.array([[0], [0], [1]]))
     return Box(
         a,
         b,
@@ -465,9 +457,9 @@ def BuildLatticeFromVectors(v1, v2, v3):
         alpha,
         beta,
         gamma,
-        np.array(L1).flatten(),
-        np.array(L2).flatten(),
-        np.array(L3).flatten(),
+        numpy.array(L1).flatten(),
+        numpy.array(L2).flatten(),
+        numpy.array(L3).flatten(),
         v * a * b * c,
     )
 
@@ -477,62 +469,53 @@ def BuildLatticeFromVectors(v1, v2, v3):
 # |  Good for doing simple  |#
 # |     topology tricks     |#
 # ===========================#
-try:
-    import networkx as nx
+import networkx as nx
 
-    class MyG(nx.Graph):
-        def __init__(self):
-            super().__init__()
-            self.Alive = True
 
-        def __eq__(self, other):
-            # This defines whether two MyG objects are "equal" to one another.
-            if not self.Alive:
-                return False
-            if not other.Alive:
-                return False
-            return nx.is_isomorphic(self, other, node_match=nodematch)
+class MyG(nx.Graph):
+    def __init__(self):
+        super().__init__()
+        self.Alive = True
 
-        def __hash__(self):
-            """The hash function is something we can use to discard two things that are obviously not equal.  Here we neglect the hash."""
-            return 1
+    def __eq__(self, other):
+        # This defines whether two MyG objects are "equal" to one another.
+        if not self.Alive:
+            return False
+        if not other.Alive:
+            return False
+        return nx.is_isomorphic(self, other, node_match=nodematch)
 
-        def L(self):
-            """Return a list of the sorted atom numbers in this graph."""
-            return sorted(list(self.nodes()))
+    def __hash__(self):
+        """The hash function is something we can use to discard two things that are obviously not equal.  Here we neglect the hash."""
+        return 1
 
-        def AStr(self):
-            """Return a string of atoms, which serves as a rudimentary 'fingerprint' : '99,100,103,151' ."""
-            return ",".join(["%i" % i for i in self.L()])
+    def L(self):
+        """Return a list of the sorted atom numbers in this graph."""
+        return sorted(list(self.nodes()))
 
-        def e(self):
-            """Return an array of the elements.  For instance ['H' 'C' 'C' 'H']."""
-            elems = nx.get_node_attributes(self, "e")
-            return [elems[i] for i in self.L()]
+    def AStr(self):
+        """Return a string of atoms, which serves as a rudimentary 'fingerprint' : '99,100,103,151' ."""
+        return ",".join(["%i" % i for i in self.L()])
 
-        def ef(self):
-            """Create an Empirical Formula"""
-            Formula = list(self.e())
-            return "".join(
-                [
-                    (
-                        "%s%i" % (k, Formula.count(k))
-                        if Formula.count(k) > 1
-                        else "%s" % k
-                    )
-                    for k in sorted(set(Formula))
-                ]
-            )
+    def e(self):
+        """Return an array of the elements.  For instance ['H' 'C' 'C' 'H']."""
+        elems = nx.get_node_attributes(self, "e")
+        return [elems[i] for i in self.L()]
 
-        def x(self):
-            """Get a list of the coordinates."""
-            coors = nx.get_node_attributes(self, "x")
-            return np.array([coors[i] for i in self.L()])
+    def ef(self):
+        """Create an Empirical Formula"""
+        Formula = list(self.e())
+        return "".join(
+            [
+                ("%s%i" % (k, Formula.count(k)) if Formula.count(k) > 1 else "%s" % k)
+                for k in sorted(set(Formula))
+            ]
+        )
 
-except ImportError:
-    logger.warning(
-        "Cannot import optional NetworkX module, topology tools won't work\n."
-    )
+    def x(self):
+        """Get a list of the coordinates."""
+        coors = nx.get_node_attributes(self, "x")
+        return numpy.array([coors[i] for i in self.L()])
 
 
 def format_xyz_coord(element, xyz, tinker=False):
@@ -703,7 +686,7 @@ def grouper(n, iterable):
 
 def even_list(totlen, splitsize):
     """Creates a list of number sequences divided as evenly as possible."""
-    joblens = np.zeros(splitsize, dtype=int)
+    joblens = numpy.zeros(splitsize, dtype=int)
     subsets = []
     for i in range(totlen):
         joblens[i % splitsize] += 1
@@ -738,7 +721,7 @@ def diff(A, B, key):
     if not (key in A.Data and key in B.Data):
         return False
     else:
-        if type(A.Data[key]) is np.ndarray:
+        if type(A.Data[key]) is numpy.ndarray:
             return (A.Data[key] != B.Data[key]).any()
         else:
             return A.Data[key] != B.Data[key]
@@ -754,25 +737,25 @@ def either(A, B, key):
 # ===========================#
 def EulerMatrix(T1, T2, T3):
     """Constructs an Euler matrix from three Euler angles."""
-    DMat = np.zeros((3, 3))
-    DMat[0, 0] = np.cos(T1)
-    DMat[0, 1] = np.sin(T1)
-    DMat[1, 0] = -np.sin(T1)
-    DMat[1, 1] = np.cos(T1)
+    DMat = numpy.zeros((3, 3))
+    DMat[0, 0] = numpy.cos(T1)
+    DMat[0, 1] = numpy.sin(T1)
+    DMat[1, 0] = -numpy.sin(T1)
+    DMat[1, 1] = numpy.cos(T1)
     DMat[2, 2] = 1
-    CMat = np.zeros((3, 3))
+    CMat = numpy.zeros((3, 3))
     CMat[0, 0] = 1
-    CMat[1, 1] = np.cos(T2)
-    CMat[1, 2] = np.sin(T2)
-    CMat[2, 1] = -np.sin(T2)
-    CMat[2, 2] = np.cos(T2)
-    BMat = np.zeros((3, 3))
-    BMat[0, 0] = np.cos(T3)
-    BMat[0, 1] = np.sin(T3)
-    BMat[1, 0] = -np.sin(T3)
-    BMat[1, 1] = np.cos(T3)
+    CMat[1, 1] = numpy.cos(T2)
+    CMat[1, 2] = numpy.sin(T2)
+    CMat[2, 1] = -numpy.sin(T2)
+    CMat[2, 2] = numpy.cos(T2)
+    BMat = numpy.zeros((3, 3))
+    BMat[0, 0] = numpy.cos(T3)
+    BMat[0, 1] = numpy.sin(T3)
+    BMat[1, 0] = -numpy.sin(T3)
+    BMat[1, 1] = numpy.cos(T3)
     BMat[2, 2] = 1
-    EMat = multi_dot([BMat, CMat, DMat])
+    EMat = numpy.linalg.multi_dot([BMat, CMat, DMat])
     return EMat
 
 
@@ -782,15 +765,15 @@ def ComputeOverlap(theta, elem, xyz1, xyz2):
     fictitious density.  Good for fine-tuning alignment but gets stuck
     in local minima.
     """
-    xyz2R = np.dot(EulerMatrix(theta[0], theta[1], theta[2]), xyz2.T).T
+    xyz2R = numpy.dot(EulerMatrix(theta[0], theta[1], theta[2]), xyz2.T).T
     Obj = 0.0
-    elem = np.array(elem)
+    elem = numpy.array(elem)
     for i in set(elem):
-        for j in np.where(elem == i)[0]:
-            for k in np.where(elem == i)[0]:
+        for j in numpy.where(elem == i)[0]:
+            for k in numpy.where(elem == i)[0]:
                 dx = xyz1[j] - xyz2R[k]
-                dx2 = np.dot(dx, dx)
-                Obj -= np.exp(-0.5 * dx2)
+                dx2 = numpy.dot(dx, dx)
+                Obj -= numpy.exp(-0.5 * dx2)
     return Obj
 
 
@@ -799,10 +782,10 @@ def AlignToDensity(elem, xyz1, xyz2, binary=False):
     Computes a "overlap density" from two frames.
     This function can be called by AlignToMoments to get rid of inversion problems
     """
-    grid = np.pi * np.array(list(itertools.product([0, 1], [0, 1], [0, 1])))
-    ovlp = np.array([ComputeOverlap(e, elem, xyz1, xyz2) for e in grid])  # Mao
-    t1 = grid[np.argmin(ovlp)]
-    xyz2R = np.dot(EulerMatrix(t1[0], t1[1], t1[2]), xyz2.T).T.copy()
+    grid = numpy.pi * numpy.array(list(itertools.product([0, 1], [0, 1], [0, 1])))
+    ovlp = numpy.array([ComputeOverlap(e, elem, xyz1, xyz2) for e in grid])  # Mao
+    t1 = grid[numpy.argmin(ovlp)]
+    xyz2R = numpy.dot(EulerMatrix(t1[0], t1[1], t1[2]), xyz2.T).T.copy()
     return xyz2R
 
 
@@ -812,19 +795,19 @@ def AlignToMoments(elem, xyz1, xyz2=None):
     aligned to the moment of inertia, and it simply does 180-degree
     rotations to make sure nothing is inverted."""
     xyz = xyz1 if xyz2 is None else xyz2
-    I = np.zeros((3, 3))
+    I = numpy.zeros((3, 3))
     for i, xi in enumerate(xyz):
-        I += np.dot(xi, xi) * np.eye(3) - np.outer(xi, xi)
-    A, B = np.linalg.eig(I)
+        I += numpy.dot(xi, xi) * numpy.eye(3) - numpy.outer(xi, xi)
+    A, B = numpy.linalg.eig(I)
     # Sort eigenvectors by eigenvalue
-    BB = B[:, np.argsort(A)]
-    determ = np.linalg.det(BB)
+    BB = B[:, numpy.argsort(A)]
+    determ = numpy.linalg.det(BB)
     Thresh = 1e-3
-    if np.abs(determ - 1.0) > Thresh:
-        if np.abs(determ + 1.0) > Thresh:
+    if numpy.abs(determ - 1.0) > Thresh:
+        if numpy.abs(determ + 1.0) > Thresh:
             logger.info("in AlignToMoments, determinant is % .3f" % determ)
         BB[:, 2] *= -1
-    xyzr = np.dot(BB.T, xyz.T).T.copy()
+    xyzr = numpy.dot(BB.T, xyz.T).T.copy()
     if xyz2 is not None:
         xyzrr = AlignToDensity(elem, xyz1, xyzr, binary=True)
         return xyzrr
@@ -834,10 +817,12 @@ def AlignToMoments(elem, xyz1, xyz2=None):
 
 def get_rotate_translate(matrix1, matrix2):
     # matrix2 contains the xyz coordinates of the REFERENCE
-    assert np.shape(matrix1) == np.shape(matrix2), "Matrices not of same dimensions"
+    assert numpy.shape(matrix1) == numpy.shape(
+        matrix2
+    ), "Matrices not of same dimensions"
 
     # Store number of rows
-    nrows = np.shape(matrix1)[0]
+    nrows = numpy.shape(matrix1)[0]
 
     # Getting centroid position for each selection
     avg_pos1 = matrix1.sum(axis=0) / nrows
@@ -848,30 +833,30 @@ def get_rotate_translate(matrix1, matrix2):
     avg_matrix2 = matrix2 - avg_pos2
 
     # Covariance matrix
-    covar = np.dot(avg_matrix1.T, avg_matrix2)
+    covar = numpy.dot(avg_matrix1.T, avg_matrix2)
 
     # Do the SVD in order to get rotation matrix
-    v, s, wt = np.linalg.svd(covar)
+    v, s, wt = numpy.linalg.svd(covar)
 
     # Rotation matrix
     # Transposition of v,wt
-    wvt = np.dot(wt.T, v.T)
+    wvt = numpy.dot(wt.T, v.T)
 
     # Ensure a right-handed coordinate system
-    d = np.eye(3)
-    if np.linalg.det(wvt) < 0:
+    d = numpy.eye(3)
+    if numpy.linalg.det(wvt) < 0:
         d[2, 2] = -1.0
 
-    rot_matrix = multi_dot([wt.T, d, v.T]).T
-    trans_matrix = avg_pos2 - np.dot(avg_pos1, rot_matrix)
+    rot_matrix = numpy.linalg.multi_dot([wt.T, d, v.T]).T
+    trans_matrix = avg_pos2 - numpy.dot(avg_pos1, rot_matrix)
     return trans_matrix, rot_matrix
 
 
 def cartesian_product2(arrays):
     """Form a Cartesian product of two NumPy arrays."""
     la = len(arrays)
-    arr = np.empty([len(a) for a in arrays] + [la], dtype=np.int32)
-    for i, a in enumerate(np.ix_(*arrays)):
+    arr = numpy.empty([len(a) for a in arrays] + [la], dtype=numpy.int32)
+    for i, a in enumerate(numpy.ix_(*arrays)):
         arr[..., i] = a
     return arr.reshape(-1, la)
 
@@ -905,9 +890,9 @@ def extract_int(arr, avgthre, limthre, label="value", verbose=True):
     passed : bool
         Indicates whether the array mean and/or maximum deviations stayed with the thresholds.
     """
-    average = np.mean(arr)
-    maximum = np.max(arr)
-    minimum = np.min(arr)
+    average = numpy.mean(arr)
+    maximum = numpy.max(arr)
+    minimum = numpy.min(arr)
     rounded = round(average)
     passed = True
     if abs(average - rounded) > avgthre:
@@ -960,7 +945,7 @@ def extract_pop(M, verbose=True):
     """
 
     # Read in the charge and spin on the whole system.
-    srch = lambda s: np.array(
+    srch = lambda s: numpy.array(
         [
             float(
                 re.search(
@@ -1021,7 +1006,7 @@ def arc(Mol, begin=None, end=None, RMSD=True, align=True):
 
     Returns
     -------
-    Arc : np.ndarray
+    Arc : numpy.ndarray
         Arc length between frames in Angstrom, length is n_frames - 1
     """
     if align:
@@ -1033,11 +1018,11 @@ def arc(Mol, begin=None, end=None, RMSD=True, align=True):
     if RMSD:
         Arc = Mol.pathwise_rmsd(align)
     else:
-        Arc = np.array(
+        Arc = numpy.array(
             [
-                np.max(
+                numpy.max(
                     [
-                        np.linalg.norm(Mol.xyzs[i + 1][j] - Mol.xyzs[i][j])
+                        numpy.linalg.norm(Mol.xyzs[i + 1][j] - Mol.xyzs[i][j])
                         for j in range(Mol.na)
                     ]
                 )
@@ -1074,7 +1059,7 @@ def EqualSpacing(Mol, frames=0, dx=0, RMSD=True, align=True):
         or with equally spaced frames.
     """
     ArcMol = arc(Mol, RMSD=RMSD, align=align)
-    ArcMolCumul = np.insert(np.cumsum(ArcMol), 0, 0.0)
+    ArcMolCumul = numpy.insert(numpy.cumsum(ArcMol), 0, 0.0)
     if frames != 0 and dx != 0:
         logger.error("Provide dx or frames or neither")
     elif dx != 0:
@@ -1082,12 +1067,12 @@ def EqualSpacing(Mol, frames=0, dx=0, RMSD=True, align=True):
     elif frames == 0:
         frames = len(ArcMolCumul)
 
-    ArcMolEqual = np.linspace(0, max(ArcMolCumul), frames)
-    xyzold = np.array(Mol.xyzs)
-    xyznew = np.zeros((frames, Mol.na, 3))
+    ArcMolEqual = numpy.linspace(0, max(ArcMolCumul), frames)
+    xyzold = numpy.array(Mol.xyzs)
+    xyznew = numpy.zeros((frames, Mol.na, 3))
     for a in range(Mol.na):
         for i in range(3):
-            xyznew[:, a, i] = np.interp(ArcMolEqual, ArcMolCumul, xyzold[:, a, i])
+            xyznew[:, a, i] = numpy.interp(ArcMolEqual, ArcMolCumul, xyzold[:, a, i])
     if len(xyzold) == len(xyznew):
         Mol1 = copy.deepcopy(Mol)
     else:
@@ -1095,8 +1080,8 @@ def EqualSpacing(Mol, frames=0, dx=0, RMSD=True, align=True):
         # do some integer interpolation of the comments and
         # other frame variables.
         Mol1 = Mol[
-            np.array(
-                [int(round(i)) for i in np.linspace(0, len(xyzold) - 1, len(xyznew))]
+            numpy.array(
+                [int(round(i)) for i in numpy.linspace(0, len(xyzold) - 1, len(xyznew))]
             )
         ]
     Mol1.xyzs = list(xyznew)
@@ -1109,33 +1094,33 @@ def AtomContact(xyz, pairs, box=None, displace=False):
 
     Parameters
     ----------
-    xyz : np.ndarray
+    xyz : numpy.ndarray
         N_frames*N_atoms*3 (3D) array of atomic positions
-        If you only have a single set of positions, pass in xyz[np.newaxis, :]
+        If you only have a single set of positions, pass in xyz[numpy.newaxis, :]
     pairs : list
         List of 2-tuples of atom indices
-    box : np.ndarray, optional
+    box : numpy.ndarray, optional
         N_frames*3 (2D) array of periodic box vectors
-        If you only have a single set of positions, pass in box[np.newaxis, :]
+        If you only have a single set of positions, pass in box[numpy.newaxis, :]
     displace : bool
         If True, also return N_frames*N_pairs*3 array of displacement vectors
 
     Returns
     -------
-    np.ndarray
+    numpy.ndarray
         N_pairs*N_frames (2D) array of minimum image convention distances
-    np.ndarray (optional)
+    numpy.ndarray (optional)
         if displace=True, N_frames*N_pairs*3 array of displacement vectors
     """
     # Obtain atom selections for atom pairs
-    parray = np.array(pairs)
+    parray = numpy.array(pairs)
     sel1 = parray[:, 0]
     sel2 = parray[:, 1]
     xyzpbc = xyz.copy()
     # Minimum image convention: Place all atoms in the box
     # [0, xbox); [0, ybox); [0, zbox)
     if box is not None:
-        xyzpbc /= box[:, np.newaxis, :]
+        xyzpbc /= box[:, numpy.newaxis, :]
         xyzpbc = xyzpbc % 1.0
     # Obtain atom selections for the pairs to be computed
     # These are typically longer than N but shorter than N^2.
@@ -1145,10 +1130,10 @@ def AtomContact(xyz, pairs, box=None, displace=False):
     dxyz = xyzsel2 - xyzsel1
     # Apply minimum image convention to displacements
     if box is not None:
-        dxyz = np.mod(dxyz + 0.5, 1.0) - 0.5
-        dxyz *= box[:, np.newaxis, :]
-    dr2 = np.sum(dxyz**2, axis=2)
-    dr = np.sqrt(dr2)
+        dxyz = numpy.mod(dxyz + 0.5, 1.0) - 0.5
+        dxyz *= box[:, numpy.newaxis, :]
+    dr2 = numpy.sum(dxyz**2, axis=2)
+    dr = numpy.sqrt(dr2)
     if displace:
         return dr, dxyz
     else:
@@ -1179,13 +1164,13 @@ def form_rot(q):
     assert q.ndim == 1
     assert q.shape[0] == 4
     # Take the "complex conjugate"
-    qc = np.zeros_like(q)
+    qc = numpy.zeros_like(q)
     qc[0] = q[0]
     qc[1] = -q[1]
     qc[2] = -q[2]
     qc[3] = -q[3]
     # Form al_q and al_qc matrices
-    al_q = np.array(
+    al_q = numpy.array(
         [
             [q[0], -q[1], -q[2], -q[3]],
             [q[1], q[0], -q[3], q[2]],
@@ -1193,7 +1178,7 @@ def form_rot(q):
             [q[3], -q[2], q[1], q[0]],
         ]
     )
-    ar_qc = np.array(
+    ar_qc = numpy.array(
         [
             [qc[0], -qc[1], -qc[2], -qc[3]],
             [qc[1], qc[0], qc[3], -qc[2]],
@@ -1202,7 +1187,7 @@ def form_rot(q):
         ]
     )
     # Multiply matrices
-    R4 = np.dot(al_q, ar_qc)
+    R4 = numpy.dot(al_q, ar_qc)
     return R4[1:, 1:]
 
 
@@ -1210,7 +1195,7 @@ def axis_angle(axis, angle):
     """
     Given a rotation axis and angle, return the corresponding
     3x3 rotation matrix, which will rotate a (Nx3) array of
-    xyz coordinates as x0_rot = np.dot(R, x0.T).T
+    xyz coordinates as x0_rot = numpy.dot(R, x0.T).T
 
     Parameters
     ----------
@@ -1226,11 +1211,11 @@ def axis_angle(axis, angle):
     """
     assert axis.ndim == 1
     assert axis.shape[0] == 3
-    axis /= np.linalg.norm(axis)
+    axis /= numpy.linalg.norm(axis)
     # Make quaternion
-    ct2 = np.cos(angle / 2)
-    st2 = np.sin(angle / 2)
-    q = np.array([ct2, st2 * axis[0], st2 * axis[1], st2 * axis[2]])
+    ct2 = numpy.cos(angle / 2)
+    st2 = numpy.sin(angle / 2)
+    q = numpy.array([ct2, st2 * axis[0], st2 * axis[1], st2 * axis[2]])
     # Form rotation matrix
     R = form_rot(q)
     return R
@@ -1575,7 +1560,7 @@ class Molecule:
         if (
             isinstance(key, int)
             or isinstance(key, slice)
-            or isinstance(key, np.ndarray)
+            or isinstance(key, numpy.ndarray)
             or isinstance(key, list)
         ):
             if isinstance(key, int):
@@ -1586,10 +1571,10 @@ class Molecule:
                     New.Data[k] = [
                         j
                         for i, j in enumerate(self.Data[k])
-                        if i in np.arange(len(self))[key]
+                        if i in numpy.arange(len(self))[key]
                     ]
                 else:
-                    New.Data[k] = list(np.array(copy.deepcopy(self.Data[k]))[key])
+                    New.Data[k] = list(numpy.array(copy.deepcopy(self.Data[k]))[key])
             for k in self.AtomKeys | self.MetaKeys:
                 New.Data[k] = copy.deepcopy(self.Data[k])
             New.top_settings = copy.deepcopy(self.top_settings)
@@ -1661,7 +1646,7 @@ class Molecule:
                         "Key %s in other is a FrameKey, it must be a list\n" % key
                     )
                     raise RuntimeError
-                if isinstance(self.Data[key][0], np.ndarray):
+                if isinstance(self.Data[key][0], numpy.ndarray):
                     Sum.Data[key] = [i.copy() for i in self.Data[key]] + [
                         i.copy() for i in other.Data[key]
                     ]
@@ -1722,7 +1707,7 @@ class Molecule:
                         "Key %s in other is a FrameKey, it must be a list\n" % key
                     )
                     raise RuntimeError
-                if isinstance(self.Data[key][0], np.ndarray):
+                if isinstance(self.Data[key][0], numpy.ndarray):
                     self.Data[key] += [i.copy() for i in other.Data[key]]
                 else:
                     self.Data[key] += other.Data[key]
@@ -1791,7 +1776,7 @@ class Molecule:
         unmangled = unmangle(M, N)
         NewData = {}
         for key in self.AtomKeys:
-            NewData[key] = list(np.array(M.Data[key])[unmangled])
+            NewData[key] = list(numpy.array(M.Data[key])[unmangled])
         for key in self.FrameKeys:
             if key in ["xyzs", "qm_grads", "qm_mulliken_charges", "qm_mulliken_spins"]:
                 NewData[key] = list(
@@ -1864,7 +1849,7 @@ class Molecule:
         ## I needed to add in this line because the DCD writer requires the file name,
         ## but the other methods don't.
         self.fout = fnm
-        if type(selection) in [int, np.int64, np.int32]:
+        if type(selection) in [int, numpy.int64, numpy.int32]:
             selection = [selection]
         if selection is None:
             selection = list(range(len(self)))
@@ -1897,14 +1882,14 @@ class Molecule:
     def center_of_mass(self):
         from openff.units.elements import MASSES, SYMBOLS
 
-        from openff.forcebalance.constants import NUMBERSS
+        from openff.forcebalance.constants import NUMBERS
 
         masses = [MASSES[NUMBERS[element]] for element in self.elem]
         total_mass = sum(masses)
 
-        return np.array(
+        return numpy.array(
             [
-                np.sum(
+                numpy.sum(
                     [xyz[i, :] * masses[i] / total_mass for i in range(xyz.shape[0])],
                     axis=0,
                 )
@@ -1920,17 +1905,17 @@ class Molecule:
             xyz1 = xyz.copy()
             xyz1 -= coms[i]
             rgs.append(
-                np.sqrt(
-                    np.sum(
+                numpy.sqrt(
+                    numpy.sum(
                         [
-                            PeriodicTable[self.elem[i]] * np.dot(x, x)
+                            PeriodicTable[self.elem[i]] * numpy.dot(x, x)
                             for i, x in enumerate(xyz1)
                         ]
                     )
                     / totMass
                 )
             )
-        return np.array(rgs)
+        return numpy.array(rgs)
 
     def rigid_water(self):
         """If one atom is oxygen and the next two are hydrogen, make the water molecule rigid."""
@@ -1951,20 +1936,20 @@ class Molecule:
                     h2 = wat[2]
                     r1 = h1 - o
                     r2 = h2 - o
-                    r1 /= np.linalg.norm(r1)
-                    r2 /= np.linalg.norm(r2)
+                    r1 /= numpy.linalg.norm(r1)
+                    r2 /= numpy.linalg.norm(r2)
                     # Obtain unit vectors.
                     ex = r1 + r2
                     ey = r1 - r2
-                    ex /= np.linalg.norm(ex)
-                    ey /= np.linalg.norm(ey)
+                    ex /= numpy.linalg.norm(ex)
+                    ey /= numpy.linalg.norm(ey)
                     Bond = 0.9572
-                    Ang = np.pi * 104.52 / 2 / 180
-                    cosx = np.cos(Ang)
-                    cosy = np.sin(Ang)
+                    Ang = numpy.pi * 104.52 / 2 / 180
+                    cosx = numpy.cos(Ang)
+                    cosy = numpy.sin(Ang)
                     h1 = o + Bond * ex * cosx + Bond * ey * cosy
                     h2 = o + Bond * ex * cosx - Bond * ey * cosy
-                    rig = np.array([o, h1, h2]) + com
+                    rig = numpy.array([o, h1, h2]) + com
                     self.xyzs[i][a : a + 3] = rig
 
     def load_frames(self, fnm, ftype=None, **kwargs):
@@ -2028,9 +2013,9 @@ class Molecule:
         if "xyzs" in self.Data:
             for i, xyz in enumerate(self.xyzs):
                 if "pos" in kwargs:
-                    self.xyzs[i] = np.insert(xyz, idx, xyz[kwargs["pos"]], axis=0)
+                    self.xyzs[i] = numpy.insert(xyz, idx, xyz[kwargs["pos"]], axis=0)
                 else:
-                    self.xyzs[i] = np.insert(xyz, idx, 0.0, axis=0)
+                    self.xyzs[i] = numpy.insert(xyz, idx, 0.0, axis=0)
         else:
             logger.error(
                 "You need to have xyzs in this molecule to add a virtual site.\n"
@@ -2067,12 +2052,12 @@ class Molecule:
         if isinstance(atomslice, int):
             atomslice = [atomslice]
         if isinstance(atomslice, list):
-            atomslice = np.array(atomslice)
+            atomslice = numpy.array(atomslice)
         New = Molecule()
         for key in self.FrameKeys | self.MetaKeys:
             New.Data[key] = copy.deepcopy(self.Data[key])
         for key in self.AtomKeys:
-            New.Data[key] = list(np.array(self.Data[key])[atomslice])
+            New.Data[key] = list(numpy.array(self.Data[key])[atomslice])
         for key in self.FrameKeys:
             if key in ["xyzs", "qm_grads", "qm_mulliken_charges", "qm_mulliken_spins"]:
                 New.Data[key] = [self.Data[key][i][atomslice] for i in range(len(self))]
@@ -2103,7 +2088,7 @@ class Molecule:
         def FrameStack(k):
             if k in self.Data and k in other.Data:
                 New.Data[k] = [
-                    np.vstack((s, o)) for s, o in zip(self.Data[k], other.Data[k])
+                    numpy.vstack((s, o)) for s, o in zip(self.Data[k], other.Data[k])
                 ]
 
         for i in [
@@ -2129,8 +2114,8 @@ class Molecule:
             if False:
                 pass
             else:
-                if type(self.Data[key]) is np.ndarray:
-                    New.Data[key] = np.concatenate((self.Data[key], other.Data[key]))
+                if type(self.Data[key]) is numpy.ndarray:
+                    New.Data[key] = numpy.concatenate((self.Data[key], other.Data[key]))
                 elif type(self.Data[key]) is list:
                     New.Data[key] = self.Data[key] + other.Data[key]
                 else:
@@ -2164,7 +2149,7 @@ class Molecule:
         to Mulliken charges and Y-coordinates set to Mulliken
         spins."""
         QS = copy.deepcopy(self)
-        QSxyz = np.array(QS.xyzs)
+        QSxyz = numpy.array(QS.xyzs)
         QSxyz[:, :, 0] = self.qm_mulliken_charges
         QSxyz[:, :, 1] = self.qm_mulliken_spins
         QSxyz[:, :, 2] *= 0.0
@@ -2174,8 +2159,8 @@ class Molecule:
     def load_popxyz(self, fnm):
         """Given a charge-spin xyz file, load the charges (x-coordinate) and spins (y-coordinate) into internal arrays."""
         QS = Molecule(fnm, ftype="xyz", build_topology=False)
-        self.qm_mulliken_charges = list(np.array(QS.xyzs)[:, :, 0])
-        self.qm_mulliken_spins = list(np.array(QS.xyzs)[:, :, 1])
+        self.qm_mulliken_charges = list(numpy.array(QS.xyzs)[:, :, 0])
+        self.qm_mulliken_spins = list(numpy.array(QS.xyzs)[:, :, 1])
 
     def align(self, smooth=False, center=True, center_mass=False, atom_select=None):
         """Align molecules.
@@ -2190,7 +2175,7 @@ class Molecule:
 
         """
         if isinstance(atom_select, list):
-            atom_select = np.array(atom_select)
+            atom_select = numpy.array(atom_select)
         if center and center_mass:
             logger.error(
                 "Specify center=True or center_mass=True but set the other one to False\n"
@@ -2217,7 +2202,7 @@ class Molecule:
                 )
             else:
                 tr, rt = get_rotate_translate(xyz2, self.xyzs[ref])
-            xyz2 = np.dot(xyz2, rt) + tr
+            xyz2 = numpy.dot(xyz2, rt) + tr
             self.xyzs[index2] = xyz2
 
     def center(self, center_mass=False):
@@ -2245,7 +2230,7 @@ class Molecule:
 
             return RADII.get(NUMBERS.get(element), 0.0)
 
-        radii = np.array(
+        radii = numpy.array(
             [
                 self.top_settings["radii"].get(element, get_radii(element))
                 for element in self.elem
@@ -2253,8 +2238,8 @@ class Molecule:
         )
 
         # Create a list of 2-tuples corresponding to combinations of atomic indices using a grid algorithm.
-        mins = np.min(self.xyzs[sn], axis=0)
-        maxs = np.max(self.xyzs[sn], axis=0)
+        mins = numpy.min(self.xyzs[sn], axis=0)
+        maxs = numpy.max(self.xyzs[sn], axis=0)
         # Grid size in Angstrom.  This number is optimized for speed in a 15,000 atom system (united atom pentadecane).
         gsz = 6.0
         if hasattr(self, "boxes"):
@@ -2302,15 +2287,15 @@ class Molecule:
 
         # Run algorithm to determine bonds.
         # Decide if we want to use the grid algorithm.
-        use_grid = toppbc or (np.min([xext, yext, zext]) > 2.0 * gsz)
+        use_grid = toppbc or (numpy.min([xext, yext, zext]) > 2.0 * gsz)
         if use_grid:
             # Inside the grid algorithm.
             # 1) Determine the left edges of the grid cells.
             # Note that we leave out the rightmost grid cell,
             # because this may cause spurious partitionings.
-            xgrd = np.arange(xmin, xmax - gszx, gszx)
-            ygrd = np.arange(ymin, ymax - gszy, gszy)
-            zgrd = np.arange(zmin, zmax - gszz, gszz)
+            xgrd = numpy.arange(xmin, xmax - gszx, gszx)
+            ygrd = numpy.arange(ymin, ymax - gszy, gszy)
+            zgrd = numpy.arange(zmin, zmax - gszz, gszz)
             # 2) Grid cells are denoted by a three-index tuple.
             gidx = list(
                 itertools.product(range(len(xgrd)), range(len(ygrd)), range(len(zgrd)))
@@ -2318,12 +2303,12 @@ class Molecule:
             # 3) Build a dictionary which maps a grid cell to itself plus its neighboring grid cells.
             # Two grid cells are defined to be neighbors if the differences between their x, y, z indices are at most 1.
             gngh = OrderedDict()
-            amax = np.array(gidx[-1])
-            amin = np.array(gidx[0])
-            n27 = np.array(list(itertools.product([-1, 0, 1], repeat=3)))
+            amax = numpy.array(gidx[-1])
+            amin = numpy.array(gidx[0])
+            n27 = numpy.array(list(itertools.product([-1, 0, 1], repeat=3)))
             for i in gidx:
                 gngh[i] = []
-                ai = np.array(i)
+                ai = numpy.array(i)
                 for j in n27:
                     nj = ai + j
                     for k in range(3):
@@ -2378,24 +2363,24 @@ class Molecule:
                     apairs = cartesian_product2([gasn[i], gasn[j]])
                     if len(apairs) > 0:
                         AtomIterator.append(apairs[apairs[:, 0] > apairs[:, 1]])
-            AtomIterator = np.ascontiguousarray(np.vstack(AtomIterator))
+            AtomIterator = numpy.ascontiguousarray(numpy.vstack(AtomIterator))
         else:
             # Create a list of 2-tuples corresponding to combinations of atomic indices.
             # This is much faster than using itertools.combinations.
-            AtomIterator = np.ascontiguousarray(
-                np.vstack(
+            AtomIterator = numpy.ascontiguousarray(
+                numpy.vstack(
                     (
-                        np.fromiter(
+                        numpy.fromiter(
                             itertools.chain(
                                 *[[i] * (self.na - i - 1) for i in range(self.na)]
                             ),
-                            dtype=np.int32,
+                            dtype=numpy.int32,
                         ),
-                        np.fromiter(
+                        numpy.fromiter(
                             itertools.chain(
                                 *[range(i + 1, self.na) for i in range(self.na)]
                             ),
-                            dtype=np.int32,
+                            dtype=numpy.int32,
                         ),
                     )
                 ).T
@@ -2411,12 +2396,14 @@ class Molecule:
         ) * mindist
         if hasattr(self, "boxes") and toppbc:
             dxij = AtomContact(
-                self.xyzs[sn][np.newaxis, :],
+                self.xyzs[sn][numpy.newaxis, :],
                 AtomIterator,
-                box=np.array([[self.boxes[sn].a, self.boxes[sn].b, self.boxes[sn].c]]),
+                box=numpy.array(
+                    [[self.boxes[sn].a, self.boxes[sn].b, self.boxes[sn].c]]
+                ),
             )[0]
         else:
-            dxij = AtomContact(self.xyzs[sn][np.newaxis, :], AtomIterator)[0]
+            dxij = AtomContact(self.xyzs[sn][numpy.newaxis, :], AtomIterator)[0]
 
         # Update topology settings with what we learned
         self.top_settings["toppbc"] = toppbc
@@ -2487,16 +2474,10 @@ class Molecule:
         G = MyG()
         for i, a in enumerate(self.elem):
             G.add_node(i)
-            if parse_version(nx.__version__) >= parse_version("2.0"):
-                if "atomname" in self.Data:
-                    nx.set_node_attributes(G, {i: self.atomname[i]}, name="n")
-                nx.set_node_attributes(G, {i: a}, name="e")
-                nx.set_node_attributes(G, {i: self.xyzs[sn][i]}, name="x")
-            else:
-                if "atomname" in self.Data:
-                    nx.set_node_attributes(G, "n", {i: self.atomname[i]})
-                nx.set_node_attributes(G, "e", {i: a})
-                nx.set_node_attributes(G, "x", {i: self.xyzs[sn][i]})
+            if "atomname" in self.Data:
+                nx.set_node_attributes(G, {i: self.atomname[i]}, name="n")
+            nx.set_node_attributes(G, {i: a}, name="e")
+            nx.set_node_attributes(G, {i: self.xyzs[sn][i]}, name="x")
         for (i, j) in self.bonds:
             G.add_edge(i, j)
         # The Topology is simply the NetworkX graph object.
@@ -2510,69 +2491,69 @@ class Molecule:
 
     def distance_matrix(self, pbc=True):
         """Obtain distance matrix between all pairs of atoms."""
-        AtomIterator = np.ascontiguousarray(
-            np.vstack(
+        AtomIterator = numpy.ascontiguousarray(
+            numpy.vstack(
                 (
-                    np.fromiter(
+                    numpy.fromiter(
                         itertools.chain(
                             *[[i] * (self.na - i - 1) for i in range(self.na)]
                         ),
-                        dtype=np.int32,
+                        dtype=numpy.int32,
                     ),
-                    np.fromiter(
+                    numpy.fromiter(
                         itertools.chain(
                             *[range(i + 1, self.na) for i in range(self.na)]
                         ),
-                        dtype=np.int32,
+                        dtype=numpy.int32,
                     ),
                 )
             ).T
         )
         if hasattr(self, "boxes") and pbc:
-            boxes = np.array(
+            boxes = numpy.array(
                 [
                     [self.boxes[i].a, self.boxes[i].b, self.boxes[i].c]
                     for i in range(len(self))
                 ]
             )
-            drij = AtomContact(np.array(self.xyzs), AtomIterator, box=boxes)
+            drij = AtomContact(numpy.array(self.xyzs), AtomIterator, box=boxes)
         else:
-            drij = AtomContact(np.array(self.xyzs), AtomIterator)
+            drij = AtomContact(numpy.array(self.xyzs), AtomIterator)
         return AtomIterator, list(drij)
 
     def distance_displacement(self):
         """Obtain distance matrix and displacement vectors between all pairs of atoms."""
-        AtomIterator = np.ascontiguousarray(
-            np.vstack(
+        AtomIterator = numpy.ascontiguousarray(
+            numpy.vstack(
                 (
-                    np.fromiter(
+                    numpy.fromiter(
                         itertools.chain(
                             *[[i] * (self.na - i - 1) for i in range(self.na)]
                         ),
-                        dtype=np.int32,
+                        dtype=numpy.int32,
                     ),
-                    np.fromiter(
+                    numpy.fromiter(
                         itertools.chain(
                             *[range(i + 1, self.na) for i in range(self.na)]
                         ),
-                        dtype=np.int32,
+                        dtype=numpy.int32,
                     ),
                 )
             ).T
         )
         if hasattr(self, "boxes") and pbc:
-            boxes = np.array(
+            boxes = numpy.array(
                 [
                     [self.boxes[i].a, self.boxes[i].b, self.boxes[i].c]
                     for i in range(len(self))
                 ]
             )
             drij, dxij = AtomContact(
-                np.array(self.xyzs), AtomIterator, box=boxes, displace=True
+                numpy.array(self.xyzs), AtomIterator, box=boxes, displace=True
             )
         else:
             drij, dxij = AtomContact(
-                np.array(self.xyzs), AtomIterator, box=None, displace=True
+                numpy.array(self.xyzs), AtomIterator, box=None, displace=True
             )
         return AtomIterator, list(drij), list(dxij)
 
@@ -2646,12 +2627,12 @@ class Molecule:
 
         # Create grid in rotation angle
         # and the rotated structures
-        for thetaDeg in np.arange(increment, 360, increment):
-            theta = np.pi * thetaDeg / 180
+        for thetaDeg in numpy.arange(increment, 360, increment):
+            theta = numpy.pi * thetaDeg / 180
             # Make quaternion
             R = axis_angle(axis, theta)
             # Get rotated coordinates
-            x0_rot = np.dot(R, x0.T).T
+            x0_rot = numpy.dot(R, x0.T).T
             # Copy old coordinates to new
             xnew = M.xyzs[0].copy()
             # Write rotated positions into new coordinates;
@@ -2691,57 +2672,57 @@ class Molecule:
            Distances between pairs of non-bonded atoms below the threshold in each frame
         """
         if groups is not None:
-            AtomIterator = np.ascontiguousarray(
+            AtomIterator = numpy.ascontiguousarray(
                 [[min(g), max(g)] for g in itertools.product(groups[0], groups[1])]
             )
         else:
-            AtomIterator = np.ascontiguousarray(
-                np.vstack(
+            AtomIterator = numpy.ascontiguousarray(
+                numpy.vstack(
                     (
-                        np.fromiter(
+                        numpy.fromiter(
                             itertools.chain(
                                 *[[i] * (self.na - i - 1) for i in range(self.na)]
                             ),
-                            dtype=np.int32,
+                            dtype=numpy.int32,
                         ),
-                        np.fromiter(
+                        numpy.fromiter(
                             itertools.chain(
                                 *[range(i + 1, self.na) for i in range(self.na)]
                             ),
-                            dtype=np.int32,
+                            dtype=numpy.int32,
                         ),
                     )
                 ).T
             )
         ang13 = [(min(a[0], a[2]), max(a[0], a[2])) for a in self.find_angles()]
         dih14 = [(min(d[0], d[3]), max(d[0], d[3])) for d in self.find_dihedrals()]
-        bondedPairs = np.where(
+        bondedPairs = numpy.where(
             [tuple(aPair) in (self.bonds + ang13 + dih14) for aPair in AtomIterator]
         )[0]
-        AtomIterator_nb = np.delete(AtomIterator, bondedPairs, axis=0)
+        AtomIterator_nb = numpy.delete(AtomIterator, bondedPairs, axis=0)
 
         minPair_frames = []
         minDist_frames = []
         clashPairs_frames = []
         clashDists_frames = []
         if hasattr(self, "boxes") and pbc:
-            boxes = np.array(
+            boxes = numpy.array(
                 [
                     [self.boxes[i].a, self.boxes[i].b, self.boxes[i].c]
                     for i in range(len(self))
                 ]
             )
-            drij = AtomContact(np.array(self.xyzs), AtomIterator_nb, box=boxes)
+            drij = AtomContact(numpy.array(self.xyzs), AtomIterator_nb, box=boxes)
         else:
-            drij = AtomContact(np.array(self.xyzs), AtomIterator_nb)
+            drij = AtomContact(numpy.array(self.xyzs), AtomIterator_nb)
         for frame in range(len(self)):
-            clashPairIdx = np.where(drij[frame] < thre)[0]
+            clashPairIdx = numpy.where(drij[frame] < thre)[0]
             clashPairs = AtomIterator_nb[clashPairIdx]
             clashDists = drij[frame, clashPairIdx]
-            sorter = np.argsort(clashDists)
+            sorter = numpy.argsort(clashDists)
             clashPairs = clashPairs[sorter]
             clashDists = clashDists[sorter]
-            minIdx = np.argmin(drij[frame])
+            minIdx = numpy.argmin(drij[frame])
             minPair = AtomIterator_nb[minIdx]
             minDist = drij[frame, minIdx]
             minPair_frames.append(minPair)
@@ -2822,11 +2803,11 @@ class Molecule:
         # Get the following information: (1) Whether a clash exists, (2) the frame with the smallest distance,
         # (3) the pair of atoms with the smallest distance, (4) the smallest distance
         haveClash_H = any([len(c) > 0 for c in clashPairs_H_frames])
-        minFrame_H = np.argmin(minDist_H_frames)
+        minFrame_H = numpy.argmin(minDist_H_frames)
         minAtoms_H = minPair_H_frames[minFrame_H]
         minDist_H = minDist_H_frames[minFrame_H]
         haveClash_C = any([len(c) > 0 for c in clashPairs_C_frames])
-        minFrame_C = np.argmin(minDist_C_frames)
+        minFrame_C = numpy.argmin(minDist_C_frames)
         minAtoms_C = minPair_C_frames[minFrame_C]
         minDist_C = minDist_C_frames[minFrame_C]
         if not (haveClash_H or haveClash_C):
@@ -2925,7 +2906,7 @@ class Molecule:
         for s in range(self.ns):
             x1 = self.xyzs[s][i]
             x2 = self.xyzs[s][j]
-            distance = np.linalg.norm(x1 - x2)
+            distance = numpy.linalg.norm(x1 - x2)
             distances.append(distance)
         return distances
 
@@ -2937,9 +2918,9 @@ class Molecule:
             x3 = self.xyzs[s][k]
             v1 = x1 - x2
             v2 = x3 - x2
-            n = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
-            angle = np.arccos(n)
-            angles.append(angle * 180 / np.pi)
+            n = numpy.dot(v1, v2) / (numpy.linalg.norm(v1) * numpy.linalg.norm(v2))
+            angle = numpy.arccos(n)
+            angles.append(angle * 180 / numpy.pi)
         return angles
 
     def measure_dihedrals(self, i, j, k, l):
@@ -2976,10 +2957,10 @@ class Molecule:
             v1 = x2 - x1
             v2 = x3 - x2
             v3 = x4 - x3
-            t1 = np.linalg.norm(v2) * np.dot(v1, np.cross(v2, v3))
-            t2 = np.dot(np.cross(v1, v2), np.cross(v2, v3))
-            phi = np.arctan2(t1, t2)
-            phis.append(phi * 180 / np.pi)
+            t1 = numpy.linalg.norm(v2) * numpy.dot(v1, numpy.cross(v2, v3))
+            t2 = numpy.dot(numpy.cross(v1, v2), numpy.cross(v2, v3))
+            phi = numpy.arctan2(t1, t2)
+            phis.append(phi * 180 / numpy.pi)
             # phimod = phi*180/pi % 360
             # phis.append(phimod)
             # print phimod
@@ -3125,7 +3106,7 @@ class Molecule:
         import numpy as np
         M = Molecule('movProt.xyz', Fac=1.25)
         # Arbitrarily select heaviest atom as the first atom in each molecule
-        firstAtom = [m.L()[np.argmax([PeriodicTable[M.elem[i]] for i in m.L()])] for m in M.molecules]
+        firstAtom = [m.L()[numpy.argmax([PeriodicTable[M.elem[i]] for i in m.L()])] for m in M.molecules]
         # Explicitly set the first atom in the first molecule
         firstAtom[0] = 40
         # Build a list of new atom orderings
@@ -3166,13 +3147,13 @@ class Molecule:
         # raw_input()
         if i not in matom:
             raise RuntimeError("atom %i not in molecule" % i)
-        jlist = np.array(m.neighbors(i))
+        jlist = numpy.array(m.neighbors(i))
         [PeriodicTable[self.elem[j]] for j in jlist]
         [len(m.neighbors(j)) for j in jlist]
         jpath = [max_min_path[j] for j in jlist]
         # print "i", i, M.elem[i], "currList", currList, "jpath", jpath
         # raw_input()
-        for j in jlist[np.argsort(jpath)[::-1]]:
+        for j in jlist[numpy.argsort(jpath)[::-1]]:
             if j in currList:
                 continue
             # print "adding", j, "to currList"
@@ -3201,7 +3182,7 @@ class Molecule:
     def all_pairwise_rmsd(self, atom_inds=slice(None)):
         """Find pairwise RMSD (super slow, not like the one in MSMBuilder.)"""
         N = len(self)
-        Mat = np.zeros((N, N), dtype=float)
+        Mat = numpy.zeros((N, N), dtype=float)
         for i in range(N):
             xyzi = self.xyzs[i][atom_inds].copy()
             xyzi -= xyzi.mean(0)
@@ -3209,8 +3190,8 @@ class Molecule:
                 xyzj = self.xyzs[j][atom_inds].copy()
                 xyzj -= xyzj.mean(0)
                 tr, rt = get_rotate_translate(xyzj, xyzi)
-                xyzj = np.dot(xyzj, rt) + tr
-                rmsd = np.sqrt(3 * np.mean((xyzj - xyzi) ** 2))
+                xyzj = numpy.dot(xyzj, rt) + tr
+                rmsd = numpy.sqrt(3 * numpy.mean((xyzj - xyzi) ** 2))
                 Mat[i, j] = rmsd
                 Mat[j, i] = rmsd
         return Mat
@@ -3218,7 +3199,7 @@ class Molecule:
     def pathwise_rmsd(self, align=True):
         """Find RMSD between frames along path."""
         N = len(self)
-        Vec = np.zeros(N - 1, dtype=float)
+        Vec = numpy.zeros(N - 1, dtype=float)
         for i in range(N - 1):
             xyzi = self.xyzs[i].copy()
             j = i + 1
@@ -3227,15 +3208,15 @@ class Molecule:
                 xyzi -= xyzi.mean(0)
                 xyzj -= xyzj.mean(0)
                 tr, rt = get_rotate_translate(xyzj, xyzi)
-                xyzj = np.dot(xyzj, rt) + tr
-            rmsd = np.sqrt(3 * np.mean((xyzj - xyzi) ** 2))
+                xyzj = numpy.dot(xyzj, rt) + tr
+            rmsd = numpy.sqrt(3 * numpy.mean((xyzj - xyzi) ** 2))
             Vec[i] = rmsd
         return Vec
 
     def ref_rmsd(self, i, atom_inds=slice(None), align=True):
         """Find RMSD to a reference frame."""
         N = len(self)
-        Vec = np.zeros(N)
+        Vec = numpy.zeros(N)
         xyzi = self.xyzs[i][atom_inds].copy()
         if align:
             xyzi -= xyzi.mean(0)
@@ -3244,8 +3225,8 @@ class Molecule:
             if align:
                 xyzj -= xyzj.mean(0)
                 tr, rt = get_rotate_translate(xyzj, xyzi)
-                xyzj = np.dot(xyzj, rt) + tr
-            rmsd = np.sqrt(3 * np.mean((xyzj - xyzi) ** 2))
+                xyzj = numpy.dot(xyzj, rt) + tr
+            rmsd = numpy.sqrt(3 * numpy.mean((xyzj - xyzi) ** 2))
             Vec[j] = rmsd
         return Vec
 
@@ -3347,7 +3328,7 @@ class Molecule:
             raise TypeError(f"Schema type not understood '{type(schema)}'")
         ret = {
             "elem": schema["symbols"],
-            "xyzs": [np.array(schema["geometry"])],
+            "xyzs": [numpy.array(schema["geometry"])],
             "comments": [],
         }
         return ret
@@ -3380,32 +3361,12 @@ class Molecule:
                 if len(line.strip()) > 0:
                     try:
                         na = int(line.strip())
-                    except:
-                        # If the first line contains a comment, it's a TINKER .arc file
-                        logger.warning(
-                            "Non-integer detected in first line; will parse as TINKER .arc file."
-                        )
-                        raise ActuallyArcError
+                    except ValueError as exception:
+                        raise ValueError(
+                            f"Expected integer in line, found {line.strip()}"
+                        ) from exception
             elif ln == 1:
                 sline = line.split()
-                if len(sline) == 6 and all([isfloat(word) for word in sline]):
-                    # If the second line contains box data, it's a TINKER .arc file
-                    logger.warning(
-                        "Tinker box data detected in second line; will parse as TINKER .arc file."
-                    )
-                    raise ActuallyArcError
-                elif (
-                    len(sline) >= 5
-                    and isint(sline[0])
-                    and isfloat(sline[2])
-                    and isfloat(sline[3])
-                    and isfloat(sline[4])
-                ):
-                    # If the second line contains coordinate data, it's a TINKER .arc file
-                    logger.warning(
-                        "Tinker coordinate data detected in second line; will parse as TINKER .arc file."
-                    )
-                    raise ActuallyArcError
                 comms.append(line.strip())
             else:
                 line = re.sub(r"([0-9])(-[0-9])", r"\1 \2", line)
@@ -3421,7 +3382,7 @@ class Molecule:
                     elem.append(sline[0])
                 an += 1
                 if an == na:
-                    xyzs.append(np.array(xyz))
+                    xyzs.append(numpy.array(xyz))
                     xyz = []
                     an = 0
             if ln == na + 1:
@@ -3443,20 +3404,20 @@ class Molecule:
             line = line.strip().expandtabs()
             if "COORDS" in line:
                 xyzs.append(
-                    np.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
+                    numpy.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
                 )
             elif (
                 "FORCES" in line or "GRADIENT" in line
             ):  # 'FORCES' is from an earlier version and a misnomer
                 grads.append(
-                    np.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
+                    numpy.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
                 )
             elif "ESPXYZ" in line:
                 espxyzs.append(
-                    np.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
+                    numpy.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
                 )
             elif "ESPVAL" in line:
-                espvals.append(np.array([float(i) for i in line.split()[1:]]))
+                espvals.append(numpy.array([float(i) for i in line.split()[1:]]))
             elif "ENERGY" in line:
                 energies.append(float(line.split()[1]))
             elif "INTERACTION" in line:
@@ -3521,7 +3482,7 @@ class Molecule:
 
         self.top_settings["read_bonds"] = True
         Answer = {
-            "xyzs": [np.array(xyz)],
+            "xyzs": [numpy.array(xyz)],
             "partial_charge": charge,
             "atomname": atomname,
             "atomtype": atomtype,
@@ -3566,11 +3527,11 @@ class Molecule:
                         BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma)
                     )
                 elif len(box) == 9:
-                    v1 = np.array([box[0], box[3], box[4]])
-                    v2 = np.array([box[5], box[1], box[6]])
-                    v3 = np.array([box[7], box[8], box[2]])
+                    v1 = numpy.array([box[0], box[3], box[4]])
+                    v2 = numpy.array([box[5], box[1], box[6]])
+                    v3 = numpy.array([box[7], box[8], box[2]])
                     boxes.append(BuildLatticeFromVectors(v1, v2, v3))
-                xyzs.append(np.array(xyz) * 10)
+                xyzs.append(numpy.array(xyz) * 10)
                 xyz = []
                 ln = -1
                 frame += 1
@@ -3662,7 +3623,7 @@ class Molecule:
                 xyz.append([float(i) for i in sline[4:7]])
                 an += 1
                 if an == na:
-                    xyzs.append(np.array(xyz))
+                    xyzs.append(numpy.array(xyz))
                     xyz = []
                     an = 0
                     frame += 1
@@ -3706,13 +3667,13 @@ class Molecule:
 
         X = PDBLines[0]
 
-        XYZ = np.array([[x.x, x.y, x.z] for x in X]) / 10.0  # Convert to nanometers
-        AltLoc = np.array([x.altLoc for x in X], "str")  # Alternate location
-        ICode = np.array([x.iCode for x in X], "str")  # Insertion code
-        ChainID = np.array([x.chainID for x in X], "str")
-        AtomNames = np.array([x.name for x in X], "str")
-        ResidueNames = np.array([x.resName for x in X], "str")
-        ResidueID = np.array([x.resSeq for x in X], "int")
+        XYZ = numpy.array([[x.x, x.y, x.z] for x in X]) / 10.0  # Convert to nanometers
+        AltLoc = numpy.array([x.altLoc for x in X], "str")  # Alternate location
+        ICode = numpy.array([x.iCode for x in X], "str")  # Insertion code
+        ChainID = numpy.array([x.chainID for x in X], "str")
+        AtomNames = numpy.array([x.name for x in X], "str")
+        ResidueNames = numpy.array([x.resName for x in X], "str")
+        ResidueID = numpy.array([x.resSeq for x in X], "int")
         # LPW: Try not to number Residue IDs starting from 1...
         if self.positive_resid:
             ResidueID = ResidueID - ResidueID[0] + 1
@@ -3726,7 +3687,7 @@ class Molecule:
             if len(XYZList) == 0:
                 XYZList.append(NewXYZ)
             elif len(XYZList) >= 1 and (
-                np.array(NewXYZ).shape == np.array(XYZList[-1]).shape
+                numpy.array(NewXYZ).shape == numpy.array(XYZList[-1]).shape
             ):
                 XYZList.append(NewXYZ)
 
@@ -3748,7 +3709,7 @@ class Molecule:
                     thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
                 elem.append(thiselem)
 
-        XYZList = list(np.array(XYZList).reshape((-1, len(ChainID), 3)))
+        XYZList = list(numpy.array(XYZList).reshape((-1, len(ChainID), 3)))
 
         bonds = []
         # Read in CONECT records.
@@ -3800,8 +3761,8 @@ class Molecule:
                 espxyz.append([float(sline[i]) for i in range(3)])
                 espval.append(float(sline[3]))
         Answer = {
-            "qm_espxyzs": [np.array(espxyz) * bohr2ang],
-            "qm_espvals": [np.array(espval)],
+            "qm_espxyzs": [numpy.array(espxyz) * bohr2ang],
+            "qm_espvals": [numpy.array(espval)],
         }
         return Answer
 
@@ -3968,19 +3929,19 @@ class Molecule:
             yhi = self.boxes[I].b
             zhi = self.boxes[I].c
         else:
-            xlo = np.floor(np.min(self.xyzs[I][:, 0]))
-            ylo = np.floor(np.min(self.xyzs[I][:, 1]))
-            zlo = np.floor(np.min(self.xyzs[I][:, 2]))
-            xhi = np.ceil(np.max(self.xyzs[I][:, 0])) + 30
-            yhi = np.ceil(np.max(self.xyzs[I][:, 1])) + 30
-            zhi = np.ceil(np.max(self.xyzs[I][:, 2])) + 30
+            xlo = numpy.floor(numpy.min(self.xyzs[I][:, 0]))
+            ylo = numpy.floor(numpy.min(self.xyzs[I][:, 1]))
+            zlo = numpy.floor(numpy.min(self.xyzs[I][:, 2]))
+            xhi = numpy.ceil(numpy.max(self.xyzs[I][:, 0])) + 30
+            yhi = numpy.ceil(numpy.max(self.xyzs[I][:, 1])) + 30
+            zhi = numpy.ceil(numpy.max(self.xyzs[I][:, 2])) + 30
         if (
-            np.min(self.xyzs[I][:, 0]) < xlo
-            or np.min(self.xyzs[I][:, 1]) < ylo
-            or np.min(self.xyzs[I][:, 2]) < zlo
-            or np.max(self.xyzs[I][:, 0]) > xhi
-            or np.max(self.xyzs[I][:, 1]) > yhi
-            or np.max(self.xyzs[I][:, 2]) > zhi
+            numpy.min(self.xyzs[I][:, 0]) < xlo
+            or numpy.min(self.xyzs[I][:, 1]) < ylo
+            or numpy.min(self.xyzs[I][:, 2]) < zlo
+            or numpy.max(self.xyzs[I][:, 0]) > xhi
+            or numpy.max(self.xyzs[I][:, 1]) > yhi
+            or numpy.max(self.xyzs[I][:, 2]) > zhi
         ):
             logger.warning(
                 "Some atom positions are outside the simulation box, be careful"
@@ -4367,9 +4328,9 @@ class Molecule:
                 gamma = s[5]
                 return BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma)
             elif len(s) == 9:
-                v1 = np.array([s[0], s[3], s[4]])
-                v2 = np.array([s[5], s[1], s[6]])
-                v3 = np.array([s[7], s[8], s[2]])
+                v1 = numpy.array([s[0], s[3], s[4]])
+                v2 = numpy.array([s[5], s[1], s[6]])
+                v3 = numpy.array([s[7], s[8], s[2]])
                 return BuildLatticeFromVectors(v1, v2, v3)
             else:
                 logger.error(
@@ -4403,16 +4364,3 @@ class Molecule:
             else:
                 mybox = buildbox(boxstr)
                 self.boxes = [mybox for i in range(self.ns)]
-
-
-def main():
-    logger.info(
-        "Basic usage as an executable: molecule.py input.format1 output.format2"
-    )
-    logger.info("where format stands for xyz, pdb, gro, etc.")
-    Mao = Molecule(sys.argv[1])
-    Mao.write(sys.argv[2])
-
-
-if __name__ == "__main__":
-    main()
