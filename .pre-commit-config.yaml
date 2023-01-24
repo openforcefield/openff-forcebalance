@@ -4,6 +4,7 @@ repos:
   hooks:
   - id: check-yaml
   - id: end-of-file-fixer
+    exclude: 'qdata.txt'
   - id: trailing-whitespace
     exclude: '\.(pdb|gro|top|sdf|itp|xyz|mol2|in|gbs)$'
   - id: debug-statements
