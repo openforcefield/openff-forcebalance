@@ -4,7 +4,6 @@ import json
 import os
 import re
 import sys
-from collections import OrderedDict, namedtuple
 from datetime import date
 from itertools import zip_longest
 
@@ -314,154 +313,6 @@ def isfloat(word):
 
 # Used to get the white spaces in a split line.
 splitter = re.compile(r"(\s+|\S+)")
-
-# Container for Bravais lattice vector.  Three cell lengths, three angles, three vectors, volume, and TINKER trig functions.
-Box = namedtuple("Box", ["a", "b", "c", "alpha", "beta", "gamma", "A", "B", "C", "V"])
-radian = 180.0 / numpy.pi
-
-
-def CubicLattice(a):
-    """This function takes in three lattice lengths and three lattice angles, and tries to return a complete box specification."""
-    b = a
-    c = a
-    alpha = 90
-    beta = 90
-    gamma = 90
-    alph = alpha * numpy.pi / 180
-    bet = beta * numpy.pi / 180
-    gamm = gamma * numpy.pi / 180
-    v = numpy.sqrt(
-        1
-        - numpy.cos(alph) ** 2
-        - numpy.cos(bet) ** 2
-        - numpy.cos(gamm) ** 2
-        + 2 * numpy.cos(alph) * numpy.cos(bet) * numpy.cos(gamm)
-    )
-    Mat = numpy.array(
-        [
-            [a, b * numpy.cos(gamm), c * numpy.cos(bet)],
-            [
-                0,
-                b * numpy.sin(gamm),
-                c
-                * (
-                    (numpy.cos(alph) - numpy.cos(bet) * numpy.cos(gamm))
-                    / numpy.sin(gamm)
-                ),
-            ],
-            [0, 0, c * v / numpy.sin(gamm)],
-        ]
-    )
-    L1 = Mat.dot(numpy.array([[1], [0], [0]]))
-    L2 = Mat.dot(numpy.array([[0], [1], [0]]))
-    L3 = Mat.dot(numpy.array([[0], [0], [1]]))
-    return Box(
-        a,
-        b,
-        c,
-        alpha,
-        beta,
-        gamma,
-        numpy.array(L1).flatten(),
-        numpy.array(L2).flatten(),
-        numpy.array(L3).flatten(),
-        v * a * b * c,
-    )
-
-
-def BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma):
-    """This function takes in three lattice lengths and three lattice angles, and tries to return a complete box specification."""
-    alph = alpha * numpy.pi / 180
-    bet = beta * numpy.pi / 180
-    gamm = gamma * numpy.pi / 180
-    v = numpy.sqrt(
-        1
-        - numpy.cos(alph) ** 2
-        - numpy.cos(bet) ** 2
-        - numpy.cos(gamm) ** 2
-        + 2 * numpy.cos(alph) * numpy.cos(bet) * numpy.cos(gamm)
-    )
-    Mat = numpy.array(
-        [
-            [a, b * numpy.cos(gamm), c * numpy.cos(bet)],
-            [
-                0,
-                b * numpy.sin(gamm),
-                c * ((cos(alph) - numpy.cos(bet) * numpy.cos(gamm)) / numpy.sin(gamm)),
-            ],
-            [0, 0, c * v / numpy.sin(gamm)],
-        ]
-    )
-    L1 = Mat.dot(numpy.array([[1], [0], [0]]))
-    L2 = Mat.dot(numpy.array([[0], [1], [0]]))
-    L3 = Mat.dot(numpy.array([[0], [0], [1]]))
-    return Box(
-        a,
-        b,
-        c,
-        alpha,
-        beta,
-        gamma,
-        numpy.array(L1).flatten(),
-        numpy.array(L2).flatten(),
-        numpy.array(L3).flatten(),
-        v * a * b * c,
-    )
-
-
-def BuildLatticeFromVectors(v1, v2, v3):
-    """This function takes in three lattice vectors and tries to return a complete box specification."""
-    a = numpy.linalg.norm(v1)
-    b = numpy.linalg.norm(v2)
-    c = numpy.linalg.norm(v3)
-    alpha = (
-        numpy.arccos(numpy.dot(v2, v3) / numpy.linalg.norm(v2) / numpy.linalg.norm(v3))
-        * radian
-    )
-    beta = (
-        numpy.arccos(numpy.dot(v1, v3) / numpy.linalg.norm(v1) / numpy.linalg.norm(v3))
-        * radian
-    )
-    gamma = (
-        numpy.arccos(numpy.dot(v1, v2) / numpy.linalg.norm(v1) / numpy.linalg.norm(v2))
-        * radian
-    )
-    alph = alpha * numpy.pi / 180
-    bet = beta * numpy.pi / 180
-    gamm = gamma * numpy.pi / 180
-    v = numpy.sqrt(
-        1
-        - numpy.cos(alph) ** 2
-        - numpy.cos(bet) ** 2
-        - numpy.cos(gamm) ** 2
-        + 2 * numpy.cos(alph) * numpy.cos(bet) * numpy.cos(gamm)
-    )
-    Mat = numpy.array(
-        [
-            [a, b * numpy.cos(gamm), c * numpy.cos(bet)],
-            [
-                0,
-                b * numpy.sin(gamm),
-                c * ((cos(alph) - numpy.cos(bet) * numpy.cos(gamm)) / numpy.sin(gamm)),
-            ],
-            [0, 0, c * v / numpy.sin(gamm)],
-        ]
-    )
-    L1 = Mat.dot(numpy.array([[1], [0], [0]]))
-    L2 = Mat.dot(numpy.array([[0], [1], [0]]))
-    L3 = Mat.dot(numpy.array([[0], [0], [1]]))
-    return Box(
-        a,
-        b,
-        c,
-        alpha,
-        beta,
-        gamma,
-        numpy.array(L1).flatten(),
-        numpy.array(L2).flatten(),
-        numpy.array(L3).flatten(),
-        v * a * b * c,
-    )
 
 
 def format_xyz_coord(element, xyz, tinker=False):
@@ -1431,7 +1282,7 @@ class Molecule:
             elif key in ["boxes", "qcrems"]:
                 # We'll use the default deepcopy method for these:
                 # boxes is a list of named tuples.
-                # qcrems is a list of OrderedDicts.
+                # qcrems is a list of dicts
                 New.Data[key] = []
                 for i in range(len(self.Data[key])):
                     New.Data[key].append(copy.deepcopy(self.Data[key][i]))
@@ -2238,7 +2089,7 @@ class Molecule:
             )
             # 3) Build a dictionary which maps a grid cell to itself plus its neighboring grid cells.
             # Two grid cells are defined to be neighbors if the differences between their x, y, z indices are at most 1.
-            gngh = OrderedDict()
+            gngh = dict()
             amax = numpy.array(gidx[-1])
             amin = numpy.array(gidx[0])
             n27 = numpy.array(list(itertools.product([-1, 0, 1], repeat=3)))
@@ -2256,7 +2107,7 @@ class Molecule:
                     gngh[i].append(tuple(nj))
             # 4) Loop over the atoms and assign each to a grid cell.
             # Note: I think this step becomes the bottleneck if we choose very small grid sizes.
-            gasn = OrderedDict([(i, []) for i in gidx])
+            gasn = {i: list() for i in gidx}
             for i in range(self.na):
                 xidx = -1
                 yidx = -1
@@ -3434,6 +3285,11 @@ class Molecule:
 
     def read_gro(self, fnm, **kwargs):
         """Read a GROMACS .gro file."""
+        from openff.forcebalance.molecule.box import (
+            BuildLatticeFromLengthsAngles,
+            BuildLatticeFromVectors,
+        )
+
         xyzs = []
         elem = []  # The element, most useful for quantum chemistry calculations
         atomname = []  # The atom name, for instance 'HW1'
@@ -3578,6 +3434,7 @@ class Molecule:
 
     def read_pdb(self, fnm, **kwargs):
         """Loads a PDB and returns a dictionary containing its data."""
+        from openff.forcebalance.molecule.box import BuildLatticeFromLengthsAngles
 
         F1 = open(fnm)
         ParsedPDB = readPDB(F1)
@@ -3844,7 +3701,7 @@ class Molecule:
         comm = self.comms[I]
         if not comm.startswith("#"):
             comm = "# " + comm
-        atmap = OrderedDict()
+        atmap = dict()
         for i in range(self.na):
             if self.elem[i] not in atmap:
                 atmap[self.elem[i]] = len(atmap.keys()) + 1
@@ -4239,6 +4096,11 @@ class Molecule:
             self.resname = [resname for i in range(self.na)]
 
     def require_boxes(self):
+        from openff.forcebalance.molecule.box import (
+            BuildLatticeFromLengthsAngles,
+            BuildLatticeFromVectors,
+        )
+
         def buildbox(line):
             s = [float(i) for i in line.split()]
             if len(s) == 1:
