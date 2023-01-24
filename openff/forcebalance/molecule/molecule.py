@@ -241,37 +241,6 @@ else:
 module_name = __name__.replace(".molecule", "")
 
 
-# Dictionary of atomic masses ; also serves as the list of elements (periodic table)
-#
-# Atomic mass data was updated on 2020-05-07 from NIST:
-# "Atomic Weights and Isotopic Compositions with Relative Atomic Masses"
-# https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses
-# using All Elements -> preformatted ASCII table.
-#
-# The standard atomic weight was provided in several different formats:
-# Two numbers in brackets as in [1.00784,1.00811] : The average value of the two limits is used.
-# With parentheses(uncert) as in 4.002602(2) : The parentheses was split off and all significant digits are used.
-# A single number in brackets as in [98] : The single number was used
-# Not provided (for Am, Z=95 and up): The mass number of the lightest isotope was used
-def getElement(mass):
-    return PeriodicTable.keys()[
-        numpy.argmin([numpy.abs(m - mass) for m in PeriodicTable.values()])
-    ]
-
-
-def elem_from_atomname(atomname):
-    """Given an atom name, attempt to get the element in most cases."""
-    return re.search("[A-Z][a-z]*", atomname).group(0)
-
-
-# ===========================#
-# | Convenience subroutines |#
-# ===========================#
-
-## One bohr equals this many angstroms
-bohr2ang = 0.529177210
-
-
 def unmangle(M1, M2):
     """
     Create a mapping that takes M1's atom indices to M2's atom indices based on position.
@@ -3547,6 +3516,8 @@ class Molecule:
         return Answer
 
     def read_qcesp(self, fnm, **kwargs):
+        from openff.forcebalance.constants import bohr2ang
+
         espxyz = []
         espval = []
         for line in open(fnm):
