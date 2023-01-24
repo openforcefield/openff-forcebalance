@@ -8,7 +8,7 @@ dependencies:
   - pip
   - pytest-cov
   - pytest-randomly
-  - pytest-ordering
+  - pytest-xdist
   - scipy
   - lxml
   - zlib

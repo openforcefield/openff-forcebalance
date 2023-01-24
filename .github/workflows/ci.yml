@@ -29,7 +29,7 @@ jobs:
 
     env:
       OE_LICENSE: ${{ github.workspace }}/oe_license.txt
-      PYTEST_ARGS: -r fE --tb=short --ignore=openff/forcebalance/tests/old/
+      PYTEST_ARGS: -nauto -r fE --tb=short --ignore=openff/forcebalance/tests/old/
       COV: --cov=openff/forcebalance --cov-report=xml --cov-config=setup.cfg --cov-append
 
     steps:
