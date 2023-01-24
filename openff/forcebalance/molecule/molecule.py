@@ -5,7 +5,6 @@ import os
 import re
 import sys
 from collections import OrderedDict, namedtuple
-from ctypes import POINTER, Structure, c_double, c_float
 from datetime import date
 from itertools import zip_longest
 
@@ -642,22 +641,6 @@ def even_list(totlen, splitsize):
         subsets.append(list(range(jobnow, jobnow + joblens[i])))
         jobnow += joblens[i]
     return subsets
-
-
-class MolfileTimestep(Structure):
-    """Wrapper for the timestep C structure used in molfile plugins."""
-
-    _fields_ = [
-        ("coords", POINTER(c_float)),
-        ("velocities", POINTER(c_float)),
-        ("A", c_float),
-        ("B", c_float),
-        ("C", c_float),
-        ("alpha", c_float),
-        ("beta", c_float),
-        ("gamma", c_float),
-        ("physical_time", c_double),
-    ]
 
 
 def both(A, B, key):
