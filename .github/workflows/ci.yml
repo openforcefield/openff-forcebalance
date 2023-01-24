@@ -24,8 +24,11 @@ jobs:
         python-version:
           - "3.8"
           - "3.9"
+        openeye:
+          - true
 
     env:
+      OE_LICENSE: ${{ github.workspace }}/oe_license.txt
       PYTEST_ARGS: -r fE --tb=short --ignore=openff/forcebalance/tests/old/
       COV: --cov=openff/forcebalance --cov-report=xml --cov-config=setup.cfg --cov-append
 
@@ -41,6 +44,14 @@ jobs:
         channel-priority: "flexible"
         extra-specs:
           python=${{ matrix.python-version }}
+
+    - name: License OpenEye Toolkits
+      if: ${{ matrix.openeye == true }}
+      run: |
+        echo "${SECRET_OE_LICENSE}" > ${OE_LICENSE}
+        python -c "from openeye import oechem; assert oechem.OEChemIsLicensed()"
+      env:
+        SECRET_OE_LICENSE: ${{ secrets.OE_LICENSE }}
 
     - name: Install package
       run: |
