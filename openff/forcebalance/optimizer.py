@@ -841,6 +841,7 @@ class Optimizer(BaseClass):
             # Previous data from objective function call.
             deepcopy(data)
             # Previous objective function and derivatives
+            X_prev = X
             G.copy()
             H.copy()
             # Previous optimization variables
