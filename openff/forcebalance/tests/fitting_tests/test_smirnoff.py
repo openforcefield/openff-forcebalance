@@ -6,6 +6,11 @@ def test_opgeo():
     fit()
 
 
+@fitting_cd("vibration")
+def test_vibration():
+    fit()
+
+
 @fitting_cd("torsion")
 def test_torsion():
     fit()
