@@ -1,0 +1,50 @@
+REMARK   1 CREATED WITH FORCEBALANCE 2019-04-01
+HETATM    1  C1  XAN A   1      30.191 -27.753  63.704  0.00  0.00           C  
+HETATM    2  H2  XAN A   1      29.476 -27.132  63.185  0.00  0.00           H  
+HETATM    3  C3  XAN A   1      31.515 -27.880  63.250  0.00  0.00           C  
+HETATM    4  H4  XAN A   1      31.835 -27.338  62.372  0.00  0.00           H  
+HETATM    5  C5  XAN A   1      32.421 -28.703  63.928  0.00  0.00           C  
+HETATM    6  H6  XAN A   1      33.443 -28.812  63.583  0.00  0.00           H  
+HETATM    7  C7  XAN A   1      32.012 -29.391  65.070  0.00  0.00           C  
+HETATM    8  H8  XAN A   1      32.741 -30.010  65.582  0.00  0.00           H  
+HETATM    9  C9  XAN A   1      30.712 -29.290  65.569  0.00  0.00           C  
+HETATM   10  C10 XAN A   1      29.835 -28.463  64.855  0.00  0.00           C  
+HETATM   11  O11 XAN A   1      28.527 -28.291  65.254  0.00  0.00           O  
+HETATM   12  C12 XAN A   1      27.952 -29.243  66.068  0.00  0.00           C  
+HETATM   13  C13 XAN A   1      28.735 -30.110  66.843  0.00  0.00           C  
+HETATM   14  C14 XAN A   1      28.044 -31.035  67.626  0.00  0.00           C  
+HETATM   15  H15 XAN A   1      28.593 -31.730  68.253  0.00  0.00           H  
+HETATM   16  C16 XAN A   1      26.650 -31.095  67.645  0.00  0.00           C  
+HETATM   17  H17 XAN A   1      26.161 -31.829  68.273  0.00  0.00           H  
+HETATM   18  C18 XAN A   1      25.906 -30.203  66.864  0.00  0.00           C  
+HETATM   19  H19 XAN A   1      24.827 -30.241  66.887  0.00  0.00           H  
+HETATM   20  C20 XAN A   1      26.554 -29.259  66.049  0.00  0.00           C  
+HETATM   21  H21 XAN A   1      25.994 -28.572  65.431  0.00  0.00           H  
+HETATM   22  C22 XAN A   1      30.255 -29.926  66.885  0.00  0.00           C  
+HETATM   23  H23 XAN A   1      30.522 -29.276  67.718  0.00  0.00           H  
+HETATM   24  H24 XAN A   1      30.737 -30.895  67.010  0.00  0.00           H  
+TER      25      XAN A   1
+CONECT    1    2    3   10
+CONECT    2    1
+CONECT    3    1    4    5
+CONECT    4    3
+CONECT    5    3    6    7
+CONECT    6    5
+CONECT    7    5    8    9
+CONECT    8    7
+CONECT    9    7   10   22
+CONECT   10    1    9   11
+CONECT   11   10   12
+CONECT   12   11   13   20
+CONECT   13   12   14   22
+CONECT   14   13   15   16
+CONECT   15   14
+CONECT   16   14   17   18
+CONECT   17   16
+CONECT   18   16   19   20
+CONECT   19   18
+CONECT   20   12   18   21
+CONECT   21   20
+CONECT   22    9   13   23   24
+CONECT   23   22
+CONECT   24   22
