@@ -9,6 +9,7 @@ from ctypes import POINTER, Structure, c_double, c_float
 from datetime import date
 from itertools import zip_longest
 
+import networkx as nx
 import numpy
 import openmm
 from numpy import cos
@@ -205,12 +206,12 @@ AllVariableNames = (
 # ================================#
 if "forcebalance" in __name__:
     # If this module is part of ForceBalance, use the package level logger
-    from .output import *
+    from openff.forcebalance.output import *
 
     package = "ForceBalance"
 elif "geometric" in __name__:
     # This ensures logging behavior is consistent with the rest of geomeTRIC
-    from .nifty import logger
+    from openff.forcebalance.nifty import logger
 
     package = "geomeTRIC"
 else:
@@ -462,60 +463,6 @@ def BuildLatticeFromVectors(v1, v2, v3):
         numpy.array(L3).flatten(),
         v * a * b * c,
     )
-
-
-# ===========================#
-# |   Connectivity graph    |#
-# |  Good for doing simple  |#
-# |     topology tricks     |#
-# ===========================#
-import networkx as nx
-
-
-class MyG(nx.Graph):
-    def __init__(self):
-        super().__init__()
-        self.Alive = True
-
-    def __eq__(self, other):
-        # This defines whether two MyG objects are "equal" to one another.
-        if not self.Alive:
-            return False
-        if not other.Alive:
-            return False
-        return nx.is_isomorphic(self, other, node_match=nodematch)
-
-    def __hash__(self):
-        """The hash function is something we can use to discard two things that are obviously not equal.  Here we neglect the hash."""
-        return 1
-
-    def L(self):
-        """Return a list of the sorted atom numbers in this graph."""
-        return sorted(list(self.nodes()))
-
-    def AStr(self):
-        """Return a string of atoms, which serves as a rudimentary 'fingerprint' : '99,100,103,151' ."""
-        return ",".join(["%i" % i for i in self.L()])
-
-    def e(self):
-        """Return an array of the elements.  For instance ['H' 'C' 'C' 'H']."""
-        elems = nx.get_node_attributes(self, "e")
-        return [elems[i] for i in self.L()]
-
-    def ef(self):
-        """Create an Empirical Formula"""
-        Formula = list(self.e())
-        return "".join(
-            [
-                ("%s%i" % (k, Formula.count(k)) if Formula.count(k) > 1 else "%s" % k)
-                for k in sorted(set(Formula))
-            ]
-        )
-
-    def x(self):
-        """Get a list of the coordinates."""
-        coors = nx.get_node_attributes(self, "x")
-        return numpy.array([coors[i] for i in self.L()])
 
 
 def format_xyz_coord(element, xyz, tinker=False):
@@ -1880,7 +1827,7 @@ class Molecule:
     # =====================================#
 
     def center_of_mass(self):
-        from openff.units.elements import MASSES, SYMBOLS
+        from openff.units.elements import MASSES
 
         from openff.forcebalance.constants import NUMBERS
 
@@ -1898,24 +1845,30 @@ class Molecule:
         )
 
     def radius_of_gyration(self):
-        totMass = sum([PeriodicTable[self.elem[i]] for i in range(self.na)])
-        coms = self.center_of_mass()
-        rgs = []
-        for i, xyz in enumerate(self.xyzs):
-            xyz1 = xyz.copy()
-            xyz1 -= coms[i]
-            rgs.append(
+        from openff.units.elements import MASSES
+
+        from openff.forcebalance.constants import NUMBERS
+
+        masses = [MASSES[NUMBERS[element]] for element in self.elem]
+        total_mass = sum(masses)
+
+        centers_of_mass = self.center_of_mass()
+        return numpy.array(
+            [
                 numpy.sqrt(
                     numpy.sum(
                         [
-                            PeriodicTable[self.elem[i]] * numpy.dot(x, x)
-                            for i, x in enumerate(xyz1)
+                            MASSES[NUMBERS[self.elem[atom_index]]] * numpy.dot(x, x)
+                            for atom_index, x in enumerate(
+                                xyz.copy() - centers_of_mass[index]
+                            )
                         ]
                     )
-                    / totMass
+                    / total_mass
                 )
-            )
-        return numpy.array(rgs)
+                for index, xyz in enumerate(self.xyzs)
+            ]
+        )
 
     def rigid_water(self):
         """If one atom is oxygen and the next two are hydrogen, make the water molecule rigid."""
@@ -2460,6 +2413,8 @@ class Molecule:
             field.  If provided, this will take priority and write
             the value into top_settings.
         """
+        from openff.forcebalance.molecule.graph import MyG
+
         sn = kwargs.get("topframe", self.top_settings["topframe"])
         self.top_settings["topframe"] = sn
         if self.na > 100000:
@@ -2470,7 +2425,7 @@ class Molecule:
         # Build bonds from connectivity graph if not read from file.
         if (not self.top_settings["read_bonds"]) or force_bonds:
             self.build_bonds()
-        # Create a NetworkX graph object to hold the bonds.
+
         G = MyG()
         for i, a in enumerate(self.elem):
             G.add_node(i)
