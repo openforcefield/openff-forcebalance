@@ -6,6 +6,7 @@ channels:
 dependencies:
   - python
   - pip
+  - click
   - pytest-cov
   - pytest-randomly
   - pytest-xdist
