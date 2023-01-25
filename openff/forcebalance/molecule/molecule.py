@@ -313,10 +313,6 @@ def add_strip_to_mat(mat, strip):
     return out
 
 
-def pvec(vec):
-    return "".join([" % .10e" % i for i in list(vec.flatten())])
-
-
 def grouper(n, iterable):
     """Groups a big long iterable into groups of ten or what have you."""
     args = [iter(iterable)] * n
@@ -953,6 +949,7 @@ class Molecule:
             "gmx": "gromacs",
             "in": "qcin",
             "qcin": "qcin",
+            "txt": "qdata",
         }
         # Creates entries like 'gromacs' : 'gromacs' and 'xyz' : 'xyz'
         # in the Funnel

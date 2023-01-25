@@ -3,6 +3,10 @@ import json
 from openff.forcebalance.molecule.xyz import format_xyz_coord
 
 
+def pvec(vec):
+    return "".join([" % .10e" % i for i in list(vec.flatten())])
+
+
 def write_qcin(molecule, selection, **kwargs):
     molecule.require("qctemplate", "charge", "mult")
     out = []
