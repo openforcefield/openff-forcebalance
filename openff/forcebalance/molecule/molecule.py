@@ -1,20 +1,27 @@
 import copy
 import itertools
-import json
 import os
 import re
 import sys
-from datetime import date
 from itertools import zip_longest
 
 import networkx as nx
 import numpy
 import openmm
-from numpy import cos
 from openmm import unit
 
 from openff.forcebalance import Mol2
-from openff.forcebalance.PDB import *
+from openff.forcebalance.molecule.gro import read_gro, write_gro
+from openff.forcebalance.molecule.mol2 import read_mol2
+from openff.forcebalance.molecule.pdb import read_pdb, write_pdb
+from openff.forcebalance.molecule.qc import (
+    read_qcesp,
+    read_qcschema,
+    read_qdata,
+    write_qcin,
+    write_qdata,
+)
+from openff.forcebalance.molecule.xyz import read_xyz, write_xyz
 
 # ======================================================================#
 # |                                                                    |#
@@ -284,53 +291,6 @@ def isfloat(word):
 splitter = re.compile(r"(\s+|\S+)")
 
 
-def format_xyz_coord(element, xyz, tinker=False):
-    """Print a line consisting of (element, x, y, z) in accordance with .xyz file format
-
-    @param[in] element A chemical element of a single atom
-    @param[in] xyz A 3-element array containing x, y, z coordinates of that atom
-
-    """
-    return "%-5s % 15.10f % 15.10f % 15.10f" % (element, xyz[0], xyz[1], xyz[2])
-
-
-def _format_83(f):
-    """Format a single float into a string of width 8, with ideally 3 decimal
-    places of precision. If the number is a little too large, we can
-    gracefully degrade the precision by lopping off some of the decimal
-    places. If it's much too large, we throw a ValueError"""
-    if -999.999 < f < 9999.999:
-        return "%8.3f" % f
-    if -9999999 < f < 99999999:
-        return ("%8.3f" % f)[:8]
-    raise ValueError(
-        'coordinate "%s" could not be represented ' "in a width-8 field" % f
-    )
-
-
-def format_gro_coord(resid, resname, aname, seqno, xyz):
-    """Print a line in accordance with .gro file format, with six decimal points of precision
-
-    Nine decimal points of precision are necessary to get forces below 1e-3 kJ/mol/nm.
-
-    @param[in] resid The number of the residue that the atom belongs to
-    @param[in] resname The name of the residue that the atom belongs to
-    @param[in] aname The name of the atom
-    @param[in] seqno The sequential number of the atom
-    @param[in] xyz A 3-element array containing x, y, z coordinates of that atom
-
-    """
-    return "%5i%-5s%5s%5i % 13.9f % 13.9f % 13.9f" % (
-        resid,
-        resname,
-        aname,
-        seqno,
-        xyz[0],
-        xyz[1],
-        xyz[2],
-    )
-
-
 def format_xyzgen_coord(element, xyzgen):
     """Print a line consisting of (element, p, q, r, s, t, ...) where
     (p, q, r) are arbitrary atom-wise data (this might happen, for
@@ -341,93 +301,6 @@ def format_xyzgen_coord(element, xyzgen):
 
     """
     return "%-5s" + " ".join(["% 15.10f" % i] for i in xyzgen)
-
-
-def format_gro_box(box):
-    """Print a line corresponding to the box vector in accordance with .gro file format
-
-    @param[in] box Box NamedTuple
-
-    """
-    if box.alpha == 90.0 and box.beta == 90.0 and box.gamma == 90.0:
-        return " ".join(["% 13.9f" % (i / 10) for i in [box.a, box.b, box.c]])
-    else:
-        return " ".join(
-            [
-                "% 13.9f" % (i / 10)
-                for i in [
-                    box.A[0],
-                    box.B[1],
-                    box.C[2],
-                    box.A[1],
-                    box.A[2],
-                    box.B[0],
-                    box.B[2],
-                    box.C[0],
-                    box.C[1],
-                ]
-            ]
-        )
-
-
-def is_gro_coord(line):
-    """Determines whether a line contains GROMACS data or not
-
-    @param[in] line The line to be tested
-
-    """
-    sline = line.split()
-    if len(sline) == 6:
-        return all(
-            [isint(sline[2]), isfloat(sline[3]), isfloat(sline[4]), isfloat(sline[5])]
-        )
-    elif len(sline) == 5:
-        return all(
-            [
-                isint(line[15:20]),
-                isfloat(sline[2]),
-                isfloat(sline[3]),
-                isfloat(sline[4]),
-            ]
-        )
-    else:
-        return 0
-
-
-def is_charmm_coord(line):
-    """Determines whether a line contains CHARMM data or not
-
-    @param[in] line The line to be tested
-
-    """
-    sline = line.split()
-    if len(sline) >= 7:
-        return all(
-            [
-                isint(sline[0]),
-                isint(sline[1]),
-                isfloat(sline[4]),
-                isfloat(sline[5]),
-                isfloat(sline[6]),
-            ]
-        )
-    else:
-        return 0
-
-
-def is_gro_box(line):
-    """Determines whether a line contains a GROMACS box vector or not
-
-    @param[in] line The line to be tested
-
-    """
-    sline = line.split()
-    if len(sline) == 9 and all([isfloat(i) for i in sline]):
-        return 1
-    elif len(sline) == 3 and all([isfloat(i) for i in sline]):
-        return 1
-    else:
-        return 0
 
 
 def add_strip_to_mat(mat, strip):
@@ -1053,33 +926,26 @@ class Molecule:
         else:
             load_fnm = None
             load_type = None
-        # =========================================#
-        # |           File type tables            |#
-        # |    Feel free to edit these as more    |#
-        # |      readers / writers are added      |#
-        # =========================================#
-        ## The table of file readers
+
         self.Read_Tab = {
-            "gromacs": self.read_gro,
-            "charmm": self.read_charmm,
-            "pdb": self.read_pdb,
-            "xyz": self.read_xyz,
-            "qcschema": self.read_qcschema,
-            "mol2": self.read_mol2,
-            "qcesp": self.read_qcesp,
-            "qdata": self.read_qdata,
+            "gromacs": read_gro,
+            "pdb": read_pdb,
+            "xyz": read_xyz,
+            "qcschema": read_qcschema,
+            "mol2": read_mol2,
+            "qcesp": read_qcesp,
+            "qdata": read_qdata,
         }
-        ## The table of file writers
+
         self.Write_Tab = {
-            "gromacs": self.write_gro,
-            "xyz": self.write_xyz,
-            "lammps": self.write_lammps_data,
-            "pdb": self.write_pdb,
-            "qcin": self.write_qcin,
-            "qdata": self.write_qdata,
+            "gromacs": write_gro,
+            "xyz": write_xyz,
+            "pdb": write_pdb,
+            "qcin": write_qcin,
+            "qdata": write_qdata,
         }
-        ## A funnel dictionary that takes redundant file types
-        ## and maps them down to a few.
+        # A funnel dictionary that takes redundant file types
+        # and maps them down to a few.
         self.Funnel = {
             "gromos": "gromacs",
             "gro": "gromacs",
@@ -1088,11 +954,11 @@ class Molecule:
             "in": "qcin",
             "qcin": "qcin",
         }
-        ## Creates entries like 'gromacs' : 'gromacs' and 'xyz' : 'xyz'
-        ## in the Funnel
+        # Creates entries like 'gromacs' : 'gromacs' and 'xyz' : 'xyz'
+        # in the Funnel
         self.positive_resid = kwargs.get("positive_resid", 0)
         self.built_bonds = False
-        ## Topology settings
+        # Topology settings
         self.top_settings = {
             "toppbc": kwargs.get("toppbc", False),
             "topframe": kwargs.get("topframe", 0),
@@ -1106,11 +972,11 @@ class Molecule:
             self.Funnel[i] = i
         # Data container.  All of the data is stored in here.
         self.Data = {}
-        ## Read in stuff if we passed in a file name, otherwise return an empty instance.
+        # Read in stuff if we passed in a file name, otherwise return an empty instance.
         if fnm is not None:
             self.Data["fnm"] = fnm
             if ftype is None:
-                ## Try to determine from the file name using the extension.
+                # Try to determine from the file name using the extension.
                 ftype = os.path.splitext(fnm)[1][1:]
             if not os.path.exists(fnm):
                 logger.error(
@@ -1119,12 +985,12 @@ class Molecule:
                 )
                 raise OSError
             self.Data["ftype"] = ftype
-            ## Actually read the file.
+            # Actually read the file.
             Parsed = self.Read_Tab[self.Funnel[ftype.lower()]](fnm, **kwargs)
-            ## Set member variables.
+            # Set member variables.
             for key, val in Parsed.items():
                 self.Data[key] = val
-            ## Create a list of comment lines if we don't already have them from reading the file.
+            # Create a list of comment lines if we don't already have them from reading the file.
             if "comms" not in self.Data:
                 self.comms = [
                     "From %s: Frame %i / %i" % (fnm, i + 1, self.ns)
@@ -1135,7 +1001,7 @@ class Molecule:
                         self.comms[i] += ", Energy= % 18.10f" % self.qm_energies[i]
             else:
                 self.comms = [i.expandtabs() for i in self.comms]
-            ## Build the topology.
+            # Build the topology.
             if (
                 kwargs.get("build_topology", True)
                 and hasattr(self, "elem")
@@ -1192,8 +1058,8 @@ class Molecule:
             else:
                 return 0
             # raise RuntimeError('na is ill-defined if the molecule has no AtomKeys member variables.')
-        ## These attributes return a list of attribute names defined in this class that belong in the chosen category.
-        ## For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
+        # These attributes return a list of attribute names defined in this class that belong in the chosen category.
+        # For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
         elif key == "FrameKeys":
             return set(self.Data) & FrameVariableNames
         elif key == "AtomKeys":
@@ -1208,8 +1074,8 @@ class Molecule:
 
     def __setattr__(self, key, value):
         """Whenever we try to get a class attribute, it first tries to get the attribute from the Data dictionary."""
-        ## These attributes return a list of attribute names defined in this class, that belong in the chosen category.
-        ## For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
+        # These attributes return a list of attribute names defined in this class, that belong in the chosen category.
+        # For example: self.FrameKeys should return set(['xyzs','boxes']) if xyzs and boxes exist in self.Data
         if key == "qm_forces":
             logger.warning(
                 "qm_forces is a deprecated keyword because it actually meant gradients; setting to qm_grads."
@@ -1570,23 +1436,13 @@ class Molecule:
                 )
                 raise RuntimeError
 
-    # def read(self, fnm, ftype = None):
-    #     """ Read in a file. """
-    #     if ftype is None:
-    #         ## Try to determine from the file name using the extension.
-    #         ftype = os.path.splitext(fnm)[1][1:]
-    #     ## This calls the table of reader functions and prints out an error message if it fails.
-    #     ## 'Answer' is a dictionary of data that is returned from the reader function.
-    #     Answer = self.Read_Tab[self.Funnel[ftype.lower()]](fnm)
-    #     return Answer
-
     def write(self, fnm=None, ftype=None, append=False, selection=None, **kwargs):
         if fnm is None and ftype is None:
             logger.error("Output file name and file type are not specified.\n")
             raise RuntimeError
         elif ftype is None:
             ftype = os.path.splitext(fnm)[1][1:]
-        ## Fill in comments.
+        # Fill in comments.
         if "comms" not in self.Data:
             self.comms = [
                 "Generated by %s from %s: Frame %i of %i"
@@ -1596,8 +1452,8 @@ class Molecule:
         if "xyzs" in self.Data and len(self.comms) < len(self.xyzs):
             for i in range(len(self.comms), len(self.xyzs)):
                 self.comms.append("Frame %i: generated by %s" % (i, package))
-        ## I needed to add in this line because the DCD writer requires the file name,
-        ## but the other methods don't.
+        # I needed to add in this line because the DCD writer requires the file name,
+        # but the other methods don't.
         self.fout = fnm
         if type(selection) in [int, numpy.int64, numpy.int32]:
             selection = [selection]
@@ -1605,8 +1461,8 @@ class Molecule:
             selection = list(range(len(self)))
         else:
             selection = list(selection)
-        Answer = self.Write_Tab[self.Funnel[ftype.lower()]](selection, **kwargs)
-        ## Any method that returns text will give us a list of lines, which we then write to the file.
+        Answer = self.Write_Tab[self.Funnel[ftype.lower()]](self, selection, **kwargs)
+        # Any method that returns text will give us a list of lines, which we then write to the file.
         if Answer is not None:
             if fnm is None or fnm == sys.stdout:
                 outfile = sys.stdout
@@ -1709,10 +1565,10 @@ class Molecule:
                     self.xyzs[i][a : a + 3] = rig
 
     def load_frames(self, fnm, ftype=None, **kwargs):
-        ## Read in stuff if we passed in a file name, otherwise return an empty instance.
+        # Read in stuff if we passed in a file name, otherwise return an empty instance.
         if fnm is not None:
             if ftype is None:
-                ## Try to determine from the file name using the extension.
+                # Try to determine from the file name using the extension.
                 ftype = os.path.splitext(fnm)[1][1:]
             if not os.path.exists(fnm):
                 logger.error(
@@ -1720,7 +1576,7 @@ class Molecule:
                     % fnm
                 )
                 raise OSError
-            ## Actually read the file.
+            # Actually read the file.
             Parsed = self.Read_Tab[self.Funnel[ftype.lower()]](fnm, **kwargs)
             if "xyzs" not in Parsed:
                 logger.error("Did not get any coordinates from the new file %s\n" % fnm)
@@ -1728,11 +1584,11 @@ class Molecule:
             if Parsed["xyzs"][0].shape[0] != self.na:
                 logger.error("When loading frames, don't change the number of atoms\n")
                 raise RuntimeError
-            ## Set member variables.
+            # Set member variables.
             for key, val in Parsed.items():
                 if key in FrameVariableNames:
                     self.Data[key] = val
-            ## Create a list of comment lines if we don't already have them from reading the file.
+            # Create a list of comment lines if we don't already have them from reading the file.
             if "comms" not in self.Data:
                 self.comms = [
                     "Generated by %s from %s: Frame %i of %i"
@@ -3004,7 +2860,7 @@ class Molecule:
             Pos = []
             for xyzi in xyz:
                 Pos.append(openmm.Vec3(xyzi[0] / 10, xyzi[1] / 10, xyzi[2] / 10))
-            Positions.append(Pos * nanometer)
+            Positions.append(Pos * unit.nanometer)
         return Positions
 
     def openmm_boxes(self):
@@ -3069,680 +2925,6 @@ class Molecule:
         self.charge = q
         self.mult = abs(sz) + 1
 
-    # =====================================#
-    # |         Reading functions         |#
-    # =====================================#
-    def read_qcschema(self, schema, **kwargs):
-
-        # Already read in
-        if isinstance(schema, dict):
-            pass
-
-        # Try to read file
-        elif isinstance(schema, str):
-            with open(schema) as handle:
-                schema = json.loads(handle)
-        else:
-            raise TypeError(f"Schema type not understood '{type(schema)}'")
-        ret = {
-            "elem": schema["symbols"],
-            "xyzs": [numpy.array(schema["geometry"])],
-            "comments": [],
-        }
-        return ret
-
-    def read_xyz(self, fnm, **kwargs):
-        """.xyz files can be TINKER formatted which is why we have the try/except here."""
-        return self.read_xyz0(fnm, **kwargs)
-
-    def read_xyz0(self, fnm, **kwargs):
-        """Parse a .xyz file which contains several xyz coordinates, and return their elements.
-
-        @param[in] fnm The input file name
-        @return elem  A list of chemical elements in the XYZ file
-        @return comms A list of comments.
-        @return xyzs  A list of XYZ coordinates (number of snapshots times number of atoms)
-
-        """
-        xyz = []
-        xyzs = []
-        comms = []
-        elem = []
-        an = 0
-        na = 0
-        ln = 0
-        absln = 0
-        for line in open(fnm):
-            line = line.strip().expandtabs()
-            if ln == 0:
-                # Skip blank lines.
-                if len(line.strip()) > 0:
-                    try:
-                        na = int(line.strip())
-                    except ValueError as exception:
-                        raise ValueError(
-                            f"Expected integer in line, found {line.strip()}"
-                        ) from exception
-            elif ln == 1:
-                sline = line.split()
-                comms.append(line.strip())
-            else:
-                line = re.sub(r"([0-9])(-[0-9])", r"\1 \2", line)
-                # Error checking. Slows performance by ~20% when tested on a 200 MB .xyz file
-                if not re.match(r"[A-Z][A-Za-z]?( +[-+]?([0-9]*\.)?[0-9]+){3}$", line):
-                    raise OSError(
-                        "Expected coordinates at line %i but got this instead:\n%s"
-                        % (absln, line)
-                    )
-                sline = line.split()
-                xyz.append([float(i) for i in sline[1:]])
-                if len(elem) < na:
-                    elem.append(sline[0])
-                an += 1
-                if an == na:
-                    xyzs.append(numpy.array(xyz))
-                    xyz = []
-                    an = 0
-            if ln == na + 1:
-                # Reset the line number counter when we hit the last line in a block.
-                ln = -1
-            ln += 1
-            absln += 1
-        Answer = {"elem": elem, "xyzs": xyzs, "comms": comms}
-        return Answer
-
-    def read_qdata(self, fnm, **kwargs):
-        xyzs = []
-        energies = []
-        grads = []
-        espxyzs = []
-        espvals = []
-        interaction = []
-        for line in open(fnm):
-            line = line.strip().expandtabs()
-            if "COORDS" in line:
-                xyzs.append(
-                    numpy.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
-                )
-            elif (
-                "FORCES" in line or "GRADIENT" in line
-            ):  # 'FORCES' is from an earlier version and a misnomer
-                grads.append(
-                    numpy.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
-                )
-            elif "ESPXYZ" in line:
-                espxyzs.append(
-                    numpy.array([float(i) for i in line.split()[1:]]).reshape(-1, 3)
-                )
-            elif "ESPVAL" in line:
-                espvals.append(numpy.array([float(i) for i in line.split()[1:]]))
-            elif "ENERGY" in line:
-                energies.append(float(line.split()[1]))
-            elif "INTERACTION" in line:
-                interaction.append(float(line.split()[1]))
-        Answer = {}
-        if len(xyzs) > 0:
-            Answer["xyzs"] = xyzs
-        if len(energies) > 0:
-            Answer["qm_energies"] = energies
-        if len(interaction) > 0:
-            Answer["qm_interaction"] = interaction
-        if len(grads) > 0:
-            Answer["qm_grads"] = grads
-        if len(espxyzs) > 0:
-            Answer["qm_espxyzs"] = espxyzs
-        if len(espvals) > 0:
-            Answer["qm_espvals"] = espvals
-        return Answer
-
-    def read_mol2(self, fnm, **kwargs):
-        xyz = []
-        charge = []
-        atomname = []
-        atomtype = []
-        elem = []
-        resname = []
-        resid = []
-        data = Mol2.mol2_set(fnm)
-        if len(data.compounds) > 1:
-            sys.stderr.write(
-                "Not sure what to do if the MOL2 file contains multiple compounds\n"
-            )
-        for i, atom in enumerate(list(data.compounds.items())[0][1].atoms):
-            xyz.append([atom.x, atom.y, atom.z])
-            charge.append(atom.charge)
-            atomname.append(atom.atom_name)
-            atomtype.append(atom.atom_type)
-            resname.append(atom.subst_name)
-            resid.append(atom.subst_id)
-            thiselem = atom.atom_name
-            if len(thiselem) > 1:
-                thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
-            elem.append(thiselem)
-
-        # resname = [list(data.compounds.items())[0][0] for i in range(len(elem))]
-        # resid = [1 for i in range(len(elem))]
-
-        # Deprecated 'abonds' format.
-        # bonds    = [[] for i in range(len(elem))]
-        # for bond in data.compounds.items()[0][1].bonds:
-        #     a1 = bond.origin_atom_id - 1
-        #     a2 = bond.target_atom_id - 1
-        #     aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
-        #     bonds[aL].append(aH)
-
-        bonds = []
-        for bond in list(data.compounds.items())[0][1].bonds:
-            a1 = bond.origin_atom_id - 1
-            a2 = bond.target_atom_id - 1
-            aL, aH = (a1, a2) if a1 < a2 else (a2, a1)
-            bonds.append((aL, aH))
-
-        self.top_settings["read_bonds"] = True
-        Answer = {
-            "xyzs": [numpy.array(xyz)],
-            "partial_charge": charge,
-            "atomname": atomname,
-            "atomtype": atomtype,
-            "elem": elem,
-            "resname": resname,
-            "resid": resid,
-            "bonds": bonds,
-        }
-
-        return Answer
-
-    def read_gro(self, fnm, **kwargs):
-        """Read a GROMACS .gro file."""
-        from openff.forcebalance.molecule.box import (
-            BuildLatticeFromLengthsAngles,
-            BuildLatticeFromVectors,
-        )
-
-        xyzs = []
-        elem = []  # The element, most useful for quantum chemistry calculations
-        atomname = []  # The atom name, for instance 'HW1'
-        comms = []
-        resid = []
-        resname = []
-        boxes = []
-        xyz = []
-        ln = 0
-        frame = 0
-        absln = 0
-        na = -10
-        for line in open(fnm):
-            sline = line.split()
-            if ln == 0:
-                comms.append(line.strip())
-            elif ln == 1:
-                na = int(line.strip())
-            elif ln == na + 2:
-                box = [float(i) * 10 for i in sline]
-                if len(box) == 3:
-                    a = box[0]
-                    b = box[1]
-                    c = box[2]
-                    alpha = 90.0
-                    beta = 90.0
-                    gamma = 90.0
-                    boxes.append(
-                        BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma)
-                    )
-                elif len(box) == 9:
-                    v1 = numpy.array([box[0], box[3], box[4]])
-                    v2 = numpy.array([box[5], box[1], box[6]])
-                    v3 = numpy.array([box[7], box[8], box[2]])
-                    boxes.append(BuildLatticeFromVectors(v1, v2, v3))
-                xyzs.append(numpy.array(xyz) * 10)
-                xyz = []
-                ln = -1
-                frame += 1
-            else:
-                coord = []
-                if (
-                    frame == 0
-                ):  # Create the list of residues, atom names etc. only if it's the first frame.
-                    # Name of the residue, for instance '153SOL1 -> SOL1' ; strips leading numbers
-                    thisresid = int(line[0:5].strip())
-                    resid.append(thisresid)
-                    thisresname = line[5:10].strip()
-                    resname.append(thisresname)
-                    thisatomname = line[10:15].strip()
-                    atomname.append(thisatomname)
-
-                    thiselem = sline[1]
-                    if len(thiselem) > 1:
-                        thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
-                    elem.append(thiselem)
-
-                # Different frames may have different decimal precision
-                if ln == 2:
-                    pdeci = [i for i, x in enumerate(line) if x == "."]
-                    ndeci = pdeci[1] - pdeci[0] - 5
-
-                for i in range(1, 4):
-                    try:
-                        thiscoord = float(
-                            line[
-                                (pdeci[0] - 4)
-                                + (5 + ndeci) * (i - 1) : (pdeci[0] - 4)
-                                + (5 + ndeci) * i
-                            ].strip()
-                        )
-                    except:  # Attempt to read incorrectly formatted GRO files.
-                        thiscoord = float(line.split()[i + 2])
-                    coord.append(thiscoord)
-                xyz.append(coord)
-
-            ln += 1
-            absln += 1
-        Answer = {
-            "xyzs": xyzs,
-            "elem": elem,
-            "atomname": atomname,
-            "resid": resid,
-            "resname": resname,
-            "boxes": boxes,
-            "comms": comms,
-        }
-        return Answer
-
-    def read_charmm(self, fnm, **kwargs):
-        """Read a CHARMM .cor (or .crd) file."""
-        xyzs = []
-        elem = []  # The element, most useful for quantum chemistry calculations
-        atomname = []  # The atom name, for instance 'HW1'
-        comms = []
-        resid = []
-        resname = []
-        xyz = []
-        thiscomm = []
-        ln = 0
-        frame = 0
-        an = 0
-        for line in open(fnm):
-            line = line.strip().expandtabs()
-            sline = line.split()
-            if re.match(r"^\*", line):
-                if len(sline) == 1:
-                    comms.append(";".join(list(thiscomm)))
-                    thiscomm = []
-                else:
-                    thiscomm.append(" ".join(sline[1:]))
-            elif re.match("^ *[0-9]+ +(EXT)?$", line):
-                na = int(sline[0])
-            elif is_charmm_coord(line):
-                if (
-                    frame == 0
-                ):  # Create the list of residues, atom names etc. only if it's the first frame.
-                    resid.append(sline[1])
-                    resname.append(sline[2])
-                    atomname.append(sline[3])
-                    thiselem = sline[3]
-                    if len(thiselem) > 1:
-                        thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
-                    elem.append(thiselem)
-                xyz.append([float(i) for i in sline[4:7]])
-                an += 1
-                if an == na:
-                    xyzs.append(numpy.array(xyz))
-                    xyz = []
-                    an = 0
-                    frame += 1
-            ln += 1
-        Answer = {
-            "xyzs": xyzs,
-            "elem": elem,
-            "atomname": atomname,
-            "resid": resid,
-            "resname": resname,
-            "comms": comms,
-        }
-        return Answer
-
-    def read_pdb(self, fnm, **kwargs):
-        """Loads a PDB and returns a dictionary containing its data."""
-        from openff.forcebalance.molecule.box import BuildLatticeFromLengthsAngles
-
-        F1 = open(fnm)
-        ParsedPDB = readPDB(F1)
-
-        Box = None
-        # Separate into distinct lists for each model.
-        PDBLines = [[]]
-        # LPW: Keep a record of atoms which are followed by a terminal group.
-        PDBTerms = []
-        ReadTerms = True
-        for x in ParsedPDB[0]:
-            if x.__class__ in [END, ENDMDL]:
-                PDBLines.append([])
-                ReadTerms = False
-            if x.__class__ in [ATOM, HETATM]:
-                PDBLines[-1].append(x)
-                if ReadTerms:
-                    PDBTerms.append(0)
-            if x.__class__ in [TER] and ReadTerms:
-                PDBTerms[-1] = 1
-            if x.__class__ == CRYST1:
-                Box = BuildLatticeFromLengthsAngles(
-                    x.a, x.b, x.c, x.alpha, x.beta, x.gamma
-                )
-
-        X = PDBLines[0]
-
-        XYZ = numpy.array([[x.x, x.y, x.z] for x in X]) / 10.0  # Convert to nanometers
-        AltLoc = numpy.array([x.altLoc for x in X], "str")  # Alternate location
-        ICode = numpy.array([x.iCode for x in X], "str")  # Insertion code
-        ChainID = numpy.array([x.chainID for x in X], "str")
-        AtomNames = numpy.array([x.name for x in X], "str")
-        ResidueNames = numpy.array([x.resName for x in X], "str")
-        ResidueID = numpy.array([x.resSeq for x in X], "int")
-        # LPW: Try not to number Residue IDs starting from 1...
-        if self.positive_resid:
-            ResidueID = ResidueID - ResidueID[0] + 1
-
-        XYZList = []
-        for Model in PDBLines:
-            # Skip over subsequent models with the wrong number of atoms.
-            NewXYZ = []
-            for x in Model:
-                NewXYZ.append([x.x, x.y, x.z])
-            if len(XYZList) == 0:
-                XYZList.append(NewXYZ)
-            elif len(XYZList) >= 1 and (
-                numpy.array(NewXYZ).shape == numpy.array(XYZList[-1]).shape
-            ):
-                XYZList.append(NewXYZ)
-
-        if (
-            len(XYZList[-1]) == 0
-        ):  # If PDB contains trailing END / ENDMDL, remove empty list
-            XYZList.pop()
-
-        # Build a list of chemical elements
-        elem = []
-        for i in range(len(AtomNames)):
-            # QYD: try to use original element list
-            if X[i].element:
-                elem.append(X[i].element)
-            else:
-                thiselem = AtomNames[i]
-                if len(thiselem) > 1:
-                    thiselem = re.sub("^[0-9]", "", thiselem)
-                    thiselem = thiselem[0] + re.sub("[A-Z0-9]", "", thiselem[1:])
-                elem.append(thiselem)
-
-        XYZList = list(numpy.array(XYZList).reshape((-1, len(ChainID), 3)))
-
-        bonds = []
-        # Read in CONECT records.
-        F2 = open(fnm)
-        # QYD: Rewrite to support atom indices with 5 digits
-        # i.e. CONECT143321433314334 -> 14332 connected to 14333 and 14334
-        for line in F2:
-            if line[:6] == "CONECT":
-                conect_A = int(line[6:11]) - 1
-                conect_B_list = []
-                line_rest = line[11:]
-                while line_rest.strip():
-                    # Take 5 characters a time until run out of characters
-                    conect_B_list.append(int(line_rest[:5]) - 1)
-                    line_rest = line_rest[5:]
-                for conect_B in conect_B_list:
-                    bond = (min((conect_A, conect_B)), max((conect_A, conect_B)))
-                    bonds.append(bond)
-
-        Answer = {
-            "xyzs": XYZList,
-            "chain": list(ChainID),
-            "altloc": list(AltLoc),
-            "icode": list(ICode),
-            "atomname": [str(i) for i in AtomNames],
-            "resid": list(ResidueID),
-            "resname": list(ResidueNames),
-            "elem": elem,
-            "comms": ["" for i in range(len(XYZList))],
-            "terminal": PDBTerms,
-        }
-
-        if len(bonds) > 0:
-            self.top_settings["read_bonds"] = True
-            Answer["bonds"] = bonds
-
-        if Box is not None:
-            Answer["boxes"] = [Box for i in range(len(XYZList))]
-
-        return Answer
-
-    def read_qcesp(self, fnm, **kwargs):
-        from openff.forcebalance.constants import bohr2ang
-
-        espxyz = []
-        espval = []
-        for line in open(fnm):
-            line = line.strip().expandtabs()
-            sline = line.split()
-            if len(sline) == 4 and all([isfloat(sline[i]) for i in range(4)]):
-                espxyz.append([float(sline[i]) for i in range(3)])
-                espval.append(float(sline[3]))
-        Answer = {
-            "qm_espxyzs": [numpy.array(espxyz) * bohr2ang],
-            "qm_espvals": [numpy.array(espval)],
-        }
-        return Answer
-
-    # =====================================#
-    # |         Writing functions         |#
-    # =====================================#
-
-    def write_qcin(self, selection, **kwargs):
-        self.require("qctemplate", "charge", "mult")
-        out = []
-        if "read" in kwargs:
-            read = kwargs["read"]
-        else:
-            read = False
-        for SI, I in enumerate(selection):
-            fsm = False
-            remidx = 0
-            molecule_printed = False
-            # Each 'extchg' has number_of_atoms * 4 elements corresponding to x, y, z, q.
-            if "qm_extchgs" in self.Data:
-                extchg = self.qm_extchgs[I]
-                out.append("$external_charges")
-                for i in range(len(extchg)):
-                    out.append(
-                        "{: 15.10f} {: 15.10f} {: 15.10f} {:15.10f}".format(
-                            extchg[i, 0], extchg[i, 1], extchg[i, 2], extchg[i, 3]
-                        )
-                    )
-                out.append("$end")
-            for SectName, SectData in self.qctemplate:
-                if (
-                    "jobtype" in self.qcrems[remidx]
-                    and self.qcrems[remidx]["jobtype"].lower() == "fsm"
-                ):
-                    fsm = True
-                    if len(selection) != 2:
-                        logger.error(
-                            "For freezing string method, please provide two structures only.\n"
-                        )
-                        raise RuntimeError
-                if SectName != "@@@":
-                    out.append("$%s" % SectName)
-                    for line in SectData:
-                        out.append(line)
-                    if SectName == "molecule":
-                        if molecule_printed == False:
-                            molecule_printed = True
-                            if read:
-                                out.append("read")
-                            elif self.na > 0:
-                                out.append("%i %i" % (self.charge, self.mult))
-                                an = 0
-                                for e, x in zip(self.elem, self.xyzs[I]):
-                                    pre = (
-                                        "@"
-                                        if (
-                                            "qm_ghost" in self.Data
-                                            and self.Data["qm_ghost"][an]
-                                        )
-                                        else ""
-                                    )
-                                    suf = (
-                                        self.Data["qcsuf"][an]
-                                        if "qcsuf" in self.Data
-                                        else ""
-                                    )
-                                    out.append(pre + format_xyz_coord(e, x) + suf)
-                                    an += 1
-                                if fsm:
-                                    out.append("****")
-                                    an = 0
-                                    for e, x in zip(
-                                        self.elem, self.xyzs[selection[SI + 1]]
-                                    ):
-                                        pre = (
-                                            "@"
-                                            if (
-                                                "qm_ghost" in self.Data
-                                                and self.Data["qm_ghost"][an]
-                                            )
-                                            else ""
-                                        )
-                                        suf = (
-                                            self.Data["qcsuf"][an]
-                                            if "qcsuf" in self.Data
-                                            else ""
-                                        )
-                                        out.append(pre + format_xyz_coord(e, x) + suf)
-                                        an += 1
-                    if SectName == "rem":
-                        for key, val in self.qcrems[remidx].items():
-                            out.append("%-21s %-s" % (key, str(val)))
-                    if SectName == "comments" and "comms" in self.Data:
-                        out.append(self.comms[I])
-                    out.append("$end")
-                else:
-                    remidx += 1
-                    out.append("@@@")
-                out.append("")
-            # if I < (len(self) - 1):
-            if fsm:
-                break
-            if I != selection[-1]:
-                out.append("@@@")
-                out.append("")
-        return out
-
-    def write_xyz(self, selection, **kwargs):
-        self.require("elem", "xyzs")
-        out = []
-        for I in selection:
-            xyz = self.xyzs[I]
-            out.append("%-5i" % self.na)
-            out.append(self.comms[I])
-            for i in range(self.na):
-                out.append(format_xyz_coord(self.elem[i], xyz[i]))
-        return out
-
-    def get_reaxff_atom_types(self):
-        """
-        Return a list of element names which maps the LAMMPS atom types
-        to the ReaxFF elements
-        """
-        elist = []
-        for i in range(self.na):
-            if self.elem[i] not in elist:
-                elist.append(self.elem[i])
-        return elist
-
-    def write_lammps_data(self, selection, **kwargs):
-        """
-        Write the first frame of the selection to a LAMMPS data file
-        for the purpose of automatically initializing a LAMMPS simulation.
-        This function makes several assumptions until further notice:
-
-        (1) We are interested in a ReaxFF simulation
-        (2) Atom types will be generated from elements
-        """
-        I = selection[0]
-        out = []
-        comm = self.comms[I]
-        if not comm.startswith("#"):
-            comm = "# " + comm
-        atmap = dict()
-        for i in range(self.na):
-            if self.elem[i] not in atmap:
-                atmap[self.elem[i]] = len(atmap.keys()) + 1
-
-        # First line is a comment
-        out.append(comm)
-        out.append("")
-        # Next, print the number of atoms and atom types
-        out.append("%i atoms" % self.na)
-        out.append("%i atom types" % len(atmap.keys()))
-        out.append("")
-        # Next, print the simulation box
-        # We throw an error if the atoms are outside the simulation box
-        # If there is no simulation box, then we print upper and lower bounds
-        xlo = 0.0
-        ylo = 0.0
-        zlo = 0.0
-        if "boxes" in self.Data:
-            xhi = self.boxes[I].a
-            yhi = self.boxes[I].b
-            zhi = self.boxes[I].c
-        else:
-            xlo = numpy.floor(numpy.min(self.xyzs[I][:, 0]))
-            ylo = numpy.floor(numpy.min(self.xyzs[I][:, 1]))
-            zlo = numpy.floor(numpy.min(self.xyzs[I][:, 2]))
-            xhi = numpy.ceil(numpy.max(self.xyzs[I][:, 0])) + 30
-            yhi = numpy.ceil(numpy.max(self.xyzs[I][:, 1])) + 30
-            zhi = numpy.ceil(numpy.max(self.xyzs[I][:, 2])) + 30
-        if (
-            numpy.min(self.xyzs[I][:, 0]) < xlo
-            or numpy.min(self.xyzs[I][:, 1]) < ylo
-            or numpy.min(self.xyzs[I][:, 2]) < zlo
-            or numpy.max(self.xyzs[I][:, 0]) > xhi
-            or numpy.max(self.xyzs[I][:, 1]) > yhi
-            or numpy.max(self.xyzs[I][:, 2]) > zhi
-        ):
-            logger.warning(
-                "Some atom positions are outside the simulation box, be careful"
-            )
-        out.append(f"{xlo: .3f} {xhi: .3f} xlo xhi")
-        out.append(f"{ylo: .3f} {yhi: .3f} ylo yhi")
-        out.append(f"{zlo: .3f} {zhi: .3f} zlo zhi")
-        out.append("")
-        # Next, get the masses
-        out.append("Masses")
-        out.append("")
-        for i, a in enumerate(atmap.keys()):
-            out.append("%i %.4f" % (i + 1, PeriodicTable[a]))
-        out.append("")
-        # Next, print the atom positions
-        out.append("Atoms")
-        out.append("")
-        for i in range(self.na):
-            # First number is the index of the atom starting from 1.
-            # Second number is a molecule tag that is unimportant.
-            # Third number is the atom type.
-            # Fourth number is the charge (set to zero).
-            # Fifth through seventh numbers are the positions
-            out.append(
-                "%4i 1 %2i 0.0 % 15.10f % 15.10f % 15.10f"
-                % (
-                    i + 1,
-                    list(atmap.keys()).index(self.elem[i]) + 1,
-                    self.xyzs[I][i, 0],
-                    self.xyzs[I][i, 1],
-                    self.xyzs[I][i, 2],
-                )
-            )
-        return out
-
     def write_mdcrd(self, selection, **kwargs):
         self.require("xyzs")
         # In mdcrd files, there is only one comment line
@@ -3762,291 +2944,6 @@ class Molecule:
                         ]
                     )
                 )
-        return out
-
-    def write_gro(self, selection, **kwargs):
-        out = []
-        if sys.stdin.isatty():
-            self.require("elem", "xyzs")
-            self.require_resname()
-            self.require_resid()
-            self.require_boxes()
-        else:
-            self.require("elem", "xyzs", "resname", "resid", "boxes")
-
-        if "atomname" not in self.Data:
-            count = 0
-            resid = -1
-            atomname = []
-            for i in range(self.na):
-                if self.resid[i] != resid:
-                    count = 0
-                count += 1
-                resid = self.resid[i]
-                atomname.append("%s%i" % (self.elem[i], count))
-        else:
-            atomname = self.atomname
-
-        for I in selection:
-            xyz = self.xyzs[I]
-            xyzwrite = xyz.copy()
-            xyzwrite /= 10.0  # GROMACS uses nanometers
-            out.append(self.comms[I])
-            out.append("%5i" % self.na)
-            for an, line in enumerate(xyzwrite):
-                out.append(
-                    format_gro_coord(
-                        self.resid[an],
-                        self.resname[an],
-                        atomname[an],
-                        an + 1,
-                        xyzwrite[an],
-                    )
-                )
-            out.append(format_gro_box(self.boxes[I]))
-        return out
-
-    def write_pdb(self, selection, **kwargs):
-        standardResidues = [
-            "ALA",
-            "ASN",
-            "CYS",
-            "GLU",
-            "HIS",
-            "LEU",
-            "MET",
-            "PRO",
-            "THR",
-            "TYR",  # Standard amino acids
-            "ARG",
-            "ASP",
-            "GLN",
-            "GLY",
-            "ILE",
-            "LYS",
-            "PHE",
-            "SER",
-            "TRP",
-            "VAL",  # Standard amino acids
-            "HID",
-            "HIE",
-            "HIP",
-            "ASH",
-            "GLH",
-            "TYD",
-            "CYM",
-            "CYX",
-            "LYN",  # Some alternate protonation states
-            "PTR",
-            "SEP",
-            "TPO",
-            "Y1P",
-            "S1P",
-            "T1P",  # Phosphorylated amino acids
-            "HOH",
-            "SOL",
-            "WAT",  # Common residue names for water
-            "A",
-            "G",
-            "C",
-            "U",
-            "I",
-            "DA",
-            "DG",
-            "DC",
-            "DT",
-            "DI",
-        ]
-        # When converting from pdb to xyz in interactive prompt,
-        # ask user for some PDB-specific info.
-        if sys.stdin.isatty():
-            self.require("xyzs")
-            self.require_resname()
-            self.require_resid()
-        else:
-            self.require("xyzs", "resname", "resid")
-        kwargs.pop("write_conect", 1)
-        # Create automatic atom names if not present
-        # in data structure: these are just placeholders.
-        if "atomname" not in self.Data:
-            count = 0
-            resid = -1
-            atomnames = []
-            for i in range(self.na):
-                if self.resid[i] != resid:
-                    count = 0
-                count += 1
-                resid = self.resid[i]
-                atomnames.append("%s%i" % (self.elem[i], count))
-            self.atomname = atomnames
-        # Standardize formatting of atom names.
-        atomNames = []
-        for i, atomname in enumerate(self.atomname):
-            if len(atomname) < 4 and atomname[:1].isalpha() and len(self.elem[i]) < 2:
-                atomName = " " + atomname
-            elif len(atomname) > 4:
-                atomName = atomname[:4]
-            else:
-                atomName = atomname
-            atomNames.append(atomName)
-        # Chain names. Default to 'A' for everything
-        if "chain" not in self.Data:
-            chainNames = ["A" for i in range(self.na)]
-        else:
-            chainNames = [i[0] if len(i) > 0 else " " for i in self.chain]
-        # Standardize formatting of residue names.
-        resNames = []
-        for resname in self.resname:
-            if len(resname) > 3:
-                resName = resname[:3]
-            else:
-                resName = resname
-            resNames.append(resName)
-        # Standardize formatting of residue IDs.
-        resIds = []
-        for resid in self.resid:
-            resIds.append("%4d" % (resid % 10000))
-        # Standardize record names.
-        records = []
-        for resname in resNames:
-            if resname in ["HOH", "SOL", "WAT"]:
-                records.append("HETATM")
-            elif resname in standardResidues:
-                records.append("ATOM  ")
-            else:
-                records.append("HETATM")
-
-        out = []
-        # Create the PDB header.
-        out.append(f"REMARK   1 CREATED WITH {package.upper()} {str(date.today())}")
-        if "boxes" in self.Data:
-            a = self.boxes[0].a
-            b = self.boxes[0].b
-            c = self.boxes[0].c
-            alpha = self.boxes[0].alpha
-            beta = self.boxes[0].beta
-            gamma = self.boxes[0].gamma
-            out.append(
-                "CRYST1{:9.3f}{:9.3f}{:9.3f}{:7.2f}{:7.2f}{:7.2f} P 1           1 ".format(
-                    a, b, c, alpha, beta, gamma
-                )
-            )
-        # Write the structures as models.
-        atomIndices = {}
-        for sn in range(len(self)):
-            modelIndex = sn
-            if len(self) > 1:
-                out.append("MODEL     %4d" % modelIndex)
-            atomIndex = 1
-            for i in range(self.na):
-                recordName = records[i]
-                atomName = atomNames[i]
-                resName = resNames[i]
-                chainName = chainNames[i]
-                resId = resIds[i]
-                coords = self.xyzs[sn][i]
-                symbol = self.elem[i]
-                if hasattr(self, "partial_charge"):
-                    bfactor = self.partial_charge[i]
-                else:
-                    bfactor = 0.0
-                atomIndices[i] = atomIndex
-                line = "%s%5d %-4s %3s %s%4s    %s%s%s %5.2f  0.00          %2s  " % (
-                    recordName,
-                    atomIndex % 100000,
-                    atomName,
-                    resName,
-                    chainName,
-                    resId,
-                    _format_83(coords[0]),
-                    _format_83(coords[1]),
-                    _format_83(coords[2]),
-                    bfactor,
-                    symbol,
-                )
-                assert len(line) == 80, "Fixed width overflow detected"
-                out.append(line)
-                atomIndex += 1
-                if i < (self.na - 1) and chainName != chainNames[i + 1]:
-                    out.append(
-                        "TER   %5d      %3s %s%4s"
-                        % (atomIndex, resName, chainName, resId)
-                    )
-                    atomIndex += 1
-            out.append(
-                "TER   %5d      %3s %s%4s" % (atomIndex, resName, chainName, resId)
-            )
-            if len(self) > 1:
-                out.append("ENDMDL")
-        conectBonds = []
-        if "bonds" in self.Data:
-            for i, j in self.bonds:
-                if i > j:
-                    continue
-                if (
-                    self.resname[i] not in standardResidues
-                    or self.resname[j] not in standardResidues
-                ):
-                    conectBonds.append((i, j))
-                elif (
-                    self.atomname[i] == "SG"
-                    and self.atomname[j] == "SG"
-                    and self.resname[i] == "CYS"
-                    and self.resname[j] == "CYS"
-                ):
-                    conectBonds.append((i, j))
-                elif (
-                    self.atomname[i] == "SG"
-                    and self.atomname[j] == "SG"
-                    and self.resname[i] == "CYX"
-                    and self.resname[j] == "CYX"
-                ):
-                    conectBonds.append((i, j))
-
-        atomBonds = {}
-        for atom1, atom2 in conectBonds:
-            index1 = atomIndices[atom1]
-            index2 = atomIndices[atom2]
-            if index1 not in atomBonds:
-                atomBonds[index1] = []
-            if index2 not in atomBonds:
-                atomBonds[index2] = []
-            atomBonds[index1].append(index2)
-            atomBonds[index2].append(index1)
-
-        for index1 in sorted(atomBonds):
-            bonded = atomBonds[index1]
-            while len(bonded) > 4:
-                out.append(
-                    "CONECT%5d%5d%5d%5d" % (index1, bonded[0], bonded[1], bonded[2])
-                )
-                del bonded[:4]
-            line = "CONECT%5d" % index1
-            for index2 in bonded:
-                line = "%s%5d" % (line, index2)
-            out.append(line)
-        return out
-
-    def write_qdata(self, selection, **kwargs):
-        """Text quantum data format."""
-        # self.require('xyzs','qm_energies','qm_grads')
-        out = []
-        for I in selection:
-            xyz = self.xyzs[I]
-            out.append("JOB %i" % I)
-            out.append("COORDS" + pvec(xyz))
-            if "qm_energies" in self.Data:
-                out.append("ENERGY % .12e" % self.qm_energies[I])
-            if "mm_energies" in self.Data:
-                out.append("EMD0   % .12e" % self.mm_energies[I])
-            if "qm_grads" in self.Data:
-                out.append("GRADIENT" + pvec(self.qm_grads[I]))
-            if "qm_espxyzs" in self.Data and "qm_espvals" in self.Data:
-                out.append("ESPXYZ" + pvec(self.qm_espxyzs[I]))
-                out.append("ESPVAL" + pvec(self.qm_espvals[I]))
-            if "qm_interaction" in self.Data:
-                out.append("INTERACTION % .12e" % self.qm_interaction[I])
-            out.append("")
         return out
 
     def require_resid(self):
