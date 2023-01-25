@@ -34,5 +34,9 @@ setup(
         "License :: OSI Approved :: MIT",
         "Programming Language :: Python :: 3",
     ],
-    entry_points={"console_scripts": []},
+    entry_points={
+        "console_scripts": [
+            "openff-forcebalance=openff.forcebalance.cli:cli",
+        ]
+    },
 )
