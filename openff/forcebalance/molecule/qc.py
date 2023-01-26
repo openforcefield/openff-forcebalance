@@ -1,6 +1,16 @@
 import json
+from typing import TYPE_CHECKING, Dict, List
+
+import numpy
 
 from openff.forcebalance.molecule.xyz import format_xyz_coord
+
+if TYPE_CHECKING:
+    from openff.forcebalance.molecule import Molecule
+
+
+def pvec(vec):
+    return "".join([" % .10e" % i for i in list(vec.flatten())])
 
 
 def write_qcin(molecule, selection, **kwargs):
@@ -124,7 +134,7 @@ def read_qcschema(schema, **kwargs):
     return ret
 
 
-def read_qdata(fnm, **kwargs):
+def read_qdata(fnm, **kwargs) -> Dict[str, List[numpy.ndarray]]:
     xyzs = []
     energies = []
     grads = []
@@ -186,24 +196,24 @@ def read_qcesp(fnm, **kwargs):
     }
 
 
-def write_qdata(molecule, selection, **kwargs):
+def write_qdata(molecule: "Molecule", selection: List[int]) -> List[str]:
     """Text quantum data format."""
     # molecule.require('xyzs','qm_energies','qm_grads')
-    out = []
-    for I in selection:
-        xyz = molecule.xyzs[I]
-        out.append("JOB %i" % I)
+    out = list()
+    for index in selection:
+        xyz = molecule.xyzs[index]
+        out.append("JOB %i" % index)
         out.append("COORDS" + pvec(xyz))
         if "qm_energies" in molecule.Data:
-            out.append("ENERGY % .12e" % molecule.qm_energies[I])
+            out.append("ENERGY % .12e" % molecule.qm_energies[index])
         if "mm_energies" in molecule.Data:
-            out.append("EMD0   % .12e" % molecule.mm_energies[I])
+            out.append("EMD0   % .12e" % molecule.mm_energies[index])
         if "qm_grads" in molecule.Data:
-            out.append("GRADIENT" + pvec(molecule.qm_grads[I]))
+            out.append("GRADIENT" + pvec(molecule.qm_grads[index]))
         if "qm_espxyzs" in molecule.Data and "qm_espvals" in molecule.Data:
-            out.append("ESPXYZ" + pvec(molecule.qm_espxyzs[I]))
-            out.append("ESPVAL" + pvec(molecule.qm_espvals[I]))
+            out.append("ESPXYZ" + pvec(molecule.qm_espxyzs[index]))
+            out.append("ESPVAL" + pvec(molecule.qm_espvals[index]))
         if "qm_interaction" in molecule.Data:
-            out.append("INTERACTION % .12e" % molecule.qm_interaction[I])
+            out.append("INTERACTION % .12e" % molecule.qm_interaction[index])
         out.append("")
     return out
