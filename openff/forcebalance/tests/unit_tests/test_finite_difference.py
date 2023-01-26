@@ -10,40 +10,27 @@ from openff.forcebalance.finite_difference import fdwrap
 class TestFiniteDifference(TestCase):
     @classmethod
     def setup_class(cls):
-        # super().setup_class()
-        # functions is a list of 3-tuples containing (function p, d/dp, d^2/dp^2)
-        cls.functions = []
-
-        # f(x) = 2x
-        cls.functions.append((lambda x: 2, lambda x, p: 0, lambda x, p: 0))
-        # f(x) = cos(x)
-        cls.functions.append(
+        cls.functions = [
+            (lambda x: 2, lambda x, p: 0, lambda x, p: 0),
             (
                 lambda x: cos(x[0]),
                 lambda x, p: -sin(x[0]) * (p == 0),
                 lambda x, p: -cos(x[0]) * (p == 0),
-            )
-        )
-        # f(x) = x^2
-        cls.functions.append(
+            ),
             (
                 lambda x: x[0] ** 2,
                 lambda x, p: 2 * x[0] * (p == 0),
                 lambda x, p: 2 * (p == 0),
-            )
-        )
+            ),
+        ]
 
     def test_fdwrap(self):
         """Check fdwrap properly wraps function"""
         for func in self.functions:
-            msg = "\nfdwrap alters function behavior"
             f = fdwrap(func[0], [0] * 3, 0)
-            # self.logger.debug("Checking to make sure fdwrap returns a function\n")
-            assert callable(
-                f
-            ), "fdwrap did not return a function"  # hasattr(f, '__call__'),  "fdwrap did not return a function"
 
-            # some test values
+            assert callable(f)
+
             for x in range(-10, 11):
                 assert abs(f(x) - func[0]([x, 0, 0])) < 1e-7
 
@@ -56,7 +43,6 @@ class TestFiniteDifference(TestCase):
             if re.match("^f..?d.p$", function)
         ]
 
-        # self.logger.debug("Comparing fd stencils against some simple functions\n")
         for func in self.functions:
             for p in range(1):
                 for x in range(10):
