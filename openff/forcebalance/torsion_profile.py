@@ -8,6 +8,7 @@ import json
 import os
 from collections import OrderedDict
 from copy import deepcopy
+from typing import Iterable
 
 import numpy as np
 
@@ -152,13 +153,17 @@ class TorsionProfileTarget(Target):
         }
         self.PrintDict = OrderedDict()
 
-        def compute(mvals_, indicate=False):
+        def compute(mvals_: Iterable) -> np.ndarray:
             self.FF.make(mvals_)
             M_opts = None
             compute.emm = []
             compute.rmsd = []
             for i in range(self.ns):
                 energy, rmsd, M_opt = self.engine.optimize(shot=i, align=False)
+                print(f"Energy: {energy=}")
+                print(f"\ttype: {type(energy)=}")
+                print(f"RMSD: {rmsd=}")
+                print(f"\ttype: {type(rmsd)=}")
                 # Create a molecule object to hold the MM-optimized structures
                 compute.emm.append(energy)
                 compute.rmsd.append(rmsd)
@@ -169,71 +174,12 @@ class TorsionProfileTarget(Target):
             compute.emm = np.array(compute.emm)
             compute.emm -= compute.emm[self.smin]
             compute.rmsd = np.array(compute.rmsd)
-            if indicate:
-                if self.writelevel > 0:
-                    energy_comparison = np.array(
-                        [
-                            self.eqm,
-                            compute.emm,
-                            compute.emm - self.eqm,
-                            np.sqrt(self.wts) / self.energy_denom,
-                        ]
-                    ).T
-                    np.savetxt(
-                        "EnergyCompare.txt",
-                        energy_comparison,
-                        header="%11s  %12s  %12s  %12s"
-                        % ("QMEnergy", "MMEnergy", "Delta(MM-QM)", "Weight"),
-                        fmt="% 12.6e",
-                    )
-                    M_opts.write("mm_minimized.xyz")
-                    if self.ndim == 1:
-                        try:
-                            import matplotlib.pyplot as plt
-
-                            plt.switch_backend("agg")
-                            fig, ax = plt.subplots()
-                            dihedrals = np.array(
-                                [i[0] for i in self.metadata["torsion_grid_ids"]]
-                            )
-                            dsort = np.argsort(dihedrals)
-                            ax.plot(dihedrals[dsort], self.eqm[dsort], label="QM")
-                            if hasattr(self, "emm_orig"):
-                                ax.plot(
-                                    dihedrals[dsort],
-                                    compute.emm[dsort],
-                                    label="MM Current",
-                                )
-                                ax.plot(
-                                    dihedrals[dsort],
-                                    self.emm_orig[dsort],
-                                    label="MM Initial",
-                                )
-                            else:
-                                ax.plot(
-                                    dihedrals[dsort],
-                                    compute.emm[dsort],
-                                    label="MM Initial",
-                                )
-                                self.emm_orig = compute.emm.copy()
-                            ax.legend()
-                            ax.set_xlabel("Dihedral (degree)")
-                            ax.set_ylabel("Energy (kcal/mol)")
-                            fig.suptitle(
-                                "Torsion profile: iteration %i\nSystem: %s"
-                                % (Counter(), self.name)
-                            )
-                            fig.savefig("plot_torsion.pdf")
-                        except ImportError:
-                            logger.warning(
-                                "matplotlib package is needed to make torsion profile plots\n"
-                            )
             return (np.sqrt(self.wts) / self.energy_denom) * (compute.emm - self.eqm)
 
         compute.emm = None
         compute.rmsd = None
 
-        V = compute(mvals, indicate=True)
+        V = compute(mvals)
 
         Answer["X"] = np.dot(V, V)
 
@@ -277,4 +223,5 @@ class TorsionProfileTarget(Target):
         if not in_fd():
             self.objective = Answer["X"]
             self.FF.make(mvals)
+
         return Answer
