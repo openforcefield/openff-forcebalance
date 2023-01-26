@@ -1,6 +1,6 @@
 """ Finite difference module. """
+
 import traceback
-from typing import Callable
 
 from openff.forcebalance.output import getLogger
 
@@ -82,7 +82,7 @@ def f12d7p(f, h):
     return fp, fpp
 
 
-def f12d3p(f: Callable, h: float, f0=None):
+def f12d3p(f, h, f0=None):
     """
     A three-point finite difference stencil.
     This function does either two computations or three,
@@ -109,7 +109,6 @@ def f12d3p(f: Callable, h: float, f0=None):
 
     Outputs:
     fp = The finite difference derivative of the function f(x) around x=0.
-    fpp = The finite difference second derivative of the function f(x) around x=0.
     """
     if f0 is None:
         fm1, f0, f1 = (f(i * h) for i in [-1, 0, 1])

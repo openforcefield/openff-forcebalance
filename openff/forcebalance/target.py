@@ -384,7 +384,6 @@ class Target(abc.ABC, BaseClass):
         if Counter() == self.zerograd and self.zerograd >= 0:
             self.write_0grads(Ans)
         self.hct += 1
-
         return Ans
 
     def link_from_tempdir(self, absdestdir):
