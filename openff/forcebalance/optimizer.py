@@ -959,6 +959,9 @@ class Optimizer(BaseClass):
             color=2,
         )
         self.failmsg = not cnvgd
+
+        print("Optimization Converged.")
+
         return xk
 
     def step(self, xk, data, trust):
