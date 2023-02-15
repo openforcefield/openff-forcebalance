@@ -240,6 +240,7 @@ ThreshAngle = 150
 
 ### FUNCTION DEFINITIONS ###
 
+
 # In: An atom number and all of the atoms bonded to it.
 # Out: All of the angle interactions with this atom at the center.
 def acomb(a, set):

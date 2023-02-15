@@ -9,7 +9,6 @@ from openff.evaluator.utils import setup_timestamp_logging
 
 
 def main():
-
     # Set up logging for the evaluator.
     setup_timestamp_logging()
 
@@ -28,7 +27,6 @@ def main():
     )
 
     with calculation_backend:
-
         server = EvaluatorServer(
             calculation_backend=calculation_backend,
             working_directory=working_directory,

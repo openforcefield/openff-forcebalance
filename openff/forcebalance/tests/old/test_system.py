@@ -342,7 +342,6 @@ class TestOpenFFTorsionProfileStudy(ForceBalanceSystemTest):
 
 class TestRechargeMethaneStudy(ForceBalanceSystemTest):
     def setup_method(self, method):
-
         pytest.importorskip("openff.recharge")
 
         super().setup_method(method)
@@ -359,7 +358,6 @@ class TestRechargeMethaneStudy(ForceBalanceSystemTest):
         self.logger.debug("\nSetting input file to '%s'\n" % self.input_file)
 
     def test_study(self):
-
         objective = self.get_objective()
         data = objective.Full(np.zeros(objective.FF.np), 1, verbose=True)
         X, G, H = data["X"], data["G"], data["H"]

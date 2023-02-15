@@ -252,6 +252,7 @@ class BindingEnergy(Target):
         self.PrintDict = OrderedDict()
         self.RMSDDict = OrderedDict()
         EnergyDict = OrderedDict()
+
         # pool = Pool(processes=4)
         def compute(mvals_):
             # This function has automatically assigned variable names from the interaction master file

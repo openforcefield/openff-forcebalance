@@ -33,6 +33,7 @@ parser.add_option(
 )
 (opts, args) = parser.parse_args()
 
+
 # Get dihedral angle in radians.
 def get_dihedral(mol, atms):
     return mol.measure_dihedrals(atms[0], atms[1], atms[2], atms[3])[0] * np.pi / 180

@@ -612,7 +612,6 @@ class GMX(Engine):
         super().__init__(name=name, **kwargs)
 
     def setopts(self, **kwargs):
-
         """Called by __init__ ; Set GROMACS-specific options."""
 
         ## Disable some optimizations
@@ -918,7 +917,6 @@ class GMX(Engine):
     def callgmx(
         self, command, stdin=None, print_to_screen=False, print_command=False, **kwargs
     ):
-
         """Call GROMACS; prepend the gmxpath to the call to the GROMACS program."""
 
         ## Always, always remove backup files.
@@ -945,7 +943,6 @@ class GMX(Engine):
         )
 
     def warngmx(self, command, warnings=[], maxwarn=1, **kwargs):
-
         """Call gromacs and allow for certain expected warnings."""
 
         # Common warning lines:
@@ -988,7 +985,6 @@ class GMX(Engine):
         return o
 
     def energy_termnames(self, edrfile=None):
-
         """Get a list of energy term names from the .edr file by parsing a system call to g_energy."""
 
         if edrfile is None:
@@ -1025,7 +1021,6 @@ class GMX(Engine):
         return energyterms
 
     def optimize(self, shot, crit=1e-4, align=True, **kwargs):
-
         """Optimize the geometry and align the optimized geometry to the starting geometry."""
 
         ## Write the correct conformation.
@@ -1084,7 +1079,6 @@ class GMX(Engine):
         return E / 4.184, rmsd, M[1]
 
     def evaluate_(self, force=False, dipole=False, traj=None):
-
         """
         Utility function for computing energy, and (optionally) forces and dipoles using GROMACS.
 
@@ -1165,7 +1159,6 @@ class GMX(Engine):
         return Result
 
     def evaluate_snapshot(self, shot, force=False, dipole=False):
-
         """Evaluate variables (energies, force and/or dipole) using GROMACS for a single snapshot."""
 
         ## Write the correct conformation.
@@ -1173,7 +1166,6 @@ class GMX(Engine):
         return self.evaluate_(force, dipole)
 
     def evaluate_trajectory(self, force=False, dipole=False, traj=None):
-
         """Evaluate variables (energies, force and/or dipole) using GROMACS over a trajectory."""
 
         if traj is None:
@@ -1199,26 +1191,22 @@ class GMX(Engine):
         return fout
 
     def energy_one(self, shot):
-
         """Compute the energy using GROMACS for a snapshot."""
 
         return self.evaluate_snapshot(shot)["Energy"]
 
     def energy_force_one(self, shot):
-
         """Compute the energy and force using GROMACS for a single snapshot; interfaces with AbInitio target."""
 
         Result = self.evaluate_snapshot(shot, force=True)
         return np.hstack((Result["Energy"].reshape(-1, 1), Result["Force"]))
 
     def energy(self, traj=None):
-
         """Compute the energy using GROMACS over a trajectory."""
 
         return self.evaluate_trajectory(traj=traj)["Energy"]
 
     def energy_force(self, force=True, traj=None):
-
         """Compute the energy and force using GROMACS over a trajectory."""
 
         Result = self.evaluate_trajectory(force=force, traj=traj)
@@ -1229,7 +1217,6 @@ class GMX(Engine):
         return np.hstack((Result["Energy"].reshape(-1, 1), Result["Dipole"]))
 
     def energy_rmsd(self, shot, optimize=True):
-
         """Calculate energy of the selected structure (optionally minimize and return the minimized energy and RMSD). In kcal/mol."""
 
         if optimize:
@@ -1252,7 +1239,6 @@ class GMX(Engine):
             return E, 0.0
 
     def interaction_energy(self, fraga, fragb):
-
         """Computes the interaction energy between two fragments over a trajectory."""
 
         self.mol[0].write("%s.gro" % self.name)
@@ -1316,7 +1302,6 @@ class GMX(Engine):
         return (I - X) / 4.184  # kcal/mol
 
     def multipole_moments(self, shot=0, optimize=True, polarizability=False):
-
         """Return the multipole moments of the 1st snapshot in Debye and Buckingham units."""
 
         if not self.double:
@@ -1377,7 +1362,6 @@ class GMX(Engine):
         return calc_moments
 
     def normal_modes(self, shot=0, optimize=True):
-
         if not self.double:
             warn_once(
                 "Single-precision GROMACS detected - recommend that you use double precision build."
@@ -1559,7 +1543,6 @@ class GMX(Engine):
         bilayer=False,
         **kwargs,
     ):
-
         """
         Method for running a molecular dynamics simulation.
 
@@ -1814,7 +1797,6 @@ class GMX(Engine):
         return prop_return
 
     def md(self, nsteps=0, nequil=0, verbose=False, deffnm=None, **kwargs):
-
         """
         Method for running a molecular dynamics simulation.  A little different than molecular_dynamics (for thermo.py)
 

@@ -44,7 +44,6 @@ class Recharge_SMIRNOFF(Target):
     electrostatic potential data."""
 
     def __init__(self, options, tgt_opts, forcefield):
-
         if not recharge_import_success:
             warn_once(
                 "Note: Failed to import the OpenFF Recharge package - FB Recharge_SMIRNOFF target will not work. "
@@ -111,7 +110,6 @@ class Recharge_SMIRNOFF(Target):
         bcc_to_parameter_index = {}
 
         for parameter_index, field_list in enumerate(self.FF.pfields):
-
             split_key = field_list[0].split("/")
 
             parameter_tag = split_key[0].strip()
@@ -194,7 +192,6 @@ class Recharge_SMIRNOFF(Target):
         jacobian_list = []
 
         for index in range(len(mvals)):
-
             reverse_mvals = mvals.copy()
             reverse_mvals[index] -= perturbation_amount
             reverse_pvals = np.array(self.FF.make(reverse_mvals))
@@ -280,12 +277,10 @@ class Recharge_SMIRNOFF(Target):
 
         # Compute the objective gradient and hessian.
         if AGrad is True:
-
             if self.recharge_property == "esp":
                 bcc_gradient = -2.0 * np.matmul(self._design_matrix.T, delta)
 
             elif self.recharge_property == "electric-field":
-
                 bcc_gradient = -2.0 * np.einsum(
                     "ij,ijk->ijk", delta, self._design_matrix
                 ).sum(0).sum(0)

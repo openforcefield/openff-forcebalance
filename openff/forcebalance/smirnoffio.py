@@ -73,12 +73,10 @@ def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
                 for force_tag, force_dict in mol_forces.items():
                     # e.g. force_tag = 'Bonds'
                     for atom_indices, parameters in force_dict.items():
-
                         if not isinstance(parameters, list):
                             parameters = [parameters]
 
                         for parameter in parameters:
-
                             param_dict = {
                                 "id": parameter.id,
                                 "smirks": parameter.smirks,
@@ -171,7 +169,6 @@ def smirnoff_update_pgrads(target):
     smirks_params_map = defaultdict(list)
     # New code for mapping smirks to mathematical parameter IDs
     for pname in target.FF.pTree:
-
         # Make sure we compute the gradients of global parameters such as 1-4 scale
         # factors.
         if pname.startswith("/"):
@@ -298,7 +295,6 @@ class SMIRNOFF(OpenMM):
         openmm_residue = openmm_topology.addResidue("", chain=openmm_chain)
 
         for particle in openff_topology.topology_particles:
-
             if isinstance(particle, TopologyAtom):
                 continue
 
@@ -309,7 +305,6 @@ class SMIRNOFF(OpenMM):
         return openmm_topology
 
     def prepare(self, pbc=False, mmopts={}, **kwargs):
-
         """
         Prepare the calculation.  Note that we don't create the
         Simulation object yet, because that may depend on MD
@@ -391,7 +386,6 @@ class SMIRNOFF(OpenMM):
         self.xyz_omms: List[Tuple[openmm.unit.Quantity, ...]] = list()
 
         for molecule_index in range(len(self.mol)):
-
             _xyz = self.mol.xyzs[molecule_index]
 
             # TODO: Replace with helper function from Interchange
@@ -458,7 +452,6 @@ class SMIRNOFF(OpenMM):
                 os.unlink(f)
 
     def update_simulation(self, **kwargs):
-
         """
         Create the simulation object, or update the force field
         parameters in the existing simulation object.  This should be
@@ -520,7 +513,6 @@ class SMIRNOFF(OpenMM):
         self.simulation.context.computeVirtualSites()
 
     def interaction_energy(self, fraga, fragb):
-
         """
         Calculate the interaction energy for two fragments.
         Because this creates two new objects and requires passing in the mol2 argument,
@@ -586,7 +578,6 @@ class SMIRNOFF(OpenMM):
             for force_tag, force_dict in mol_forces.items():
                 # e.g. force_tag = 'Bonds'
                 for parameters in force_dict.values():
-
                     if not isinstance(parameters, list):
                         parameters = [parameters]
 
@@ -795,11 +786,9 @@ class OptGeoTarget_SMIRNOFF(OptGeoTarget):
         smirks_params_map = defaultdict(list)
         # New code for mapping smirks to mathematical parameter IDs
         for pname in self.FF.pTree:
-
             # Make sure we compute the gradients of global parameters such as 1-4 scale
             # factors.
             if pname.startswith("/"):
-
                 for sysname in self.sys_opts:
                     pidx_list = [pidx for pidx in self.FF.get_mathid(pname)]
                     system_mval_masks[sysname][pidx_list] = True

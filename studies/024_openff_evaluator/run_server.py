@@ -11,18 +11,15 @@ from openff.evaluator.utils import setup_timestamp_logging
 
 
 def main(n_workers, cpus_per_worker, gpus_per_worker):
-
     if n_workers <= 0:
         raise ValueError("The number of workers must be greater than 0")
     if cpus_per_worker <= 0:
         raise ValueError("The number of CPU's per worker must be greater than 0")
     if gpus_per_worker < 0:
-
         raise ValueError(
             "The number of GPU's per worker must be greater than or equal to 0"
         )
     if 0 < gpus_per_worker != cpus_per_worker:
-
         raise ValueError(
             "The number of GPU's per worker must match the number of "
             "CPU's per worker."
@@ -60,7 +57,6 @@ def main(n_workers, cpus_per_worker, gpus_per_worker):
     )
 
     with calculation_backend:
-
         server = EvaluatorServer(
             calculation_backend=calculation_backend,
             working_directory=working_directory,
@@ -72,7 +68,6 @@ def main(n_workers, cpus_per_worker, gpus_per_worker):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Start an EvaluatorServer with a "
         "specified number of workers, each with "

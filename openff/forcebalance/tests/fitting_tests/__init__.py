@@ -13,7 +13,6 @@ from openff.forcebalance.parser import parse_inputs
 
 
 def fit(input_file: str = "optimize.in"):
-
     options, targets = parse_inputs(input_file)
 
     forcefield = FF(options)
@@ -25,7 +24,6 @@ def fit(input_file: str = "optimize.in"):
 
 @contextmanager
 def fitting_cd(directory_name: str) -> Generator[None, None, None]:
-
     source = (
         pathlib.Path(__file__).parent.parent.parent / "fitting-tests" / directory_name
     )
