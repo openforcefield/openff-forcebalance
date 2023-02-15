@@ -56,77 +56,6 @@ def energy_components(Sim, verbose=False):
     return EnergyTerms
 
 
-def get_multipoles(simulation, q=None, mass=None, positions=None, rmcom=True):
-    """Return the current multipole moments in Debye and Buckingham units."""
-    dx = 0.0
-    dy = 0.0
-    dz = 0.0
-    qxx = 0.0
-    qxy = 0.0
-    qxz = 0.0
-    qyy = 0.0
-    qyz = 0.0
-    qzz = 0.0
-    enm_debye = 48.03204255928332  # Conversion factor from e*nm to Debye
-    for i in simulation.system.getForces():
-        if isinstance(i, openmm.NonbondedForce):
-            # Get array of charges.
-            if q is None:
-                q = numpy.array(
-                    [
-                        i.getParticleParameters(j)[0]._value
-                        for j in range(i.getNumParticles())
-                    ]
-                )
-            # Get array of positions in nanometers.
-            if positions is None:
-                positions = simulation.context.getState(
-                    getPositions=True
-                ).getPositions()
-            if mass is None:
-                mass = numpy.array(
-                    [
-                        simulation.context.getSystem()
-                        .getParticleMass(k)
-                        .value_in_unit(unit.dalton)
-                        for k in range(simulation.context.getSystem().getNumParticles())
-                    ]
-                )
-            x = numpy.array(positions.value_in_unit(unit.nanometer))
-            if rmcom:
-                com = numpy.sum(x * mass.reshape(-1, 1), axis=0) / numpy.sum(mass)
-                x -= com
-            xx, xy, xz, yy, yz, zz = (
-                x[:, k] * x[:, l]
-                for k, l in [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2), (2, 2)]
-            )
-            # Multiply charges by positions to get dipole moment.
-            dip = enm_debye * numpy.sum(x * q.reshape(-1, 1), axis=0)
-            dx += dip[0]
-            dy += dip[1]
-            dz += dip[2]
-            qxx += enm_debye * 15 * numpy.sum(q * xx)
-            qxy += enm_debye * 15 * numpy.sum(q * xy)
-            qxz += enm_debye * 15 * numpy.sum(q * xz)
-            qyy += enm_debye * 15 * numpy.sum(q * yy)
-            qyz += enm_debye * 15 * numpy.sum(q * yz)
-            qzz += enm_debye * 15 * numpy.sum(q * zz)
-            tr = qxx + qyy + qzz
-            qxx -= tr / 3
-            qyy -= tr / 3
-            qzz -= tr / 3
-    # This ordering has to do with the way TINKER prints it out.
-    return [dx, dy, dz, qxx, qxy, qyy, qxz, qyz, qzz]
-
-
-def get_dipole(simulation, q=None, mass=None, positions=None):
-    """Return the current dipole moment in Debye.
-    Note that this quantity is meaningless if the system carries a net charge."""
-    return get_multipoles(simulation, q=q, mass=mass, positions=positions, rmcom=False)[
-        :3
-    ]
-
-
 def PrepareVirtualSites(system):
     """Prepare a list of function wrappers and vsite parameters from the system."""
     isvsites = []
@@ -1181,11 +1110,11 @@ class OpenMM(Engine):
             mass += system.getParticleMass(i)
         return mass
 
-    def evaluate_one_(self, force=False, dipole=False):
+    def evaluate_one_(self, force=False):
         """Perform a single point calculation on the current geometry."""
 
         state = self.simulation.context.getState(
-            getPositions=dipole, getEnergy=True, getForces=force
+            getPositions=True, getEnergy=True, getForces=force
         )
         Result = {}
         Result["Energy"] = state.getPotentialEnergy() / unit.kilojoules_per_mole
@@ -1195,54 +1124,41 @@ class OpenMM(Engine):
             )
             # Extract forces belonging to real atoms only
             Result["Force"] = Force[self.realAtomIdxs].flatten()
-        if dipole:
-            Result["Dipole"] = get_dipole(
-                self.simulation,
-                q=self.nbcharges,
-                mass=self.AtomLists["Mass"],
-                positions=state.getPositions(),
-            )
         return Result
 
-    def evaluate_(self, force=False, dipole=False, traj=False):
+    def evaluate_(self, force=False, traj=False):
 
         """
-        Utility function for computing energy, and (optionally) forces and dipoles using OpenMM.
+        Utility function for computing energy, and (optionally) forces using OpenMM.
 
         Inputs:
         force: Switch for calculating the force.
-        dipole: Switch for calculating the dipole.
         traj: Trajectory (listing of coordinate and box 2-tuples).  If provide, will loop over these snapshots.
         Otherwise will do a single point evaluation at the current geometry.
 
         Outputs:
-        Result: Dictionary containing energies, forces and/or dipoles.
+        Result: Dictionary containing energies, and forces
         """
 
         self.update_simulation()
 
         # If trajectory flag set to False, perform a single-point calculation.
         if not traj:
-            return evaluate_one_(force, dipole)
+            return self.evaluate_one_(force)
         Energies = []
         Forces = []
-        Dipoles = []
         for I in range(len(self.xyz_omms)):
             self.set_positions(I)
-            R1 = self.evaluate_one_(force, dipole)
+            R1 = self.evaluate_one_(force)
             Energies.append(R1["Energy"])
             if force:
                 Forces.append(R1["Force"])
-            if dipole:
-                Dipoles.append(R1["Dipole"])
         # Compile it all into the dictionary object
         Result = OrderedDict()
 
         Result["Energy"] = numpy.array(Energies)
         if force:
             Result["Force"] = numpy.array(Forces)
-        if dipole:
-            Result["Dipole"] = numpy.array(Dipoles)
         return Result
 
     def energy_one(self, shot):
@@ -1263,11 +1179,6 @@ class OpenMM(Engine):
         Result["Energy"].reshape(-1, 1)
         Result["Force"]
         return numpy.hstack((Result["Energy"].reshape(-1, 1), Result["Force"]))
-
-    def energy_dipole(self):
-        """Loop through the snapshots and compute the energies and forces using OpenMM."""
-        Result = self.evaluate_(dipole=True, traj=True)
-        return numpy.hstack((Result["Energy"].reshape(-1, 1), Result["Dipole"]))
 
     def build_mass_weighted_hessian(
         self, shot=0, optimize=True, mass_weighted_hessian_only=True
@@ -1575,42 +1486,6 @@ class OpenMM(Engine):
             pos = pos[self.realAtomIdxs]
         return pos
 
-    def multipole_moments(self, shot=0, optimize=True, polarizability=False):
-
-        """Return the multipole moments of the i-th snapshot in Debye and Buckingham units."""
-
-        self.update_simulation()
-
-        if polarizability:
-            logger.error("Polarizability calculation is available in TINKER only.\n")
-            raise NotImplementedError
-
-        if self.platname in ["CUDA", "OpenCL"] and self.precision in [
-            "single",
-            "mixed",
-        ]:
-            crit = 1e-4
-        else:
-            crit = 1e-6
-
-        if optimize:
-            self.optimize(shot, crit=crit)
-        else:
-            self.set_positions(shot)
-
-        moments = get_multipoles(self.simulation)
-
-        dipole_dict = OrderedDict(zip(["x", "y", "z"], moments[:3]))
-        quadrupole_dict = OrderedDict(
-            zip(["xx", "xy", "yy", "xz", "yz", "zz"], moments[3:10])
-        )
-
-        calc_moments = OrderedDict(
-            [("dipole", dipole_dict), ("quadrupole", quadrupole_dict)]
-        )
-
-        return calc_moments
-
     def energy_rmsd(self, shot=0, optimize=True):
 
         """Calculate energy of the 1st structure (optionally minimize and return the minimized energy and RMSD). In kcal/mol."""
@@ -1717,7 +1592,6 @@ class OpenMM(Engine):
         Potentials  = (array)     Potential energies
         Kinetics    = (array)     Kinetic energies
         Volumes     = (array)     Box volumes
-        Dips        = (3xN array) Dipole moments
         EComps      = (dict)      Energy components
         """
 
@@ -1763,13 +1637,6 @@ class OpenMM(Engine):
                     .value_in_unit(openmm.unit.kilojoule_per_mole)
                 )
 
-        # Serialize the system if we want.
-        Serialize = 0
-        if Serialize:
-            serial = openmm.XmlSerializer.serializeSystem(system)
-            with wopen("%s_system.xml" % phase) as f:
-                f.write(serial)
-
         # Determine number of degrees of freedom; the center of mass motion remover is also a constraint.
         kB = unit.BOLTZMANN_CONSTANT_kB * unit.AVOGADRO_CONSTANT_NA
 
@@ -1799,12 +1666,11 @@ class OpenMM(Engine):
         edecomp = OrderedDict()
         # Stored coordinates, box vectors
         self.xyz_omms = []
-        # Densities, potential and kinetic energies, box volumes, dipole moments
+        # Densities, potential, kinetic energies, box volumes
         Rhos = []
         Potentials = []
         Kinetics = []
         Volumes = []
-        Dips = []
         Temps = []
         # ========================#
         # Now run the simulation #
@@ -1968,12 +1834,10 @@ class OpenMM(Engine):
             Potentials.append(potential / unit.kilojoules_per_mole)
             Kinetics.append(kinetic / unit.kilojoules_per_mole)
             Volumes.append(volume / unit.nanometer**3)
-            Dips.append(get_dipole(self.simulation, positions=self.xyz_omms[-1][0]))
         Rhos = numpy.array(Rhos)
         Potentials = numpy.array(Potentials)
         Kinetics = numpy.array(Kinetics)
         Volumes = numpy.array(Volumes)
-        Dips = numpy.array(Dips)
         Ecomps = OrderedDict([(key, numpy.array(val)) for key, val in edecomp.items()])
         Ecomps["Potential Energy"] = Potentials
         Ecomps["Kinetic Energy"] = Kinetics
@@ -1987,7 +1851,6 @@ class OpenMM(Engine):
                 "Potentials": Potentials,
                 "Kinetics": Kinetics,
                 "Volumes": Volumes,
-                "Dips": Dips,
                 "Ecomps": Ecomps,
             }
         )
@@ -2126,27 +1989,6 @@ class Interaction_OpenMM(Interaction):
     def __init__(self, options, tgt_opts, forcefield):
         # Default file names for coordinates and key file.
         self.set_option(tgt_opts, "coords", default="all.pdb")
-        self.set_option(
-            tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
-        )
-        self.set_option(
-            tgt_opts,
-            "openmm_platform",
-            "platname",
-            default="Reference",
-            forceprint=True,
-        )
-        self.engine_ = OpenMM
-        # Initialize base class.
-        super().__init__(options, tgt_opts, forcefield)
-
-
-class Moments_OpenMM(Moments):
-    """Multipole moment matching using OpenMM."""
-
-    def __init__(self, options, tgt_opts, forcefield):
-        # Default file names for coordinates and key file.
-        self.set_option(tgt_opts, "coords", default="input.pdb")
         self.set_option(
             tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
         )
