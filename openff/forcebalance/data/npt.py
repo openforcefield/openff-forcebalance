@@ -78,10 +78,6 @@ if engname == "openmm":
     from openff.forcebalance.openmmio import *
 
     Engine = OpenMM
-elif engname == "gromacs" or engname == "gmx":
-    from openff.forcebalance.gmxio import *
-
-    Engine = GMX
 elif engname == "smirnoff":
     from openff.forcebalance.smirnoffio import *
 

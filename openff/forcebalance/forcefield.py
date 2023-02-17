@@ -107,7 +107,7 @@ import networkx as nx
 import numpy as np
 from lxml import etree
 
-from openff.forcebalance import BaseClass, BaseReader, gmxio, openmmio, smirnoffio
+from openff.forcebalance import BaseClass, BaseReader, openmmio, smirnoffio
 from openff.forcebalance.nifty import *
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.smirnoffio import assign_openff_parameter
@@ -124,7 +124,6 @@ FF_Extensions = {
 
 """ Recognized force field formats. """
 FF_IOModules = {
-    "gmx": gmxio.ITP_Reader,
     "openmm": openmmio.OpenMM_Reader,
     "smirnoff": smirnoffio.SMIRNOFF_Reader,
 }

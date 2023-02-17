@@ -6,7 +6,7 @@
 import os
 from collections import OrderedDict, defaultdict
 from copy import deepcopy
-from typing import List
+from typing import Callable, List, Tuple
 
 import numpy
 import openmm
@@ -261,27 +261,33 @@ def GetVirtualSiteParameters(system):
     return numpy.array(vsprm)
 
 
-def CopyHarmonicBondParameters(src, dest):
-    for i in range(src.getNumBonds()):
-        dest.setBondParameters(i, *src.getBondParameters(i))
+def CopyHarmonicBondParameters(
+    src: openmm.HarmonicBondForce, dest: openmm.HarmonicBondForce
+):
+    for index in range(src.getNumBonds()):
+        dest.setBondParameters(index, *src.getBondParameters(index))
 
 
-def CopyHarmonicAngleParameters(src, dest):
-    for i in range(src.getNumAngles()):
-        dest.setAngleParameters(i, *src.getAngleParameters(i))
+def CopyHarmonicAngleParameters(
+    src: openmm.HarmonicAngleForce, dest: openmm.HarmonicAngleForce
+):
+    for index in range(src.getNumAngles()):
+        dest.setAngleParameters(index, *src.getAngleParameters(index))
 
 
-def CopyPeriodicTorsionParameters(src, dest):
-    for i in range(src.getNumTorsions()):
-        dest.setTorsionParameters(i, *src.getTorsionParameters(i))
+def CopyPeriodicTorsionParameters(
+    src: openmm.PeriodicTorsionForce, dest: openmm.PeriodicTorsionForce
+):
+    for index in range(src.getNumTorsions()):
+        dest.setTorsionParameters(index, *src.getTorsionParameters(index))
 
 
-def CopyNonbondedParameters(src, dest):
+def CopyNonbondedParameters(src: openmm.NonbondedForce, dest: openmm.NonbondedForce):
     dest.setReactionFieldDielectric(src.getReactionFieldDielectric())
-    for i in range(src.getNumParticles()):
-        dest.setParticleParameters(i, *src.getParticleParameters(i))
-    for i in range(src.getNumExceptions()):
-        dest.setExceptionParameters(i, *src.getExceptionParameters(i))
+    for index in range(src.getNumParticles()):
+        dest.setParticleParameters(index, *src.getParticleParameters(index))
+    for index in range(src.getNumExceptions()):
+        dest.setExceptionParameters(index, *src.getExceptionParameters(index))
 
 
 def CopyGBSAOBCParameters(src, dest):
@@ -291,54 +297,47 @@ def CopyGBSAOBCParameters(src, dest):
         dest.setParticleParameters(i, *src.getParticleParameters(i))
 
 
-def CopyCustomNonbondedParameters(src, dest):
-    """
-    copy whatever updateParametersInContext can update:
-        per-particle parameters
-    """
-    for i in range(src.getNumParticles()):
-        dest.setParticleParameters(i, list(src.getParticleParameters(i)))
-
-
-def CopyCustomBondParameters(src, dest):
-    """
-    copy whatever updateParametersInContext can update:
-        PerBondParameters
-    """
-    for i in range(src.getNumBonds()):
-        dest.setBondParameters(i, *src.getBondParameters(i))
+def CopyCustomNonbondedParameters(
+    src: openmm.CustomNonbondedForce, dest: openmm.CustomNonbondedForce
+):
+    for index in range(src.getNumParticles()):
+        dest.setParticleParameters(index, list(src.getParticleParameters(index)))
 
 
 def do_nothing(src, dest):
     return
 
 
-def CopySystemParameters(src, dest):
+def CopySystemParameters(src: openmm.System, dest: openmm.System):
     """Copy parameters from one system (i.e. that which is created by a new force field)
     sto another system (i.e. the one stored inside the Target object).
     DANGER: These need to be implemented manually!!!"""
-    Copiers = {
-        "HarmonicBondForce": CopyHarmonicBondParameters,
-        "HarmonicAngleForce": CopyHarmonicAngleParameters,
-        "PeriodicTorsionForce": CopyPeriodicTorsionParameters,
-        "NonbondedForce": CopyNonbondedParameters,
-        "CustomBondForce": CopyCustomBondParameters,
-        "CustomNonbondedForce": CopyCustomNonbondedParameters,
-        "GBSAOBCForce": CopyGBSAOBCParameters,
-        "CMMotionRemover": do_nothing,
+    copy_functions: Dict[type(openmm.Force), Callable] = {
+        openmm.HarmonicBondForce: CopyHarmonicBondParameters,
+        openmm.HarmonicAngleForce: CopyHarmonicAngleParameters,
+        openmm.PeriodicTorsionForce: CopyPeriodicTorsionParameters,
+        openmm.NonbondedForce: CopyNonbondedParameters,
+        openmm.CustomBondForce: CopyHarmonicBondParameters,
+        openmm.CustomNonbondedForce: CopyCustomNonbondedParameters,
+        openmm.GBSAOBCForce: CopyGBSAOBCParameters,
+        openmm.CMMotionRemover: do_nothing,
     }
-    for i in range(src.getNumForces()):
-        nm = src.getForce(i).__class__.__name__
-        if nm in Copiers:
-            Copiers[nm](src.getForce(i), dest.getForce(i))
-        else:
-            warn_press_key(
-                "There is no Copier function implemented for the OpenMM force type %s!"
-                % nm
+    for force_index in range(src.getNumForces()):
+        source_force = src.getForce(force_index)
+        destination_force = dest.getForce(force_index)
+        assert type(source_force) == type(destination_force)
+
+        try:
+            copy_functions[type(source_force)](source_force, destination_force)
+        except KeyError as error:
+            raise error(
+                f"There is no copy_function implemented for force {type(soruce_force)}!"
             )
 
 
-def UpdateSimulationParameters(src_system, dest_simulation):
+def UpdateSimulationParameters(
+    src_system: openmm.System, dest_simulation: openmm.app.Simulation
+):
     CopySystemParameters(src_system, dest_simulation.system)
     for i in range(src_system.getNumForces()):
         if hasattr(dest_simulation.system.getForce(i), "updateParametersInContext"):
@@ -366,7 +365,13 @@ def AddVirtualSiteBonds(mod, ff):
                 mod.topology.addBond(*bi)
 
 
-def MTSVVVRIntegrator(temperature, collision_rate, timestep, system, ninnersteps=4):
+def create_MTSVVVRIntegrator(
+    temperature: unit.Quantity,
+    collision_rate: unit.Quantity,
+    timestep: unit.Quantity,
+    system: openmm.System,
+    ninnersteps: int = 4,
+) -> openmm.CustomIntegrator:
     """
     Create a multiple timestep velocity verlet with velocity randomization (VVVR) integrator.
 
@@ -1362,12 +1367,12 @@ class OpenMM(Engine):
 
     def optimize(
         self,
-        shot,
-        crit=1e-4,
-        disable_vsite=False,
-        align=True,
-        include_restraint_energy=False,
-    ):
+        shot: int,
+        crit: float = 1e-4,
+        disable_vsite: bool = False,
+        align: bool = True,
+        include_restraint_energy: bool = False,
+    ) -> Tuple[float, float]:
         """
         Optimize the geometry and align the optimized
         geometry to the starting geometry.

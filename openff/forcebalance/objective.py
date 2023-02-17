@@ -20,21 +20,6 @@ from openff.forcebalance.output import getLogger
 logger = getLogger(__name__)
 
 try:
-    from openff.forcebalance.gmxio import (
-        AbInitio_GMX,
-        BindingEnergy_GMX,
-        Interaction_GMX,
-        Lipid_GMX,
-        Liquid_GMX,
-        Moments_GMX,
-        Thermo_GMX,
-        Vibration_GMX,
-    )
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("Gromacs module import failed\n")
-
-try:
     from openff.forcebalance.openmmio import (
         AbInitio_OpenMM,
         BindingEnergy_OpenMM,
@@ -95,25 +80,17 @@ except:
 
 ## The table of implemented Targets
 Implemented_Targets = {
-    "ABINITIO_GMX": AbInitio_GMX,
     "ABINITIO_OPENMM": AbInitio_OpenMM,
     "ABINITIO_SMIRNOFF": AbInitio_SMIRNOFF,
     "ABINITIO_INTERNAL": AbInitio_Internal,
-    "VIBRATION_GMX": Vibration_GMX,
     "VIBRATION_OPENMM": Vibration_OpenMM,
     "VIBRATION_SMIRNOFF": Vibration_SMIRNOFF,
     "HESSIAN_SMIRNOFF": Hessian_SMIRNOFF,
-    "THERMO_GMX": Thermo_GMX,
     "LIQUID_OPENMM": Liquid_OpenMM,
     "LIQUID_SMIRNOFF": Liquid_SMIRNOFF,
-    "LIQUID_GMX": Liquid_GMX,
-    "LIPID_GMX": Lipid_GMX,
     "COUNTERPOISE": Counterpoise,
-    "INTERACTION_GMX": Interaction_GMX,
     "INTERACTION_OPENMM": Interaction_OpenMM,
-    "BINDINGENERGY_GMX": BindingEnergy_GMX,
     "BINDINGENERGY_OPENMM": BindingEnergy_OpenMM,
-    "MOMENTS_GMX": Moments_GMX,
     "HYDRATION_OPENMM": Hydration_OpenMM,
     "OPTGEO_OPENMM": OptGeoTarget_OpenMM,
     "OPTGEO_SMIRNOFF": OptGeoTarget_SMIRNOFF,
