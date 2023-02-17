@@ -177,7 +177,6 @@ class Reopt:
         for k in self.unique_res:
             os.chdir(f"{self.base_tmp}/Cluster/{k}")
             if not os.path.isfile("centroids.gro"):
-
                 mm_opt = Molecule("mm_opt.gro")
                 elems = mm_opt.elem
 

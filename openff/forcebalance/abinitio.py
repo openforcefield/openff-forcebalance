@@ -385,7 +385,6 @@ class AbInitio(Target):
         return netfrc_torque
 
     def read_reference_data(self):
-
         """Read the reference ab initio data from a file such as qdata.txt.
 
         @todo Add an option for picking any slice out of

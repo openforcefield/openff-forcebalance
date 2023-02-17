@@ -162,7 +162,6 @@ else:
 
 
 def main():
-
     """Usage:
 
     (prefix.sh) md_one.py -T, --temperature <temperature in kelvin>

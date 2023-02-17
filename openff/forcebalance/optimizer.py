@@ -1572,7 +1572,6 @@ class Optimizer(BaseClass):
             )
 
     def GeneticAlgorithm(self):
-
         """
         Genetic algorithm, under development. It currently works but a
         genetic algorithm is more like a concept; i.e. there is no

@@ -22,7 +22,6 @@ logger = getLogger(__name__)
 
 
 def energy_derivatives(engine, FF, mvals, h, pgrad, dipole=False):
-
     """
     Compute the first and second derivatives of a set of snapshot
     energies with respect to the force field parameters.

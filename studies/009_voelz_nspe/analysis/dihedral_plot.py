@@ -26,7 +26,6 @@ def deg2rad(angle):
 
 
 def parse_dihedraltypes(text):
-
     parms = {}
 
     lines = text.split("\n")
@@ -88,7 +87,6 @@ print("number of dihedral types:", len(list(parms.keys())))
 plt.figure()
 panel = 1
 for key in list(parms.keys()):
-
     potential = np.zeros(dihangles.shape)
 
     for parm in parms[key]:

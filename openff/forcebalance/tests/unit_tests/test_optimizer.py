@@ -21,7 +21,6 @@ logger = logging.getLogger("test")
 class TestOptimizer:
     @temporary_cd()
     def test_write_checkpoint_file(self):
-
         prefix = "tests/files/studies/001_water_tutorial/"
         shutil.copy(
             get_data_file_path(prefix + "very_simple.in", "openff.forcebalance"),

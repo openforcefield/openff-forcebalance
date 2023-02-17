@@ -580,7 +580,6 @@ class OpenMM(Engine):
         super().__init__(name=name, **kwargs)
 
     def setopts(self, platname="CUDA", precision="single", **kwargs):
-
         """Called by __init__ ; Set OpenMM-specific options."""
 
         # Target settings override.
@@ -631,7 +630,6 @@ class OpenMM(Engine):
         self.simkwargs = {}
 
     def readsrc(self, **kwargs):
-
         """Called by __init__ ; read files from the source directory.
         Provide a molecule object or a coordinate file.
         Add an optional PDB file for residues, atom names etc."""
@@ -668,7 +666,6 @@ class OpenMM(Engine):
         self.ref_mol = deepcopy(self.mol)
 
     def prepare(self, pbc=False, mmopts={}, **kwargs):
-
         """
         Prepare the calculation.  Note that we don't create the
         Simulation object yet, because that may depend on MD
@@ -857,7 +854,6 @@ class OpenMM(Engine):
         rpmd_beads=0,
         **kwargs,
     ):
-
         """
         Create simulation object.  Note that this also takes in some
         options pertinent to system setup, including the type of MD
@@ -980,7 +976,6 @@ class OpenMM(Engine):
         )
 
     def update_simulation(self, **kwargs):
-
         """
         Create the simulation object, or update the force field
         parameters in the existing simulation object.  This should be
@@ -1064,7 +1059,6 @@ class OpenMM(Engine):
             )
 
     def set_positions(self, shot):
-
         """
         Set the positions and periodic box vectors to one of the
         stored coordinates.
@@ -1127,7 +1121,6 @@ class OpenMM(Engine):
         return Result
 
     def evaluate_(self, force=False, traj=False):
-
         """
         Utility function for computing energy, and (optionally) forces using OpenMM.
 
@@ -1375,7 +1368,6 @@ class OpenMM(Engine):
         align=True,
         include_restraint_energy=False,
     ):
-
         """
         Optimize the geometry and align the optimized
         geometry to the starting geometry.
@@ -1487,7 +1479,6 @@ class OpenMM(Engine):
         return pos
 
     def energy_rmsd(self, shot=0, optimize=True):
-
         """Calculate energy of the 1st structure (optionally minimize and return the minimized energy and RMSD). In kcal/mol."""
 
         self.update_simulation()
@@ -1514,7 +1505,6 @@ class OpenMM(Engine):
         return E, rmsd
 
     def interaction_energy(self, fraga, fragb):
-
         """Calculate the interaction energy for two fragments."""
 
         self.update_simulation()
@@ -1574,7 +1564,6 @@ class OpenMM(Engine):
         verbose=False,
         **kwargs,
     ):
-
         """
         Method for running a molecular dynamics simulation.
 

@@ -216,7 +216,6 @@ class FF(BaseClass):
     """
 
     def __init__(self, options, verbose=True, printopt=True):
-
         """Instantiation of force field class.
 
         Many variables here are initialized to zero, but they are filled out by

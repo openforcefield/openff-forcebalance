@@ -79,7 +79,6 @@ class Evaluator_SMIRNOFF(Target):
         """
 
         def __init__(self):
-
             self.connection_options = ConnectionOptions()
             self.estimation_options = RequestOptions()
 
@@ -173,7 +172,6 @@ class Evaluator_SMIRNOFF(Target):
             return value
 
     def __init__(self, options, tgt_opts, forcefield):
-
         if not evaluator_import_success:
             warn_once(
                 "Note: Failed to import the OpenFF Evaluator - FB Evaluator target will not work. "
@@ -241,7 +239,6 @@ class Evaluator_SMIRNOFF(Target):
         self._reference_data_set = PhysicalPropertyDataSet.from_json(data_set_path)
 
         if len(self._reference_data_set) == 0:
-
             raise ValueError(
                 "The physical property data set to optimise against is empty."
             )
@@ -258,20 +255,17 @@ class Evaluator_SMIRNOFF(Target):
         }
 
         for substance in self._reference_data_set.substances:
-
             dict_for_print = {}
 
             for physical_property in self._reference_data_set.properties_by_substance(
                 substance
             ):
-
                 property_type = physical_property.__class__.__name__
 
                 value = physical_property.value.to(self._default_units[property_type])
                 uncertainty = np.nan
 
                 if physical_property.uncertainty != UNDEFINED:
-
                     uncertainty = physical_property.uncertainty.to(
                         self._default_units[property_type]
                     )
@@ -296,7 +290,6 @@ class Evaluator_SMIRNOFF(Target):
         self._normalised_weights = {}
 
         for property_type in self._reference_data_set.property_types:
-
             self._normalised_weights[property_type] = (
                 self._options.weights[property_type]
                 / number_of_properties[property_type]
@@ -337,12 +330,10 @@ class Evaluator_SMIRNOFF(Target):
         parameter_value = None
 
         if hasattr(parameter, gradient_key.attribute):
-
             parameter_attribute = gradient_key.attribute
             parameter_value = getattr(parameter, parameter_attribute)
 
         elif len(attribute_split) == 2:
-
             parameter_attribute = attribute_split[0]
 
             if hasattr(parameter, parameter_attribute):
@@ -378,7 +369,6 @@ class Evaluator_SMIRNOFF(Target):
         parameter_values = np.zeros(len(self._gradient_key_mappings))
 
         for gradient_key, parameter_index in self._gradient_key_mappings.items():
-
             parameter_value, _ = self._parameter_value_from_gradient_key(gradient_key)
             expected_unit = self._parameter_units[gradient_key]
 
@@ -410,7 +400,6 @@ class Evaluator_SMIRNOFF(Target):
         jacobian_list = []
 
         for index in range(len(mvals)):
-
             reverse_mvals = mvals.copy()
             reverse_mvals[index] -= perturbation_amount
 
@@ -472,11 +461,9 @@ class Evaluator_SMIRNOFF(Target):
         self._parameter_units = {}
 
         if AGrad is True:
-
             index_counter = 0
 
             for field_list in self.FF.pfields:
-
                 string_key = field_list[0]
                 key_split = string_key.split("/")
 
@@ -536,7 +523,6 @@ class Evaluator_SMIRNOFF(Target):
             )[0]
             is None
         ):
-
             raise RuntimeError(
                 "No `EvaluatorServer` could be found to submit the calculations to. "
                 "Please double check that a server is running, and that the connection "
@@ -560,14 +546,12 @@ class Evaluator_SMIRNOFF(Target):
         # Check for any exceptions that were raised while estimating
         # the properties.
         if isinstance(results, EvaluatorException):
-
             raise ValueError(
                 "An uncaught exception occured within the evaluator "
                 "framework: %s" % str(results)
             )
 
         if len(results.unsuccessful_properties) > 0:
-
             exceptions = "\n".join(str(result) for result in results.exceptions)
 
             raise ValueError(
@@ -606,7 +590,6 @@ class Evaluator_SMIRNOFF(Target):
         calculation_layer_counts = {}
 
         for physical_property in results.estimated_properties:
-
             calculation_layer = physical_property.source.fidelity
 
             if calculation_layer not in calculation_layer_counts:
@@ -617,7 +600,6 @@ class Evaluator_SMIRNOFF(Target):
         logger.info("\n")
 
         for layer_type in calculation_layer_counts:
-
             count = calculation_layer_counts[layer_type]
 
             logger.info(
@@ -629,7 +611,6 @@ class Evaluator_SMIRNOFF(Target):
         logger.info("\n")
 
         if len(results.exceptions) > 0:
-
             exceptions = "\n\n".join(str(result) for result in results.exceptions)
             exceptions = exceptions.replace("\\n", "\n")
 
@@ -660,7 +641,6 @@ class Evaluator_SMIRNOFF(Target):
         # and map them from gradients with respect to FF parameters,
         # to gradients with respect to FB mathematical parameters.
         for physical_property in results.estimated_properties:
-
             property_class = physical_property.__class__.__name__
 
             estimated_gradients[physical_property.id] = np.zeros(
@@ -668,7 +648,6 @@ class Evaluator_SMIRNOFF(Target):
             )
 
             for gradient in physical_property.gradients:
-
                 parameter_index = self._gradient_key_mappings[gradient.key]
 
                 gradient_unit = (
@@ -687,7 +666,6 @@ class Evaluator_SMIRNOFF(Target):
                 ] = gradient_value
 
         for property_id in estimated_gradients:
-
             pval_gradients = estimated_gradients[property_id]
             mval_gradients = np.matmul(jacobian, pval_gradients)
 
@@ -759,7 +737,6 @@ class Evaluator_SMIRNOFF(Target):
         self._last_obj_details = {}
 
         for property_type in self._reference_data_set.property_types:
-
             self._last_obj_details[property_type] = []
 
             denominator = (
@@ -773,7 +750,6 @@ class Evaluator_SMIRNOFF(Target):
             for reference_property in self._reference_data_set.properties_by_type(
                 property_type
             ):
-
                 reference_value = reference_property.value.to(
                     self._default_units[property_type]
                 ).magnitude
@@ -788,7 +764,6 @@ class Evaluator_SMIRNOFF(Target):
                 target_error = np.nan
 
                 if target_property.uncertainty != UNDEFINED:
-
                     target_error = target_property.uncertainty.to(
                         self._default_units[property_type]
                     ).magnitude
@@ -818,7 +793,6 @@ class Evaluator_SMIRNOFF(Target):
 
                 # compute objective gradient
                 if AGrad is True:
-
                     # get gradients in physical unit
                     grad_array = estimated_gradients[reference_property.id]
                     # compute objective gradient

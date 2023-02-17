@@ -48,6 +48,7 @@ Ending = """@<TRIPOS>SUBSTRUCTURE
      1 <1>         1 TEMP              0 ****  ****    0 ROOT
 """
 
+
 # ===============
 # Derived class from networkx graph;
 # this is a graph description of molecules.

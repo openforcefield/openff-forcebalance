@@ -151,7 +151,6 @@ class Objective(BaseClass):
     """
 
     def __init__(self, options, tgt_opts, forcefield):
-
         super().__init__(options)
         self.set_option(options, "penalty_type")
         self.set_option(options, "penalty_additive")

@@ -115,7 +115,6 @@ def write_qcin(molecule, selection, **kwargs):
 
 
 def read_qcschema(schema, **kwargs):
-
     # Already read in
     if isinstance(schema, dict):
         pass

@@ -637,7 +637,6 @@ class mol2_set:
 
 
 if __name__ == "__main__":
-
     import sys
 
     # data = mol2_set(sys.argv[1], subset=["CDK2.xray.inh1.1E9H", 'RNAse.xray.inh4.1O0F']) # , 'RNAse.xray.inh4.1O0F'

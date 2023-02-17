@@ -653,7 +653,6 @@ class Lipid(Target):
                 snum += 1
 
     def get(self, mvals, AGrad=True, AHess=True):
-
         """
         Fitting of lipid bulk properties.  This is the current major
         direction of development for ForceBalance.  Basically, fitting
@@ -924,6 +923,7 @@ class Lipid(Target):
             mBeta = -1 / kb / T
             Beta = 1 / kb / T
             kT = kb * T
+
             # Define some things to make the analytic derivatives easier.
             def avg(vec):
                 return np.dot(W, vec)
