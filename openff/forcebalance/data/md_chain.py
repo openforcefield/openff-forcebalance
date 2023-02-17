@@ -61,7 +61,6 @@ else:
 
 
 def main():
-
     """Usage:
 
     (gmxprefix.sh) md_chain.py <list of quantities>

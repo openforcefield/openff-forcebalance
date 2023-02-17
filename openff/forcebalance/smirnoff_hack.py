@@ -11,7 +11,6 @@ from openff.toolkit.utils.toolkits import (
 
 
 def hash_molecule(molecule):
-
     atom_map = None
 
     if "atom_map" in molecule.properties:

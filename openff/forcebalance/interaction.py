@@ -145,7 +145,6 @@ class Interaction(Target):
             self.prefactor /= len(self.prefactor)
 
     def read_reference_data(self):
-
         """Read the reference ab initio data from a file such as qdata.txt.
 
         After reading in the information from qdata.txt, it is converted

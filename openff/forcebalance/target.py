@@ -239,7 +239,6 @@ class Target(abc.ABC, BaseClass):
         return Ans
 
     def read_0grads(self):
-
         """Read a file from the target directory containing names of
         parameters that don't contribute to the gradient.
 
@@ -279,7 +278,6 @@ class Target(abc.ABC, BaseClass):
         self.option_dict["pgrad"] = self.pgrad
 
     def write_0grads(self, Ans):
-
         """Write a file to the target directory containing names of
         parameters that don't contribute to the gradient."""
 
@@ -441,7 +439,6 @@ class Target(abc.ABC, BaseClass):
 
     @abc.abstractmethod
     def get(self, mvals, AGrad=False, AHess=False):
-
         """
 
         Every target must be able to return a contribution
@@ -455,7 +452,6 @@ class Target(abc.ABC, BaseClass):
         raise NotImplementedError
 
     def check_files(self, there):
-
         """Check this directory for the presence of readable files when the 'read' option is set."""
 
         there = os.path.abspath(there)
@@ -469,7 +465,6 @@ class Target(abc.ABC, BaseClass):
         return False
 
     def read(self, mvals, AGrad=False, AHess=False):
-
         """
 
         Read data from disk for the initial optimization step if the
@@ -488,7 +483,6 @@ class Target(abc.ABC, BaseClass):
         return lp_load("objective.p")
 
     def absrd(self, inum=None):
-
         """
         Supply the correct directory specified by user's "read" option.
         """
@@ -565,7 +559,6 @@ class Target(abc.ABC, BaseClass):
         return there
 
     def maxrd(self):
-
         """Supply the latest existing temp-directory containing valid data."""
 
         abs_rd = os.path.join(self.root, self.tempdir)
@@ -583,7 +576,6 @@ class Target(abc.ABC, BaseClass):
         return -1
 
     def maxid(self):
-
         """Supply the latest existing temp-directory."""
 
         abs_rd = os.path.join(self.root, self.tempdir)
@@ -596,7 +588,6 @@ class Target(abc.ABC, BaseClass):
         return sorted(iterints)[-1]
 
     def meta_indicate(self, customdir=None):
-
         """
 
         Wrap around the indicate function, so it can print to screen and
@@ -937,7 +928,6 @@ class RemoteTarget(Target):
         self.write_objective = False
 
     def submit_jobs(self, mvals, AGrad=False, AHess=False):
-
         id_string = "%s_iter%04i" % (self.name, Counter())
 
         self.serialize_ff(mvals, outside="forcefield-remote")

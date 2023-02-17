@@ -88,6 +88,7 @@ class LeastSquares(Target):
         self.MAQ = np.mean(np.abs(Q))
 
         len(M)
+
         # Wrapper to the driver, which returns just the part that changes.
         def callM(mvals_):
             self.FF.make(mvals_)

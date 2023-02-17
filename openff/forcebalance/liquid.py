@@ -769,7 +769,6 @@ class Liquid(Target):
                     os.chdir("..")
 
     def read(self, mvals, AGrad=True, AHess=True):
-
         """
         Read in time series for all previous iterations.
         """
@@ -887,7 +886,6 @@ class Liquid(Target):
         return self.form_get_result(property_results, AGrad=AGrad, AHess=AHess)
 
     def get_normal(self, mvals, AGrad=True, AHess=True):
-
         """
         Fitting of liquid bulk properties.  This is the current major
         direction of development for ForceBalance.  Basically, fitting
@@ -1251,6 +1249,7 @@ class Liquid(Target):
             mBeta = -1 / kb / T
             Beta = 1 / kb / T
             kT = kb * T
+
             # Define some things to make the analytic derivatives easier.
             def avg(vec):
                 return np.dot(W, vec)

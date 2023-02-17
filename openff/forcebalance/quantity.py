@@ -9,6 +9,7 @@ from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
 
+
 # method mean_stderr
 def mean_stderr(ts):
     """Return mean and standard deviation of a time series ts."""

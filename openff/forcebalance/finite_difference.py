@@ -129,7 +129,8 @@ def f2var(f, h):
 
 def in_fd():
     """Invoking this function from anywhere will tell us whether we're being called by a finite-difference function.
-    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to."""
+    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to.
+    """
 
     return any(
         [
@@ -141,7 +142,8 @@ def in_fd():
 
 def in_fd_srch():
     """Invoking this function from anywhere will tell us whether we're being called by a finite-difference function.
-    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to."""
+    This is mainly useful for deciding when to update the 'qualitative indicators' and when not to.
+    """
 
     return any(
         [

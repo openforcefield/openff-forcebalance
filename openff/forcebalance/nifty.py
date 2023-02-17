@@ -686,7 +686,6 @@ def orthogonalize(vec1, vec2):
 
 
 def invert_svd(X, thresh=1e-12):
-
     """
 
     Invert a matrix using singular value decomposition.
@@ -779,7 +778,6 @@ def get_least_squares(x, y, w=None, thresh=1e-12):
 # | John's statisticalInefficiency function |#
 # ===========================================#
 def statisticalInefficiency(A_n, B_n=None, fast=False, mintime=3, warn=True):
-
     """
     Compute the (cross) statistical inefficiency of (two) timeseries.
 
@@ -1822,6 +1820,7 @@ def _exec(
     # ===============================================================#
     # stdout and stderr streams of the process.
     streams = [p.stdout, p.stderr]
+
     # These are functions that take chunks of lines (read) as inputs.
     def process_out(read):
         if print_to_screen:
@@ -1984,6 +1983,7 @@ def warn_once(warning, warnhash=None):
 
 
 warn_once.already = set()
+
 
 # =========================================#
 # | Development stuff (not commonly used) |#

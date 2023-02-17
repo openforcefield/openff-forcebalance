@@ -308,7 +308,7 @@ def add_strip_to_mat(mat, strip):
     if out == [] and strip != []:
         out = list(strip)
     elif out != [] and strip != []:
-        for (i, j) in zip(out, strip):
+        for i, j in zip(out, strip):
             i += list(j)
     return out
 
@@ -1369,7 +1369,6 @@ class Molecule:
             raise RuntimeError
 
     def reorder_according_to(self, other):
-
         """
 
         Reorder atoms according to some other Molecule object.  This
@@ -1399,7 +1398,6 @@ class Molecule:
             setattr(self, key, copy.deepcopy(NewData[key]))
 
     def reorder_indices(self, other):
-
         """
 
         Return the indices that would reorder atoms according to some
@@ -2089,7 +2087,7 @@ class Molecule:
                 nx.set_node_attributes(G, {i: self.atomname[i]}, name="n")
             nx.set_node_attributes(G, {i: a}, name="e")
             nx.set_node_attributes(G, {i: self.xyzs[sn][i]}, name="x")
-        for (i, j) in self.bonds:
+        for i, j in self.bonds:
             G.add_edge(i, j)
         # The Topology is simply the NetworkX graph object.
         self.topology = G
@@ -2461,7 +2459,6 @@ class Molecule:
         return M_rot_H, Success
 
     def find_angles(self):
-
         """Return a list of 3-tuples corresponding to all of the
         angles in the system.  Verified for lysine and tryptophan
         dipeptide when comparing to TINKER's analyze program."""
@@ -2487,7 +2484,6 @@ class Molecule:
         return angidx
 
     def find_dihedrals(self):
-
         """Return a list of 4-tuples corresponding to all of the
         dihedral angles in the system.  Verified for alanine and
         tryptophan dipeptide when comparing to TINKER's analyze
@@ -2881,7 +2877,6 @@ class Molecule:
         ]
 
     def split(self, fnm=None, ftype=None, method="chunks", num=None):
-
         """Split the molecule object into a number of separate files
         (chunks), either by specifying the number of frames per chunk
         or the number of chunks.  Only relevant for "trajectories".

@@ -163,7 +163,6 @@ def PrintEDA(EDA, N):
 
 
 def energy_derivatives(engine, FF, mvals, h, pgrad, length, AGrad=True, dipole=False):
-
     """
     Compute the first and second derivatives of a set of snapshot
     energies with respect to the force field parameters.
@@ -215,7 +214,6 @@ def energy_derivatives(engine, FF, mvals, h, pgrad, length, AGrad=True, dipole=F
 def property_derivatives(
     engine, FF, mvals, h, pgrad, kT, property_driver, property_kwargs, AGrad=True
 ):
-
     """
     Function for double-checking property derivatives.  This function is called to perform
     a more explicit numerical derivative of the property, rather than going through the
@@ -290,7 +288,6 @@ def property_derivatives(
 
 
 def main():
-
     """
     Usage: (runcuda.sh) nvt.py <openmm|gromacs> <liquid_nsteps> <liquid_timestep (fs)> <liquid_intvl (ps> <temperature>
 

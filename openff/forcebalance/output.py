@@ -72,7 +72,8 @@ class CleanStreamHandler(StreamHandler):
 
 class CleanFileHandler(FileHandler):
     """File handler that does not write terminal escape codes and carriage returns
-    to files. Use this when writing to a file that will probably not be viewed in a terminal"""
+    to files. Use this when writing to a file that will probably not be viewed in a terminal
+    """
 
     def emit(self, record):
         message = record.getMessage()

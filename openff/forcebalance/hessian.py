@@ -66,7 +66,6 @@ class Hessian(Target):
         self.denom = 1
 
     def _build_internal_coordinates(self):
-
         from geometric.internal import PrimitiveInternalCoordinates
 
         m = Molecule(os.path.join(self.tgtdir, "input.mol2"))
@@ -90,7 +89,6 @@ class Hessian(Target):
         return
 
     def get_wts(self):
-
         from geometric.internal import Angle, Dihedral, Distance
 
         nb = len([ic for ic in self.IC.Internals if isinstance(ic, Distance)])
@@ -303,7 +301,6 @@ def cal_corr_coef(A):
 def draw_normal_modes(
     elem, ref_xyz, ref_eigvals, ref_eigvecs, mm_xyz, freqs_rearr, normal_modes_rearr
 ):
-
     import matplotlib.pyplot as plt
 
     # draw qm and mm normal mode overlay
@@ -355,7 +352,6 @@ def draw_normal_modes(
 def draw_vibfreq_scatter_plot_n_overlap_matrix(
     name, engine, ref_eigvals, ref_eigvecs, freqs_rearr, normal_modes_rearr
 ):
-
     import matplotlib.pyplot as plt
     from mpl_toolkits.axes_grid1 import axes_size, make_axes_locatable
 
