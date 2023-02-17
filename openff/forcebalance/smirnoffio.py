@@ -275,35 +275,6 @@ class SMIRNOFF(OpenMM):
         # Store a separate copy of the molecule for reference restraint positions.
         self.ref_mol = deepcopy(self.mol)
 
-    @staticmethod
-    def _openff_to_openmm_topology(openff_topology):
-        """Convert an OpenFF topology to an OpenMM topology. Currently this requires
-        manually adding the v-sites as OpenFF currently does not."""
-
-        from openff.toolkit.topology import TopologyAtom
-
-        openmm_topology = openff_topology.to_openmm()
-
-        # Return the topology if the number of OpenMM particles matches the number
-        # expected by the OpenFF topology. This may happen if there are no virtual sites
-        # in the system OR if a new version of the the OpenFF toolkit includes virtual
-        # sites in the OpenMM topology it returns.
-        if openmm_topology.getNumAtoms() == openff_topology.n_topology_particles:
-            return openmm_topology
-
-        openmm_chain = openmm_topology.addChain()
-        openmm_residue = openmm_topology.addResidue("", chain=openmm_chain)
-
-        for particle in openff_topology.topology_particles:
-            if isinstance(particle, TopologyAtom):
-                continue
-
-            openmm_topology.addAtom(
-                particle.virtual_site.name, app.Element.getByMass(0), openmm_residue
-            )
-
-        return openmm_topology
-
     def prepare(self, pbc=False, mmopts={}, **kwargs):
         """
         Prepare the calculation.  Note that we don't create the
@@ -842,60 +813,3 @@ class TorsionProfileTarget_SMIRNOFF(TorsionProfileTarget):
     def submit_jobs(self, mvals, AGrad=False, AHess=False):
         # we update the self.pgrads here so it's not overwritten in rtarget.py
         smirnoff_update_pgrads(self)
-
-
-# class BindingEnergy_SMIRNOFF(BindingEnergy):
-#     """ Binding energy matching using OpenMM. """
-
-#     def __init__(self,options,tgt_opts,forcefield):
-#         self.engine_ = OpenMM
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="Reference", forceprint=True)
-#         ## Initialize base class.
-#         super(BindingEnergy_OpenMM,self).__init__(options,tgt_opts,forcefield)
-
-# class Interaction_SMIRNOFF(Interaction):
-#     """ Interaction matching using OpenMM. """
-#     def __init__(self,options,tgt_opts,forcefield):
-#         ## Default file names for coordinates and key file.
-#         self.set_option(tgt_opts,'coords',default="all.pdb")
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="Reference", forceprint=True)
-#         self.engine_ = OpenMM
-#         ## Initialize base class.
-#         super(Interaction_OpenMM,self).__init__(options,tgt_opts,forcefield)
-
-# class Moments_SMIRNOFF(Moments):
-#     """ Multipole moment matching using OpenMM. """
-#     def __init__(self,options,tgt_opts,forcefield):
-#         ## Default file names for coordinates and key file.
-#         self.set_option(tgt_opts,'coords',default="input.pdb")
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="Reference", forceprint=True)
-#         self.engine_ = OpenMM
-#         ## Initialize base class.
-#         super(Moments_OpenMM,self).__init__(options,tgt_opts,forcefield)
-
-# class Hydration_SMIRNOFF(Hydration):
-#     """ Single point hydration free energies using OpenMM. """
-
-#     def __init__(self,options,tgt_opts,forcefield):
-#         ## Default file names for coordinates and key file.
-#         # self.set_option(tgt_opts,'coords',default="input.pdb")
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="CUDA", forceprint=True)
-#         self.engine_ = SMIRNOFF
-#         self.engname = "smirnoff"
-#         ## Scripts to be copied from the ForceBalance installation directory.
-#         self.scripts = ['runcuda.sh']
-#         ## Suffix for coordinate files.
-#         self.crdsfx = '.pdb'
-#         ## Command prefix.
-#         self.prefix = "bash runcuda.sh"
-#         if tgt_opts['remote_backup']:
-#             self.prefix += " -b"
-#         ## Initialize base class.
-#         super(Hydration_OpenMM,self).__init__(options,tgt_opts,forcefield)
-#         ## Send back the trajectory file.
-#         if self.save_traj > 0:
-#             self.extra_output = ['openmm-md.dcd']
