@@ -10,7 +10,6 @@ import numpy
 import openmm
 from openmm import unit
 
-from openff.forcebalance.molecule.mol2 import read_mol2
 from openff.forcebalance.molecule.pdb import read_pdb, write_pdb
 from openff.forcebalance.molecule.qc import (
     read_qcesp,
@@ -922,7 +921,6 @@ class Molecule:
             "pdb": read_pdb,
             "xyz": read_xyz,
             "qcschema": read_qcschema,
-            "mol2": read_mol2,
             "qcesp": read_qcesp,
             "qdata": read_qdata,
         }
