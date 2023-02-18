@@ -10,9 +10,6 @@ import numpy
 import openmm
 from openmm import unit
 
-from openff.forcebalance import Mol2
-from openff.forcebalance.molecule.gro import read_gro, write_gro
-from openff.forcebalance.molecule.mol2 import read_mol2
 from openff.forcebalance.molecule.pdb import read_pdb, write_pdb
 from openff.forcebalance.molecule.qc import (
     read_qcesp,
@@ -237,9 +234,6 @@ else:
             self.stream.write(message)
             self.flush()
 
-    # logger=getLogger()
-    # logger.handlers = [RawStreamHandler(sys.stdout)]
-    # LPW: Daniel Smith suggested the below four lines to improve logger behavior
     logger = getLogger("MoleculeLogger")
     logger.setLevel(INFO)
     handler = RawStreamHandler()
@@ -924,17 +918,14 @@ class Molecule:
             load_type = None
 
         self.Read_Tab = {
-            "gromacs": read_gro,
             "pdb": read_pdb,
             "xyz": read_xyz,
             "qcschema": read_qcschema,
-            "mol2": read_mol2,
             "qcesp": read_qcesp,
             "qdata": read_qdata,
         }
 
         self.Write_Tab = {
-            "gromacs": write_gro,
             "xyz": write_xyz,
             "pdb": write_pdb,
             "qcin": write_qcin,

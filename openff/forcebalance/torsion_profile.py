@@ -13,8 +13,7 @@ import numpy as np
 
 from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import eqcgmx, printcool_dictionary
-from openff.forcebalance.optimizer import Counter
+from openff.forcebalance.nifty import eqcgmx
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
 
@@ -136,12 +135,6 @@ class TorsionProfileTarget(Target):
             "Ene-RMSE",
             "Obj-Fn",
         )
-        printcool_dictionary(
-            self.PrintDict,
-            title=title_str + "\n" + column_head_str1,
-            keywidth=50,
-            center=[True, False],
-        )
 
     def get(self, mvals, AGrad=False, AHess=False):
         Answer = {
@@ -186,47 +179,6 @@ class TorsionProfileTarget(Target):
                         fmt="% 12.6e",
                     )
                     M_opts.write("mm_minimized.xyz")
-                    if self.ndim == 1:
-                        try:
-                            import matplotlib.pyplot as plt
-
-                            plt.switch_backend("agg")
-                            fig, ax = plt.subplots()
-                            dihedrals = np.array(
-                                [i[0] for i in self.metadata["torsion_grid_ids"]]
-                            )
-                            dsort = np.argsort(dihedrals)
-                            ax.plot(dihedrals[dsort], self.eqm[dsort], label="QM")
-                            if hasattr(self, "emm_orig"):
-                                ax.plot(
-                                    dihedrals[dsort],
-                                    compute.emm[dsort],
-                                    label="MM Current",
-                                )
-                                ax.plot(
-                                    dihedrals[dsort],
-                                    self.emm_orig[dsort],
-                                    label="MM Initial",
-                                )
-                            else:
-                                ax.plot(
-                                    dihedrals[dsort],
-                                    compute.emm[dsort],
-                                    label="MM Initial",
-                                )
-                                self.emm_orig = compute.emm.copy()
-                            ax.legend()
-                            ax.set_xlabel("Dihedral (degree)")
-                            ax.set_ylabel("Energy (kcal/mol)")
-                            fig.suptitle(
-                                "Torsion profile: iteration %i\nSystem: %s"
-                                % (Counter(), self.name)
-                            )
-                            fig.savefig("plot_torsion.pdf")
-                        except ImportError:
-                            logger.warning(
-                                "matplotlib package is needed to make torsion profile plots\n"
-                            )
             return (np.sqrt(self.wts) / self.energy_denom) * (compute.emm - self.eqm)
 
         compute.emm = None

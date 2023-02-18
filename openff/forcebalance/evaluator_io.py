@@ -14,7 +14,7 @@ import tempfile
 
 import numpy as np
 
-from openff.forcebalance.nifty import printcool, printcool_dictionary, warn_once
+from openff.forcebalance.nifty import warn_once
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
 
@@ -243,10 +243,6 @@ class Evaluator_SMIRNOFF(Target):
                 "The physical property data set to optimise against is empty."
             )
 
-        # Print the reference data, and count the number of instances of
-        # each property type.
-        printcool("Loaded experimental data.")
-
         property_types = self._reference_data_set.property_types
 
         number_of_properties = {
@@ -280,11 +276,6 @@ class Evaluator_SMIRNOFF(Target):
                     value,
                     uncertainty,
                 )
-
-            printcool_dictionary(
-                dict_for_print,
-                title="Reference %s data" % substance.identifier,
-            )
 
         # Assign and normalize weights for each phase point (average for now)
         self._normalised_weights = {}
@@ -824,7 +815,4 @@ class Evaluator_SMIRNOFF(Target):
                 "%s %s\nTemperature  Pressure Substance  Reference  Calculated +- "
                 "Stdev     Delta    Weight    Denom     Term  "
                 % (self.name, property_name)
-            )
-            printcool_dictionary(
-                dict_for_print, title=title, bold=True, color=4, keywidth=15
             )

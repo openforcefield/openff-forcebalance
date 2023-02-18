@@ -25,7 +25,6 @@ from openff.forcebalance.abinitio import AbInitio
 from openff.forcebalance.hessian import Hessian
 from openff.forcebalance.liquid import Liquid
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import printcool
 from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
 from openff.forcebalance.opt_geo_target import OptGeoTarget
 from openff.forcebalance.output import getLogger
@@ -39,7 +38,6 @@ logger = getLogger(__name__)
 
 
 def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
-    printcool("SMIRNOFF Parameter Coverage Analysis")
     assert hasattr(forcefield, "offxml"), "Only SMIRNOFF Force Field is supported"
     parameter_assignment_data = defaultdict(list)
     parameter_counter = Counter()
@@ -275,35 +273,6 @@ class SMIRNOFF(OpenMM):
         # Store a separate copy of the molecule for reference restraint positions.
         self.ref_mol = deepcopy(self.mol)
 
-    @staticmethod
-    def _openff_to_openmm_topology(openff_topology):
-        """Convert an OpenFF topology to an OpenMM topology. Currently this requires
-        manually adding the v-sites as OpenFF currently does not."""
-
-        from openff.toolkit.topology import TopologyAtom
-
-        openmm_topology = openff_topology.to_openmm()
-
-        # Return the topology if the number of OpenMM particles matches the number
-        # expected by the OpenFF topology. This may happen if there are no virtual sites
-        # in the system OR if a new version of the the OpenFF toolkit includes virtual
-        # sites in the OpenMM topology it returns.
-        if openmm_topology.getNumAtoms() == openff_topology.n_topology_particles:
-            return openmm_topology
-
-        openmm_chain = openmm_topology.addChain()
-        openmm_residue = openmm_topology.addResidue("", chain=openmm_chain)
-
-        for particle in openff_topology.topology_particles:
-            if isinstance(particle, TopologyAtom):
-                continue
-
-            openmm_topology.addAtom(
-                particle.virtual_site.name, app.Element.getByMass(0), openmm_residue
-            )
-
-        return openmm_topology
-
     def prepare(self, pbc=False, mmopts={}, **kwargs):
         """
         Prepare the calculation.  Note that we don't create the
@@ -460,17 +429,10 @@ class SMIRNOFF(OpenMM):
         if len(kwargs) > 0:
             self.simkwargs = kwargs
 
-        # Because self.forcefield is being updated in forcebalance.forcefield.FF.make()
-        # there is no longer a need to create a new force field object here.
-        try:
-            self.system, openff_topology = self.forcefield.create_openmm_system(
-                self.off_topology, return_topology=True
-            )
-        except Exception as error:
-            logger.error("Error when creating system for %s" % self.mol2)
-            raise error
-        # Commenting out all virtual site stuff for now.
-        # self.vsinfo = PrepareVirtualSites(self.system)
+        interchange = self.forcefield.create_interchange(self.off_topology)
+
+        self.system = interchange.to_openmm(combine_nonbonded_forces=True)
+
         self.nbcharges = numpy.zeros(self.system.getNumParticles())
 
         # ----
@@ -842,60 +804,3 @@ class TorsionProfileTarget_SMIRNOFF(TorsionProfileTarget):
     def submit_jobs(self, mvals, AGrad=False, AHess=False):
         # we update the self.pgrads here so it's not overwritten in rtarget.py
         smirnoff_update_pgrads(self)
-
-
-# class BindingEnergy_SMIRNOFF(BindingEnergy):
-#     """ Binding energy matching using OpenMM. """
-
-#     def __init__(self,options,tgt_opts,forcefield):
-#         self.engine_ = OpenMM
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="Reference", forceprint=True)
-#         ## Initialize base class.
-#         super(BindingEnergy_OpenMM,self).__init__(options,tgt_opts,forcefield)
-
-# class Interaction_SMIRNOFF(Interaction):
-#     """ Interaction matching using OpenMM. """
-#     def __init__(self,options,tgt_opts,forcefield):
-#         ## Default file names for coordinates and key file.
-#         self.set_option(tgt_opts,'coords',default="all.pdb")
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="Reference", forceprint=True)
-#         self.engine_ = OpenMM
-#         ## Initialize base class.
-#         super(Interaction_OpenMM,self).__init__(options,tgt_opts,forcefield)
-
-# class Moments_SMIRNOFF(Moments):
-#     """ Multipole moment matching using OpenMM. """
-#     def __init__(self,options,tgt_opts,forcefield):
-#         ## Default file names for coordinates and key file.
-#         self.set_option(tgt_opts,'coords',default="input.pdb")
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="Reference", forceprint=True)
-#         self.engine_ = OpenMM
-#         ## Initialize base class.
-#         super(Moments_OpenMM,self).__init__(options,tgt_opts,forcefield)
-
-# class Hydration_SMIRNOFF(Hydration):
-#     """ Single point hydration free energies using OpenMM. """
-
-#     def __init__(self,options,tgt_opts,forcefield):
-#         ## Default file names for coordinates and key file.
-#         # self.set_option(tgt_opts,'coords',default="input.pdb")
-#         self.set_option(tgt_opts,'openmm_precision','precision',default="double", forceprint=True)
-#         self.set_option(tgt_opts,'openmm_platform','platname',default="CUDA", forceprint=True)
-#         self.engine_ = SMIRNOFF
-#         self.engname = "smirnoff"
-#         ## Scripts to be copied from the ForceBalance installation directory.
-#         self.scripts = ['runcuda.sh']
-#         ## Suffix for coordinate files.
-#         self.crdsfx = '.pdb'
-#         ## Command prefix.
-#         self.prefix = "bash runcuda.sh"
-#         if tgt_opts['remote_backup']:
-#             self.prefix += " -b"
-#         ## Initialize base class.
-#         super(Hydration_OpenMM,self).__init__(options,tgt_opts,forcefield)
-#         ## Send back the trajectory file.
-#         if self.save_traj > 0:
-#             self.extra_output = ['openmm-md.dcd']

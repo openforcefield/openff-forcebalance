@@ -9,60 +9,26 @@ import numpy as np
 
 from openff.forcebalance import BaseClass
 from openff.forcebalance.finite_difference import in_fd
-from openff.forcebalance.nifty import (
-    createWorkQueue,
-    getWorkQueue,
-    printcool_dictionary,
-    wq_wait,
-)
+from openff.forcebalance.nifty import createWorkQueue, getWorkQueue, wq_wait
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
 
-try:
-    from openff.forcebalance.gmxio import (
-        AbInitio_GMX,
-        BindingEnergy_GMX,
-        Interaction_GMX,
-        Lipid_GMX,
-        Liquid_GMX,
-        Moments_GMX,
-        Thermo_GMX,
-        Vibration_GMX,
-    )
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("Gromacs module import failed\n")
-
-try:
-    from openff.forcebalance.openmmio import (
-        AbInitio_OpenMM,
-        BindingEnergy_OpenMM,
-        Hydration_OpenMM,
-        Interaction_OpenMM,
-        Liquid_OpenMM,
-        Moments_OpenMM,
-        OptGeoTarget_OpenMM,
-        TorsionProfileTarget_OpenMM,
-        Vibration_OpenMM,
-    )
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("OpenMM module import failed; check OpenMM package\n")
-
-try:
-    from openff.forcebalance.smirnoffio import (
-        AbInitio_SMIRNOFF,
-        Hessian_SMIRNOFF,
-        Liquid_SMIRNOFF,
-        OptGeoTarget_SMIRNOFF,
-        TorsionProfileTarget_SMIRNOFF,
-        Vibration_SMIRNOFF,
-        smirnoff_analyze_parameter_coverage,
-    )
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("SMIRNOFF module import failed; check SMIRNOFF package\n")
+from openff.forcebalance.openmmio import (
+    AbInitio_OpenMM,
+    Liquid_OpenMM,
+    OptGeoTarget_OpenMM,
+    TorsionProfileTarget_OpenMM,
+)
+from openff.forcebalance.smirnoffio import (
+    AbInitio_SMIRNOFF,
+    Hessian_SMIRNOFF,
+    Liquid_SMIRNOFF,
+    OptGeoTarget_SMIRNOFF,
+    TorsionProfileTarget_SMIRNOFF,
+    Vibration_SMIRNOFF,
+    smirnoff_analyze_parameter_coverage,
+)
 
 try:
     from openff.forcebalance.evaluator_io import Evaluator_SMIRNOFF
@@ -83,12 +49,6 @@ except:
     logger.warning("Internal energy fitting module import failed\n")
 
 try:
-    from openff.forcebalance.counterpoise import Counterpoise
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("Counterpoise module import failed\n")
-
-try:
     from openff.forcebalance.target import RemoteTarget
 except:
     logger.warning(traceback.format_exc())
@@ -96,27 +56,13 @@ except:
 
 ## The table of implemented Targets
 Implemented_Targets = {
-    "ABINITIO_GMX": AbInitio_GMX,
     "ABINITIO_OPENMM": AbInitio_OpenMM,
     "ABINITIO_SMIRNOFF": AbInitio_SMIRNOFF,
     "ABINITIO_INTERNAL": AbInitio_Internal,
-    "VIBRATION_GMX": Vibration_GMX,
-    "VIBRATION_OPENMM": Vibration_OpenMM,
     "VIBRATION_SMIRNOFF": Vibration_SMIRNOFF,
     "HESSIAN_SMIRNOFF": Hessian_SMIRNOFF,
-    "THERMO_GMX": Thermo_GMX,
     "LIQUID_OPENMM": Liquid_OpenMM,
     "LIQUID_SMIRNOFF": Liquid_SMIRNOFF,
-    "LIQUID_GMX": Liquid_GMX,
-    "LIPID_GMX": Lipid_GMX,
-    "COUNTERPOISE": Counterpoise,
-    "INTERACTION_GMX": Interaction_GMX,
-    "INTERACTION_OPENMM": Interaction_OpenMM,
-    "BINDINGENERGY_GMX": BindingEnergy_GMX,
-    "BINDINGENERGY_OPENMM": BindingEnergy_OpenMM,
-    "MOMENTS_GMX": Moments_GMX,
-    "MOMENTS_OPENMM": Moments_OpenMM,
-    "HYDRATION_OPENMM": Hydration_OpenMM,
     "OPTGEO_OPENMM": OptGeoTarget_OpenMM,
     "OPTGEO_SMIRNOFF": OptGeoTarget_SMIRNOFF,
     "OPTGEOTARGET_OPENMM": OptGeoTarget_OpenMM,  # LPW: In the future, the user interface should not include the word 'target' in the target name.
@@ -185,9 +131,6 @@ class Objective(BaseClass):
             else:
                 Tgt = Implemented_Targets[opts["type"]](options, opts, forcefield)
             self.Targets.append(Tgt)
-            printcool_dictionary(
-                Tgt.print_option_dict, "Setup for target %s :" % Tgt.name
-            )
         if len({Tgt.name for Tgt in self.Targets}) != len(
             [Tgt.name for Tgt in self.Targets]
         ):
@@ -219,8 +162,6 @@ class Objective(BaseClass):
         if self.wq_port != 0:
             createWorkQueue(self.wq_port)
             logger.info("Work Queue is listening on %d\n" % self.wq_port)
-
-        printcool_dictionary(self.print_option_dict, "Setup for objective function :")
 
     def Target_Terms(self, mvals, Order=0, verbose=False, customdir=None):
         ## This is the objective function; it's a dictionary containing the value, first and second derivatives
@@ -347,7 +288,7 @@ class Objective(BaseClass):
                 "Target Name",
                 "Residual  x  Weight  =  Contribution",
             )
-        printcool_dictionary(PrintDict, color=4, title=Title)
+
         return
 
     def Full(self, vals, Order=0, verbose=False, customdir=None):
@@ -529,9 +470,6 @@ class Penalty:
         ## Find exponential spacings.
         if self.ptyp in [4, 5, 6]:
             self.spacings = self.FF.find_spacings()
-            printcool_dictionary(
-                self.spacings, title="Starting zeta spacings\n(Pay attention to these)"
-            )
 
     def compute(self, mvals, Objective):
         K0, K1, K2 = self.Pen_Tab[self.ptyp](mvals)

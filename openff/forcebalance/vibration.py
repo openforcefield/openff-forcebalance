@@ -92,7 +92,7 @@ class Vibration(Target):
                 for i in range(len(self.ref_eigvals))
             ]
         )
-        self.printcool_table(data, headings, banner)
+
         return
 
     def vibration_driver(self):

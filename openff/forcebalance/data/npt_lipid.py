@@ -47,9 +47,7 @@ logger = getLogger(__name__)
 # ========================================================#
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "engine", help='MD program that we are using; choose "openmm", or "gromacs"'
-)
+parser.add_argument("engine", help='MD program that we are using; choose "openmm"')
 parser.add_argument("temperature", type=float, help="Temperature (K)")
 parser.add_argument("pressure", type=float, help="Pressure (Atm)")
 
@@ -60,33 +58,14 @@ temperature = args.temperature  # temperature in kelvin
 pressure = args.pressure  # pressure in atmospheres
 engname = args.engine.lower()  # Name of the engine
 
-if engname == "openmm":
-    try:
-        try:
-            from openmm import *
-            from openmm.app import *
-            from openmm.unit import *
-        except ImportError:
-            from simtk.openmm import *
-            from simtk.openmm.app import *
-            from simtk.unit import *
+from openmm import *
+from openmm.app import *
+from openmm.unit import *
 
-    except:
-        traceback.print_exc()
-        raise Exception("Cannot import OpenMM modules")
-    from openff.forcebalance.openmmio import *
+if engname != "openmm":
+    raise Exception("Only the OpenMM is implemented here.")
 
-    Engine = OpenMM
-elif engname == "gromacs" or engname == "gmx":
-    from openff.forcebalance.gmxio import *
-
-    Engine = GMX
-else:
-    raise Exception("OpenMM, and GROMACS are supported at this time.")
-
-# ==================#
-# |   Subroutines  |#
-# ==================#
+Engine = OpenMM
 
 
 def mean_stderr(ts):
@@ -266,7 +245,7 @@ def property_derivatives(
 
 def main():
     """
-    Usage: (runcuda.sh) npt.py <openmm|gromacs> <lipid_nsteps> <lipid_timestep (fs)> <lipid_intvl (ps> <temperature> <pressure>
+    Usage: (runcuda.sh) npt.py <openmm> <lipid_nsteps> <lipid_timestep (fs)> <lipid_intvl (ps> <temperature> <pressure>
 
     This program is meant to be called automatically by ForceBalance on
     a GPU cluster (specifically, subroutines in openmmio.py).  It is
@@ -371,19 +350,7 @@ def main():
             logger.warn(
                 "Setting the number of threads will have no effect on OpenMM engine.\n"
             )
-    elif engname == "gromacs":
-        # Gromacs-specific options
-        GenOpts["gmxpath"] = TgtOptions["gmxpath"]
-        GenOpts["gmxsuffix"] = TgtOptions["gmxsuffix"]
-        EngOpts["lipid"]["gmx_top"] = os.path.splitext(lipid_fnm)[0] + ".top"
-        EngOpts["lipid"]["gmx_mdp"] = os.path.splitext(lipid_fnm)[0] + ".mdp"
-        EngOpts["lipid"]["gmx_eq_barostat"] = TgtOptions["gmx_eq_barostat"]
-        if force_cuda:
-            logger.warn("force_cuda option has no effect on Gromacs engine.")
-        if mts:
-            logger.warn("Gromacs not configured for multiple timestep integrator.")
-        if anisotropic:
-            logger.warn("Gromacs not configured for anisotropic box scaling.")
+
     EngOpts["lipid"].update(GenOpts)
     for i in EngOpts:
         printcool_dictionary(EngOpts[i], "Engine options for %s" % i)
