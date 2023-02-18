@@ -19,34 +19,21 @@ from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
 
-try:
-    from openff.forcebalance.openmmio import (
-        AbInitio_OpenMM,
-        BindingEnergy_OpenMM,
-        Hydration_OpenMM,
-        Interaction_OpenMM,
-        Liquid_OpenMM,
-        OptGeoTarget_OpenMM,
-        TorsionProfileTarget_OpenMM,
-        Vibration_OpenMM,
-    )
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("OpenMM module import failed; check OpenMM package\n")
-
-try:
-    from openff.forcebalance.smirnoffio import (
-        AbInitio_SMIRNOFF,
-        Hessian_SMIRNOFF,
-        Liquid_SMIRNOFF,
-        OptGeoTarget_SMIRNOFF,
-        TorsionProfileTarget_SMIRNOFF,
-        Vibration_SMIRNOFF,
-        smirnoff_analyze_parameter_coverage,
-    )
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("SMIRNOFF module import failed; check SMIRNOFF package\n")
+from openff.forcebalance.openmmio import (
+    AbInitio_OpenMM,
+    Liquid_OpenMM,
+    OptGeoTarget_OpenMM,
+    TorsionProfileTarget_OpenMM,
+)
+from openff.forcebalance.smirnoffio import (
+    AbInitio_SMIRNOFF,
+    Hessian_SMIRNOFF,
+    Liquid_SMIRNOFF,
+    OptGeoTarget_SMIRNOFF,
+    TorsionProfileTarget_SMIRNOFF,
+    Vibration_SMIRNOFF,
+    smirnoff_analyze_parameter_coverage,
+)
 
 try:
     from openff.forcebalance.evaluator_io import Evaluator_SMIRNOFF
@@ -67,12 +54,6 @@ except:
     logger.warning("Internal energy fitting module import failed\n")
 
 try:
-    from openff.forcebalance.counterpoise import Counterpoise
-except:
-    logger.warning(traceback.format_exc())
-    logger.warning("Counterpoise module import failed\n")
-
-try:
     from openff.forcebalance.target import RemoteTarget
 except:
     logger.warning(traceback.format_exc())
@@ -83,15 +64,10 @@ Implemented_Targets = {
     "ABINITIO_OPENMM": AbInitio_OpenMM,
     "ABINITIO_SMIRNOFF": AbInitio_SMIRNOFF,
     "ABINITIO_INTERNAL": AbInitio_Internal,
-    "VIBRATION_OPENMM": Vibration_OpenMM,
     "VIBRATION_SMIRNOFF": Vibration_SMIRNOFF,
     "HESSIAN_SMIRNOFF": Hessian_SMIRNOFF,
     "LIQUID_OPENMM": Liquid_OpenMM,
     "LIQUID_SMIRNOFF": Liquid_SMIRNOFF,
-    "COUNTERPOISE": Counterpoise,
-    "INTERACTION_OPENMM": Interaction_OpenMM,
-    "BINDINGENERGY_OPENMM": BindingEnergy_OpenMM,
-    "HYDRATION_OPENMM": Hydration_OpenMM,
     "OPTGEO_OPENMM": OptGeoTarget_OpenMM,
     "OPTGEO_SMIRNOFF": OptGeoTarget_SMIRNOFF,
     "OPTGEOTARGET_OPENMM": OptGeoTarget_OpenMM,  # LPW: In the future, the user interface should not include the word 'target' in the target name.

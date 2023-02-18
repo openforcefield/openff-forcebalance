@@ -53,7 +53,7 @@ import string
 import sys
 
 try:
-    from openff.forcebalance.output import *
+    from openff.forcebalance.output import getLogger
 
     logger = getLogger(__name__)
 except:
@@ -425,7 +425,7 @@ class HETATM:
     molecules and atoms presented in HET groups.
     """
 
-    def __init__(self, line, sybylType="A.aaa", lBonds=[], lBondedAtoms=[]):  ### PC
+    def __init__(self, line, sybylType="A.aaa", lBonds=[], lBondedAtoms=[]):
         """
         Initialize by parsing line
 

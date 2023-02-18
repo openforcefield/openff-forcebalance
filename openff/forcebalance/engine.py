@@ -4,7 +4,7 @@ import os
 from collections import OrderedDict
 
 from openff.forcebalance import BaseClass
-from openff.forcebalance.nifty import *
+from openff.forcebalance.nifty import printcool_dictionary, warn_once
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)

@@ -431,17 +431,10 @@ class SMIRNOFF(OpenMM):
         if len(kwargs) > 0:
             self.simkwargs = kwargs
 
-        # Because self.forcefield is being updated in forcebalance.forcefield.FF.make()
-        # there is no longer a need to create a new force field object here.
-        try:
-            self.system, openff_topology = self.forcefield.create_openmm_system(
-                self.off_topology, return_topology=True
-            )
-        except Exception as error:
-            logger.error("Error when creating system for %s" % self.mol2)
-            raise error
-        # Commenting out all virtual site stuff for now.
-        # self.vsinfo = PrepareVirtualSites(self.system)
+        interchange = self.forcefield.create_interchange(self.off_topology)
+
+        self.system = interchange.to_openmm(combine_nonbonded_forces=True)
+
         self.nbcharges = numpy.zeros(self.system.getNumParticles())
 
         # ----

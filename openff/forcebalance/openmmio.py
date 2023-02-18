@@ -14,13 +14,9 @@ from openmm import _openmm, app, unit
 
 from openff.forcebalance import BaseReader
 from openff.forcebalance.abinitio import AbInitio
-from openff.forcebalance.binding import BindingEnergy
 from openff.forcebalance.engine import Engine
-from openff.forcebalance.hydration import Hydration
-from openff.forcebalance.interaction import Interaction
 from openff.forcebalance.liquid import Liquid
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.moments import Moments
 from openff.forcebalance.nifty import listfiles, warn_once, warn_press_key
 from openff.forcebalance.opt_geo_target import OptGeoTarget
 from openff.forcebalance.output import getLogger
@@ -1956,75 +1952,6 @@ class AbInitio_OpenMM(AbInitio):
         self.engine_ = OpenMM
         # Initialize base class.
         super().__init__(options, tgt_opts, forcefield)
-
-
-class BindingEnergy_OpenMM(BindingEnergy):
-    """Binding energy matching using OpenMM."""
-
-    def __init__(self, options, tgt_opts, forcefield):
-        self.engine_ = OpenMM
-        self.set_option(
-            tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
-        )
-        self.set_option(
-            tgt_opts,
-            "openmm_platform",
-            "platname",
-            default="Reference",
-            forceprint=True,
-        )
-        # Initialize base class.
-        super().__init__(options, tgt_opts, forcefield)
-
-
-class Interaction_OpenMM(Interaction):
-    """Interaction matching using OpenMM."""
-
-    def __init__(self, options, tgt_opts, forcefield):
-        # Default file names for coordinates and key file.
-        self.set_option(tgt_opts, "coords", default="all.pdb")
-        self.set_option(
-            tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
-        )
-        self.set_option(
-            tgt_opts,
-            "openmm_platform",
-            "platname",
-            default="Reference",
-            forceprint=True,
-        )
-        self.engine_ = OpenMM
-        # Initialize base class.
-        super().__init__(options, tgt_opts, forcefield)
-
-
-class Hydration_OpenMM(Hydration):
-    """Single point hydration free energies using OpenMM."""
-
-    def __init__(self, options, tgt_opts, forcefield):
-        # Default file names for coordinates and key file.
-        # self.set_option(tgt_opts,'coords',default="input.pdb")
-        self.set_option(
-            tgt_opts, "openmm_precision", "precision", default="double", forceprint=True
-        )
-        self.set_option(
-            tgt_opts, "openmm_platform", "platname", default="CUDA", forceprint=True
-        )
-        self.engine_ = OpenMM
-        self.engname = "openmm"
-        # Scripts to be copied from the ForceBalance installation directory.
-        self.scripts = ["runcuda.sh"]
-        # Suffix for coordinate files.
-        self.crdsfx = ".pdb"
-        # Command prefix.
-        self.prefix = "bash runcuda.sh"
-        if tgt_opts["remote_backup"]:
-            self.prefix += " -b"
-        # Initialize base class.
-        super().__init__(options, tgt_opts, forcefield)
-        # Send back the trajectory file.
-        if self.save_traj > 0:
-            self.extra_output = ["openmm-md.dcd"]
 
 
 class Vibration_OpenMM(Vibration):

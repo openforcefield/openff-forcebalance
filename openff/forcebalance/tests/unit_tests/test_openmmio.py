@@ -8,7 +8,6 @@ from openmm import app, unit
 
 from openff.forcebalance.forcefield import FF
 from openff.forcebalance.openmmio import (
-    Interaction_OpenMM,
     Liquid_OpenMM,
     PrepareVirtualSites,
     ResetVirtualSites_fast,
@@ -46,35 +45,6 @@ class TestLiquid_OpenMM(TargetTests):
 
         self.target = Liquid_OpenMM(self.options, self.tgt_opt, self.ff)
         self.target.stage(self.mvals, AGrad=True, use_iterdir=False)
-
-    def teardown_method(self):
-        shutil.rmtree("temp")
-        super().teardown_method()
-
-
-class TestInteraction_OpenMM(TargetTests):
-    def setup_method(self, method):
-        super().setup_method(method)
-        # TargetTests.setup_class(cls)
-        # settings specific to this target
-        self.options.update({"jobtype": "NEWTON", "forcefield": ["dms.xml"]})
-
-        self.tgt_opt.update(
-            {
-                "type": "Interaction_OpenMM",
-                "name": "S2EPose",
-                "fragment1": "1-9",
-                "fragment2": "10-18",
-            }
-        )
-
-        self.ff = FF(self.options)
-
-        self.ffname = self.options["forcefield"][0][:-3]
-        self.filetype = self.options["forcefield"][0][-3:]
-        self.mvals = [0.5] * self.ff.np
-
-        self.target = Interaction_OpenMM(self.options, self.tgt_opt, self.ff)
 
     def teardown_method(self):
         shutil.rmtree("temp")
