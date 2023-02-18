@@ -4,7 +4,7 @@ import os
 from collections import OrderedDict
 
 from openff.forcebalance import BaseClass
-from openff.forcebalance.nifty import printcool_dictionary, warn_once
+from openff.forcebalance.nifty import warn_once
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
@@ -82,14 +82,7 @@ class Engine(BaseClass):
         os.chdir(self.tempdir)
         self.prepare(**kwargs)
         os.chdir(cwd)
-        ## Print out all engine options.
-        if self.verbose:
-            printcool_dictionary(
-                OrderedDict(
-                    [(i, self.__dict__[i]) for i in sorted(self.__dict__.keys())]
-                ),
-                title="Attributes for engine %s" % self.__class__.__name__,
-            )
+
         return
 
     def setopts(self, **kwargs):

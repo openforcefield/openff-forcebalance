@@ -611,7 +611,7 @@ class AbInitio(Target):
                 "%.3f" % self.w_resp,
                 "%8.4f" % self.esp_ctr,
             ]
-        self.printcool_table(data=Data, headings=Headings, color=0)
+
         if self.force:
             logger.info(
                 "Maximum force difference on atom %i (%s), frame %i, %8.4f kJ/mol/A\n"

@@ -10,8 +10,9 @@ import json
 import os
 
 import numpy as np
+from openff.toolkit.typing.engines import smirnoff
 
-from openff.forcebalance.nifty import printcool_dictionary, warn_once
+from openff.forcebalance.nifty import warn_once
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
 
@@ -27,13 +28,6 @@ try:
     recharge_import_success = True
 except ImportError:
     recharge_import_success = False
-
-try:
-    from openff.toolkit.typing.engines import smirnoff
-
-    toolkit_import_success = True
-except ImportError:
-    toolkit_import_success = False
 
 logger = getLogger(__name__)
 
@@ -308,7 +302,3 @@ class Recharge_SMIRNOFF(Target):
             smiles: "%9.3e" % loss
             for smiles, loss in self._per_molecule_residuals.items()
         }
-
-        printcool_dictionary(
-            dict_for_print, title=title, bold=True, color=4, keywidth=15
-        )

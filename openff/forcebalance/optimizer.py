@@ -31,8 +31,6 @@ from openff.forcebalance.nifty import (
     invert_svd,
     lp_load,
     pmat2d,
-    printcool,
-    printcool_dictionary,
     pvec1d,
     row,
     warn_press_key,
@@ -224,9 +222,6 @@ class Optimizer(BaseClass):
         if options["continue"]:
             self.recover()
 
-        ## Print the optimizer options.
-        printcool_dictionary(self.print_option_dict, title="Setup for optimizer")
-        ## Load the checkpoint file.
         self.readchk()
 
     def recover(self):
@@ -256,16 +251,7 @@ class Optimizer(BaseClass):
             [((T.maxid() - T.maxrd()) > 0) for T in self.Objective.Targets]
         ):
             maxrd += 1
-        printcool(
-            "Continuing optimization from iteration %i\nThese targets will load data from disk:\n%s"
-            % (
-                maxrd,
-                "\n".join(
-                    [T.name for T in self.Objective.Targets if T.maxrd() == maxrd]
-                ),
-            ),
-            color=4,
-        )
+
         ## If data exists in the temp-dir corresponding to the highest
         ## iteration number, read the data.
         for T in self.Objective.Targets:
@@ -402,14 +388,12 @@ class Optimizer(BaseClass):
         ## Print out final answer
         if print_parameters:
             if self.FF.use_pvals:
-                bar = printcool("Final optimization parameters:", color=4)
                 self.FF.print_map(self.FF.create_mvals(xk))
-                bar = printcool("Final physical parameters:", color=4)
+                bar = "Final physical parameters:"
                 self.FF.print_map(xk)
             else:
-                bar = printcool("Final optimization parameters:", color=4)
                 self.FF.print_map(xk)
-                bar = printcool("Final physical parameters:", color=4)
+                bar = "Final physical parameters:"
                 self.FF.print_map(self.FF.create_pvals(xk))
             logger.info(bar)
             if self.backup:
@@ -417,36 +401,17 @@ class Optimizer(BaseClass):
                     if os.path.exists(os.path.join(self.resdir, fnm)):
                         bak(os.path.join(self.resdir, fnm))
             self.FF.make(xk, printdir=self.resdir)
-            # logger.info("The force field has been written to the '%s' directory.\n" % self.resdir)
             outfnm = self.save_mvals_to_input(xk)
-            # logger.info("Input file with optimization parameters saved to %s.\n" % outfnm)
-            printcool(
-                "The force field has been written to the %s directory.\n"
-                "Input file with optimization parameters saved to %s."
-                % (self.resdir, outfnm),
-                color=0,
-            )
-            # "To reload these parameters, use %s as the input\n"
-            # "file without changing the '%s' directory." %
-            # (outfnm, outfnm, self.FF.ffdir), color=0, center=False, sym2='-')
 
-        ## Write out stuff to checkpoint file
         self.writechk()
 
-        ## Print out final message
         logger.info(
             "Wall time since calculation start: %.1f seconds\n" % (time.time() - t0)
         )
         if self.failmsg:
-            bar = printcool(
-                "It is possible to commit no mistakes and still lose.\nThat is not a weakness. That is life.",
-                ansi="40;93",
-            )
+            print("Calculation did not finish.")
         else:
-            bar = printcool(
-                "Calculation Finished.\n---==(  May the Force be with you!  )==---",
-                ansi="1;44;93",
-            )
+            print("Calculation Finished.")
 
         return xk
 
@@ -485,33 +450,8 @@ class Optimizer(BaseClass):
 
         """
 
-        if self.trust0 < 0.0:
-            detail = "(Hessian Diagonal Search)"
-        elif self.adapt_fac != 0.0:
-            detail = "(Adaptive Trust Radius)"
-        else:
-            detail = "(Trust Radius)"
-        printcool(
-            "Main Optimizer \n%s Method %s\n\n"
-            "\x1b[0mConvergence criteria (%i of 3 needed):\n"
-            "\x1b[0mObjective Function  : %.3e\n"
-            "\x1b[0mNorm of Gradient    : %.3e\n"
-            "\x1b[0mParameter step size : %.3e"
-            % (
-                "BFGS" if b_BFGS else "Newton-Raphson",
-                detail,
-                self.criteria,
-                self.convergence_objective,
-                self.convergence_gradient,
-                self.convergence_step,
-            ),
-            ansi=1,
-            bold=1,
-        )
-
-        # Print a warning if optimization is unlikely to converge
         if self.uncert and self.convergence_objective < 1e-3:
-            warn_press_key(
+            raise Exception(
                 "Condensed phase targets detected - may not converge with current choice of"
                 " convergence_objective (%.e)\nRecommended range is 1e-2 - 1e-1 for this option."
                 % self.convergence_objective
@@ -548,16 +488,6 @@ class Optimizer(BaseClass):
         ThreLQ = 0.25
         # Threshold for "high quality step" which increases trust radius.
         ThreHQ = 0.75
-        printcool(
-            "Color Key for Objective Function -=X2=-\n\x1b[1mBold\x1b[0m = Initial step\n"
-            "\x1b[92mGreen = Current lowest value of objective function%s\x1b[0m\n"
-            "\x1b[91mRed = Objective function rises, step rejected\x1b[0m\n"
-            "\x1b[0mNo color = Not at the lowest value"
-            % (" (best estimate)" if self.uncert else ""),
-            bold=0,
-            color=0,
-            center=[True, False, False, False, False],
-        )
         # Optimization steps before this one are ineligible for consideration for "best step".
         Best_Start = 0
         criteria_satisfied = {"step": False, "grad": False, "obj": False}
@@ -591,12 +521,6 @@ class Optimizer(BaseClass):
             # | Evaluate objective function. |#
             # ================================#
             if len(self.chk.keys()) > 0 and ITERATION == self.iterinit:
-                printcool(
-                    "Iteration %i: Reading initial objective, gradient, Hessian from checkpoint file"
-                    % (ITERATION),
-                    color=4,
-                    bold=0,
-                )
                 logger.info(
                     "Reading initial objective, gradient, Hessian from checkpoint file\n"
                 )
@@ -609,12 +533,6 @@ class Optimizer(BaseClass):
                 X_hist, trust = self.chk["X_hist"], self.chk["trust"]
             else:
                 self.adjh(trust)
-                printcool(
-                    "Iteration %i: Evaluating objective function\nand derivatives through %s order"
-                    % (ITERATION, "first" if Ord == 1 else "second"),
-                    color=4,
-                    bold=0,
-                )
                 data = self.Objective.Full(xk, Ord, verbose=True)
                 X, G, H = data["X"], data["G"], data["H"]
             trustprint = ""
@@ -651,10 +569,6 @@ class Optimizer(BaseClass):
                         # |  function and gradients at   |#
                         # |   the previous parameters.   |#
                         # ================================#
-                        printcool(
-                            "Objective function rises!\nRe-evaluating at the previous point..",
-                            color=1,
-                        )
                         ITERATION += 1
                         self.iteration += 1
                         Best_Start = ITERATION - self.iterinit
@@ -695,10 +609,6 @@ class Optimizer(BaseClass):
                         # | Go back to the start of loop |#
                         # |    and take a reduced step.  |#
                         # ================================#
-                        printcool(
-                            "Objective function rises!\nTaking another step from previous point..",
-                            color=1,
-                        )
                         X = X_prev
                         G = G_prev.copy()
                         H = H_stor.copy()
@@ -733,12 +643,6 @@ class Optimizer(BaseClass):
                         # logger.info("The force field has been written to the '%s' directory.\n" % self.resdir)
                         outfnm = self.save_mvals_to_input(xk)
                         # logger.info("Input file with optimization parameters saved to %s.\n" % outfnm)
-                        printcool(
-                            "The force field has been written to the %s directory.\n"
-                            "Input file with optimization parameters saved to %s."
-                            % (self.resdir, outfnm),
-                            color=0,
-                        )
                     # ================================#
                     # |  Hessian update for BFGS.    |#
                     # ================================#
@@ -782,13 +686,11 @@ class Optimizer(BaseClass):
             # |     gradient and Hessian.    |#
             # ================================#
             if self.print_grad:
-                bar = printcool("Total Gradient", color=4)
                 self.FF.print_map(vals=G, precision=8)
-                logger.info(bar)
+                logger.info("Total Gradient")
             if self.print_hess:
-                bar = printcool("Total Hessian", color=4)
                 pmat2d(H, precision=8)
-                logger.info(bar)
+                logger.info("Total Hessian", color=4)
             for key, val in self.Objective.ObjDict.items():
                 if Best_Step:
                     self.Objective.ObjDict_Last[key] = val
@@ -910,9 +812,6 @@ class Optimizer(BaseClass):
             if self.print_vals:
                 pk = self.FF.create_pvals(xk)
                 dp = pk - pk_prev
-                bar = printcool(
-                    "Mathematical Parameters (Current + Step = Next)", color=5
-                )
                 self.FF.print_map(
                     vals=[
                         "{: .4e} {} {:.4e} = {: .4e}".format(
@@ -921,8 +820,9 @@ class Optimizer(BaseClass):
                         for i in range(len(xk))
                     ]
                 )
-                logger.info(bar)
-                bar = printcool("Physical Parameters (Current + Step = Next)", color=5)
+
+                logger.info("Mathematical Parameters (Current + Step = Next)")
+
                 self.FF.print_map(
                     vals=[
                         "{: .4e} {} {:.4e} = {: .4e}".format(
@@ -931,8 +831,9 @@ class Optimizer(BaseClass):
                         for i in range(len(pk))
                     ]
                 )
-                logger.info(bar)
-            # Write checkpoint file.
+
+                logger.info("Physical Parameters (Current + Step = Next)")
+
             self.chk = {
                 "xk": xk,
                 "X": X,
@@ -947,17 +848,7 @@ class Optimizer(BaseClass):
             logger.info("Input file with saved parameters: %s\n" % outfnm)
 
         cnvgd = sum(criteria_satisfied.values()) >= self.criteria
-        bar = printcool(
-            "\x1b[0m%s\x1b[0m\nFinal objective function value\nFull: % .6e  Un-penalized: % .6e"
-            % (
-                "\x1b[1mOptimization Converged"
-                if cnvgd
-                else "\x1b[1;91mConvergence Failure",
-                data["X"],
-                data["X0"],
-            ),
-            color=2,
-        )
+
         self.failmsg = not cnvgd
 
         print("Optimization Converged.")
@@ -1385,7 +1276,6 @@ class Optimizer(BaseClass):
                         self.prev_bad = False
                         if self.print_vals:
                             logger.info("\n")
-                            bar = printcool("Current Mathematical Parameters:", color=5)
                             self.FF.print_map(vals=["% .4e" % i for i in mvals])
                         for Tgt in self.Objective.Targets:
                             Tgt.meta_indicate()
@@ -1436,11 +1326,6 @@ class Optimizer(BaseClass):
             return wrap(func, Order=2, callback=callback)
 
         if Algorithm == "powell":
-            printcool(
-                "Minimizing Objective Function using\nPowell's Conjugate Direction Method",
-                ansi=1,
-                bold=1,
-            )
             return optimize.fmin_powell(
                 xwrap(self.Objective.Full),
                 self.mvals0,
@@ -1449,11 +1334,6 @@ class Optimizer(BaseClass):
                 maxiter=self.maxstep,
             )
         elif Algorithm == "simplex":
-            printcool(
-                "Minimizing Objective Function using\nNelder-Mead Simplex Method",
-                ansi=1,
-                bold=1,
-            )
             return optimize.fmin(
                 xwrap(self.Objective.Full),
                 self.mvals0,
@@ -1463,11 +1343,6 @@ class Optimizer(BaseClass):
                 maxfun=self.maxstep * 10,
             )
         elif Algorithm == "anneal":
-            printcool(
-                "Minimizing Objective Function using Simulated Annealing",
-                ansi=1,
-                bold=1,
-            )
             xmin, Jmin, T, feval, iters, accept, status = optimize.anneal(
                 xwrap(self.Objective.Full),
                 self.mvals0,
@@ -1491,11 +1366,6 @@ class Optimizer(BaseClass):
             logger.info("Tests accepted:       %i" % iters)
             return xmin
         elif Algorithm == "basinhopping":
-            printcool(
-                "Minimizing Objective Function using Basin Hopping Method",
-                ansi=1,
-                bold=1,
-            )
             T = xwrap(self.Objective.Full)(self.mvals0)
             Result = optimize.basinhopping(
                 xwrap(self.Objective.Full),
@@ -1516,11 +1386,6 @@ class Optimizer(BaseClass):
             logger.info(Result.message + "\n")
             return Result.x
         elif Algorithm == "cg":
-            printcool(
-                "Minimizing Objective Function using\nPolak-Ribiere Conjugate Gradient Method",
-                ansi=1,
-                bold=1,
-            )
             return optimize.fmin_cg(
                 xwrap(self.Objective.Full, callback=False),
                 self.mvals0,
@@ -1528,11 +1393,6 @@ class Optimizer(BaseClass):
                 gtol=self.convergence_gradient,
             )
         elif Algorithm == "tnc":
-            printcool(
-                "Minimizing Objective Function using\nTruncated Newton Algorithm (Unconfirmed)",
-                ansi=1,
-                bold=1,
-            )
             Result = optimize.fmin_tnc(
                 fgwrap(self.Objective.Full, callback=False),
                 self.mvals0,
@@ -1543,11 +1403,6 @@ class Optimizer(BaseClass):
             )
             return Result.x
         elif Algorithm == "ncg":
-            printcool(
-                "Minimizing Objective Function using\nNewton-CG Algorithm",
-                ansi=1,
-                bold=1,
-            )
             Result = optimize.fmin_ncg(
                 xwrap(self.Objective.Full, callback=False),
                 self.mvals0,
@@ -1559,11 +1414,6 @@ class Optimizer(BaseClass):
             )
             return Result
         elif Algorithm == "bfgs":
-            printcool(
-                "Minimizing Objective Function using\nBFGS Quasi-Newton Method",
-                ansi=1,
-                bold=1,
-            )
             return optimize.fmin_bfgs(
                 xwrap(self.Objective.Full, callback=False),
                 self.mvals0,
@@ -1786,12 +1636,6 @@ class Optimizer(BaseClass):
                 vals = self.FF.pvals0.copy()
             counter = 1
             for i in scanvals:
-                printcool(
-                    "Parameter %i (%s) Value is now % .4e ; Step %i/%i"
-                    % (pidx, self.FF.plist[pidx], i, counter, len(scanvals)),
-                    color=1,
-                    sym="@",
-                )
                 vals[pidx] = i
                 data = self.Objective.Full(vals, Order=0, verbose=True)
                 if data["X"] < minobj:
@@ -1815,24 +1659,20 @@ class Optimizer(BaseClass):
     def SinglePoint(self):
         """A single-point objective function computation."""
         data = self.Objective.Full(self.mvals0, Order=0, verbose=True)
-        printcool("Objective Function Single Point: %.8f" % data["X"])
 
     def Gradient(self):
         """A single-point gradient computation."""
         data = self.Objective.Full(self.mvals0, Order=1)
-        bar = printcool("Objective function: %.8f\nGradient below" % data["X"])
         self.FF.print_map(vals=data["G"], precision=8)
-        logger.info(bar)
+        logger.info("Objective function: %.8f\nGradient below" % data["X"])
 
     def Hessian(self):
         """A single-point Hessian computation."""
         data = self.Objective.Full(self.mvals0, Order=2)
-        bar = printcool("Objective function: %.8f\nGradient below" % data["X"])
         self.FF.print_map(vals=data["G"], precision=8)
-        logger.info(bar)
-        printcool("Hessian matrix:")
+        logger.info("Objective function: %.8f\nGradient below" % data["X"])
         pmat2d(data["H"], precision=8)
-        logger.info(bar)
+        logger.info("Hessian matrix:")
 
     def Precondition(self):
         """An experimental method to determine the parameter scale factors
@@ -1842,16 +1682,11 @@ class Optimizer(BaseClass):
         data = self.Objective.Full(self.mvals0, Order=2, verbose=True)
         X, G, H = (data["X0"], data["G0"], data["H0"])
         if len(G) < 30:
-            bar = printcool(
-                "(Un-penalized) objective function: %.8f\nGradient below" % X
-            )
+            logger.info("(Un-penalized) objective function: %.8f\nGradient below" % X)
             self.FF.print_map(vals=G, precision=8)
-            logger.info(bar)
-            printcool("Hessian matrix:")
             pmat2d(H, precision=8)
-            logger.info(bar)
+            logger.info("Hessian matrix:")
         else:
-            bar = printcool("(Un-penalized) objective function: %.8f" % X)
             logger.info(
                 "More than 30 parameters; gradient and Hessian written to grad.txt and hess.txt\n"
             )
@@ -1926,7 +1761,7 @@ class Optimizer(BaseClass):
                         np.log(Cond_a) + Reg,
                     )
                 )
-                # printcool_dictionary(answer['rs_ord'])
+
             elif newcond.verbose and Obj < newcond.best:
                 logger.info(
                     "\rEval# %%6i: Step: %%9.3f Along: %%%is Condition: %%10.3e Regularize: %%8.3f Objective: %%8.3f (new minimum)\n"
@@ -1951,7 +1786,7 @@ class Optimizer(BaseClass):
         newcond.verbose = True
         newcond.regularize = 0.1
         newcond.best = np.inf
-        # printcool_dictionary(self.FF.rs_ord)
+
         logrsmult = np.zeros(len(self.FF.rs_ord.keys()), dtype=float)
         # logrsmult[-1] = np.log(0.1)
         # Run the optimization algorithm.
@@ -2088,7 +1923,6 @@ class Optimizer(BaseClass):
             "Condition Number after Rounding Factors -> %.3f\n"
             % (np.exp(newcond(np.log(list(opt_rsord.values())), multiply=False)))
         )
-        bar = printcool("Previous values of the rescaling factors / prior widths:")
         logger.info(
             "".join(
                 [
@@ -2097,29 +1931,21 @@ class Optimizer(BaseClass):
                 ]
             )
         )
-        logger.info(bar)
+        logger.info("Previous values of the rescaling factors / prior widths:")
         opt_rsord = OrderedDict(
             [(k, opt_rsord[k]) for k in opt_rsord.keys() if k in printkeys]
         )
-        bar = printcool("Recommended values (may be slightly stochastic):")
         logger.info(
             "".join(
                 ["   %-35s  : %.1e\n" % (k, opt_rsord[k]) for k in opt_rsord.keys()]
             )
         )
-        logger.info(bar)
+        logger.info("Recommended values (may be slightly stochastic):")
         if np.linalg.norm(self.mvals0) != 0.0:
-            bar = printcool("Mathematical parameters in the new space:", color=4)
             self.FF.print_map(answer["mvals"])
-            logger.info(bar)
+            logger.info("Mathematical parameters in the new space:", color=4)
         outfnm = self.save_mvals_to_input(
             answer["mvals"], priors=opt_rsord, jobtype="optimize"
-        )
-        # logger.info("Input file with optimization parameters saved to %s.\n" % outfnm)
-        printcool(
-            "Input file with new priors/mvals saved to %s (jobtype set to optimize)."
-            % (outfnm),
-            color=0,
         )
 
     def FDCheckG(self):
@@ -2133,19 +1959,7 @@ class Optimizer(BaseClass):
 
         Adata = self.Objective.Full(self.mvals0, Order=1)["G"]
         Fdata = np.zeros(self.FF.np)
-        printcool(
-            "Checking first derivatives by finite difference!\n%-8s%-20s%13s%13s%13s%13s"
-            % (
-                "Index",
-                "Parameter ID",
-                "Analytic",
-                "Numerical",
-                "Difference",
-                "Fractional",
-            ),
-            bold=1,
-            color=5,
-        )
+
         for i in range(self.FF.np):
             Fdata[i] = f1d7p(
                 fdwrap(self.Objective.Full, self.mvals0, i, "X", Order=0), self.h
@@ -2194,20 +2008,6 @@ class Optimizer(BaseClass):
         """
         Adata = self.Objective.Full(self.mvals0, Order=2)["H"]
         Fdata = np.zeros((self.FF.np, self.FF.np))
-        printcool(
-            "Checking second derivatives by finite difference!\n%-8s%-20s%-20s%13s%13s%13s%13s"
-            % (
-                "Index",
-                "Parameter1 ID",
-                "Parameter2 ID",
-                "Analytic",
-                "Numerical",
-                "Difference",
-                "Fractional",
-            ),
-            bold=1,
-            color=5,
-        )
 
         # Whee, our double-wrapped finite difference second derivative!
         def wrap2(mvals0, pidxi, pidxj):

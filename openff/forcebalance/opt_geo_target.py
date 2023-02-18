@@ -11,7 +11,7 @@ import numpy as np
 
 from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import printcool_dictionary, warn_press_key
+from openff.forcebalance.nifty import warn_press_key
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
 
@@ -304,11 +304,6 @@ class OptGeoTarget(Target):
             "RMSD",
             "denom",
             "",
-        )
-        printcool_dictionary(
-            self.PrintDict,
-            title=title_str + "\n" + column_head_str1 + "\n" + column_head_str2,
-            center=[True, False, False],
         )
 
     def get(self, mvals, AGrad=False, AHess=False):

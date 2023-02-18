@@ -25,7 +25,6 @@ from openff.forcebalance.abinitio import AbInitio
 from openff.forcebalance.hessian import Hessian
 from openff.forcebalance.liquid import Liquid
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import printcool
 from openff.forcebalance.openmmio import OpenMM, UpdateSimulationParameters
 from openff.forcebalance.opt_geo_target import OptGeoTarget
 from openff.forcebalance.output import getLogger
@@ -39,7 +38,6 @@ logger = getLogger(__name__)
 
 
 def smirnoff_analyze_parameter_coverage(forcefield, tgt_opts):
-    printcool("SMIRNOFF Parameter Coverage Analysis")
     assert hasattr(forcefield, "offxml"), "Only SMIRNOFF Force Field is supported"
     parameter_assignment_data = defaultdict(list)
     parameter_counter = Counter()

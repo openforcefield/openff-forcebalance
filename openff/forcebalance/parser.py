@@ -52,7 +52,7 @@ import re
 from collections import OrderedDict
 from copy import deepcopy
 
-from openff.forcebalance.nifty import isfloat, printcool, which
+from openff.forcebalance.nifty import isfloat, which
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
@@ -1577,11 +1577,7 @@ def parse_inputs(input_file=None):
             raise RuntimeError
     if section == "SIMULATION" or section == "TARGET":
         tgt_opts.append(this_tgt_opt)
-    if not options["verbose_options"]:
-        printcool(
-            "Options at their default values are not printed\n Use 'verbose_options True' to Enable",
-            color=5,
-        )
+
     # Expand target options (i.e. create multiple tgt_opts dictionaries if multiple target names are specified)
     tgt_opts_x = []
     for topt in tgt_opts:

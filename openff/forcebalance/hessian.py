@@ -120,7 +120,7 @@ class Hessian(Target):
                 for i in range(len(self.ref_Hq))
             ]
         )
-        self.printcool_table(data, headings, banner)
+
         return
 
     def hessian_driver(self):

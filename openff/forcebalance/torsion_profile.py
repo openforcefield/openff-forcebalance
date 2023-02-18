@@ -13,7 +13,7 @@ import numpy as np
 
 from openff.forcebalance.finite_difference import f12d3p, fdwrap, in_fd
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import eqcgmx, printcool_dictionary
+from openff.forcebalance.nifty import eqcgmx
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
 
@@ -134,12 +134,6 @@ class TorsionProfileTarget(Target):
             "Max-RMSD",
             "Ene-RMSE",
             "Obj-Fn",
-        )
-        printcool_dictionary(
-            self.PrintDict,
-            title=title_str + "\n" + column_head_str1,
-            keywidth=50,
-            center=[True, False],
         )
 
     def get(self, mvals, AGrad=False, AHess=False):

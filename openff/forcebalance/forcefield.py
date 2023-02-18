@@ -115,8 +115,6 @@ from openff.forcebalance.nifty import (
     isint,
     natural_sort,
     orthogonalize,
-    printcool,
-    printcool_dictionary,
     warn_press_key,
     wopen,
 )
@@ -293,10 +291,8 @@ class FF(BaseClass):
         ## Creates plist from map.
         self.list_map()
         if verbose:
-            ## Prints the plist to screen.
-            bar = printcool("Starting parameter indices, physical values and IDs")
             self.print_map()
-            logger.info(bar)
+            logger.info("Starting parameter indices, physical values and IDs")
         ## Make the rescaling factors.
         self.rsmake(printfacs=verbose)
         ## Make the transformation matrix.
@@ -308,9 +304,6 @@ class FF(BaseClass):
         self.prmdestroy_save = []
         self.linedestroy_this = []
         self.prmdestroy_this = []
-        ## Print the optimizer options.
-        if printopt:
-            printcool_dictionary(self.print_option_dict, title="Setup for force field")
 
     def addff(self, ffname, xmlScript=False):
         """Parse a force field file and add it to the class.
@@ -1028,13 +1021,10 @@ class FF(BaseClass):
         # for line in os.popen("awk '/rsfactor/ {print $2,$3}' %s" % pkg.options).readlines():
         #     rsfactors[line.split()[0]] = float(line.split()[1])
         if printfacs:
-            bar = printcool(
-                "Rescaling Factors by Type (Lower Takes Precedence):", color=1
-            )
             logger.info(
                 "".join(["   %-35s  : %.5e\n" % (i, rsfactors[i]) for i in rsfac_list])
             )
-            logger.info(bar)
+            logger.info("Rescaling Factors by Type (Lower Takes Precedence):")
         self.rs_ord = OrderedDict([(i, rsfactors[i]) for i in rsfac_list])
         ## The array of rescaling factors
         self.rs = np.ones(len(self.pvals0))
@@ -1055,14 +1045,13 @@ class FF(BaseClass):
             if pnum not in have_rs:
                 self.rs_type[pnum] = self.plist[pnum][0]
         if printfacs:
-            bar = printcool("Rescaling Types / Factors by Parameter Number:", color=1)
             self.print_map(
                 vals=[
                     "   %-28s  : %.5e" % (self.rs_type[pnum], self.rs[pnum])
                     for pnum in range(len(self.pvals0))
                 ]
             )
-            logger.info(bar)
+            logger.info("Rescaling Types / Factors by Parameter Number:")
 
     def make_rescale(
         self, scales, mvals=None, G=None, H=None, multiply=True, verbose=False

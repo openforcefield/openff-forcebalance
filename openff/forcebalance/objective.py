@@ -9,12 +9,7 @@ import numpy as np
 
 from openff.forcebalance import BaseClass
 from openff.forcebalance.finite_difference import in_fd
-from openff.forcebalance.nifty import (
-    createWorkQueue,
-    getWorkQueue,
-    printcool_dictionary,
-    wq_wait,
-)
+from openff.forcebalance.nifty import createWorkQueue, getWorkQueue, wq_wait
 from openff.forcebalance.output import getLogger
 
 logger = getLogger(__name__)
@@ -136,9 +131,6 @@ class Objective(BaseClass):
             else:
                 Tgt = Implemented_Targets[opts["type"]](options, opts, forcefield)
             self.Targets.append(Tgt)
-            printcool_dictionary(
-                Tgt.print_option_dict, "Setup for target %s :" % Tgt.name
-            )
         if len({Tgt.name for Tgt in self.Targets}) != len(
             [Tgt.name for Tgt in self.Targets]
         ):
@@ -170,8 +162,6 @@ class Objective(BaseClass):
         if self.wq_port != 0:
             createWorkQueue(self.wq_port)
             logger.info("Work Queue is listening on %d\n" % self.wq_port)
-
-        printcool_dictionary(self.print_option_dict, "Setup for objective function :")
 
     def Target_Terms(self, mvals, Order=0, verbose=False, customdir=None):
         ## This is the objective function; it's a dictionary containing the value, first and second derivatives
@@ -298,7 +288,7 @@ class Objective(BaseClass):
                 "Target Name",
                 "Residual  x  Weight  =  Contribution",
             )
-        printcool_dictionary(PrintDict, color=4, title=Title)
+
         return
 
     def Full(self, vals, Order=0, verbose=False, customdir=None):
@@ -480,9 +470,6 @@ class Penalty:
         ## Find exponential spacings.
         if self.ptyp in [4, 5, 6]:
             self.spacings = self.FF.find_spacings()
-            printcool_dictionary(
-                self.spacings, title="Starting zeta spacings\n(Pay attention to these)"
-            )
 
     def compute(self, mvals, Objective):
         K0, K1, K2 = self.Pen_Tab[self.ptyp](mvals)

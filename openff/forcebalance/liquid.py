@@ -15,7 +15,7 @@ from pymbar import pymbar
 
 from openff.forcebalance.finite_difference import f12d3p, fdwrap
 from openff.forcebalance.molecule import Molecule
-from openff.forcebalance.nifty import _exec, col, flat, kb, printcool
+from openff.forcebalance.nifty import _exec, col, flat, kb
 from openff.forcebalance.optimizer import Counter
 from openff.forcebalance.output import getLogger
 from openff.forcebalance.target import Target
@@ -418,8 +418,7 @@ class Liquid(Target):
                     # data point itself.
                     default_denoms[head + "_denom"] = np.sqrt(np.abs(dat[0]))
             PhasePoints |= set(self.RefData[head].keys())
-            # This prints out all of the reference data.
-            # printcool_dictionary(self.RefData[head],head)
+
         self.RefData = RefData_copy
         # Here we sort all available PhasePoints by pressure then temperature
         self.PhasePoints = sorted(list(PhasePoints), key=lambda x: (x[1], x[0]))
@@ -546,22 +545,14 @@ class Liquid(Target):
 
         def print_item(key, heading, physunit):
             if self.Xp[key] > 0:
-                printcool_dictionary(
-                    self.Pp[key],
-                    title="%s %s%s\nTemperature  Pressure  Reference  Calculated +- Stdev     Delta    Weight    Term   "
-                    % (self.name, heading, " (%s) " % physunit if physunit else ""),
-                    bold=True,
-                    color=4,
-                    keywidth=15,
+                bar = "{} objective function: {: .3f}{}".format(
+                    heading, self.Xp[key], ", Derivative:" if AGrad else ""
                 )
-                bar = printcool(
-                    "{} objective function: {: .3f}{}".format(
-                        heading, self.Xp[key], ", Derivative:" if AGrad else ""
-                    )
-                )
+
                 if AGrad:
                     self.FF.print_map(vals=self.Gp[key])
                     logger.info(bar)
+
                 PrintDict[heading] = "{: 10.5f} {: 8.3f} {: 14.5e}".format(
                     self.Xp[key], self.Wp[key], self.Xp[key] * self.Wp[key]
                 )
@@ -581,7 +572,7 @@ class Liquid(Target):
             "Property Name",
             "Residual x Weight = Contribution",
         )
-        printcool_dictionary(PrintDict, color=4, title=Title, keywidth=31)
+
         return
 
     def objective_term(
@@ -688,11 +679,6 @@ class Liquid(Target):
         # It submits the jobs to the Work Queue and the stage() function will wait for jobs to complete.
         #
         # First dump the force field to a pickle file
-        printcool(
-            "Target: %s - launching MD simulations\nTime steps: %i (eq) + %i (md)"
-            % (self.name, self.liquid_eq_steps, self.liquid_md_steps),
-            color=0,
-        )
         if "surf_ten" in self.RefData:
             logger.info(
                 "Launching additional NVT simulations for computing surface tension. Time steps: %i (eq) + %i (md)\n"
@@ -1053,12 +1039,6 @@ class Liquid(Target):
         Nrpt = len(self.AllResults[astrm]["R"])
         sumsteps = sum(self.AllResults[astrm]["Steps"])
         if self.liquid_md_steps != sumsteps:
-            printcool(
-                "This objective function evaluation combines %i datasets\n"
-                "Increasing simulation length: %i -> %i steps"
-                % (Nrpt, self.liquid_md_steps, sumsteps),
-                color=6,
-            )
             if self.liquid_md_steps * 2 != sumsteps:
                 logger.error("Spoo!\n")
                 raise RuntimeError
@@ -1214,11 +1194,6 @@ class Liquid(Target):
                     )
                     for p in range(self.FF.np)
                 ]
-            )
-            bar = printcool(
-                "Self-polarization correction to \nenthalpy of vaporization is {: .3f} kJ/mol{}".format(
-                    EPol, ", Derivative:" if AGrad else ""
-                )
             )
             if AGrad:
                 self.FF.print_map(vals=GEPol)
