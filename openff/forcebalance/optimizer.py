@@ -196,7 +196,7 @@ class Optimizer(BaseClass):
         ## Will re-evaluate the objective function when an optimization step is rejected
         self.uncert = any(
             [
-                any([i in tgt.type.lower() for i in ["liquid", "lipid", "thermo"]])
+                any([i in tgt.type.lower() for i in ["liquid"]])
                 for tgt in self.Objective.Targets
             ]
         )
