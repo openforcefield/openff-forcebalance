@@ -1,13 +1,28 @@
-from collections import namedtuple
+from typing import NamedTuple
 
 import numpy
 
+
 # Container for Bravais lattice vector.  Three cell lengths, three angles, three vectors, volume, and TINKER trig functions.
-Box = namedtuple("Box", ["a", "b", "c", "alpha", "beta", "gamma", "A", "B", "C", "V"])
+class Box(NamedTuple):
+    # Cell lengths
+    a: float
+    b: float
+    c: float
+    # Cell angles, degrees
+    alpha: float
+    beta: float
+    gamma: float
+    # TINKER trig functions?
+    A: numpy.ndarray
+    B: numpy.ndarray
+    C: numpy.ndarray
+
+
 radian = 180.0 / numpy.pi
 
 
-def CubicLattice(a):
+def build_cubic_lattice(a: float) -> Box:
     """This function takes in three lattice lengths and three lattice angles, and tries to return a complete box specification."""
     b = a
     c = a
@@ -54,7 +69,14 @@ def CubicLattice(a):
     )
 
 
-def BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma):
+def build_lattice_from_lengths_and_angles(
+    a: float,
+    b: float,
+    c: float,
+    alpha: float,
+    beta: float,
+    gamma: float,
+) -> Box:
     """This function takes in three lattice lengths and three lattice angles, and tries to return a complete box specification."""
     alph = alpha * numpy.pi / 180
     bet = beta * numpy.pi / 180
@@ -98,7 +120,7 @@ def BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma):
     )
 
 
-def BuildLatticeFromVectors(v1, v2, v3):
+def build_lattice_from_vectors(v1, v2, v3) -> Box:
     """This function takes in three lattice vectors and tries to return a complete box specification."""
     a = numpy.linalg.norm(v1)
     b = numpy.linalg.norm(v2)

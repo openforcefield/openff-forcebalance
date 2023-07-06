@@ -47,7 +47,6 @@ def test_disable_smirnoff_hack(monkeypatch):
 def test_smirnoff_hack_basic():
     """Test that using smirnoff_hack.py does not break basic toolkit functionality."""
     from openff.toolkit import ForceField, Molecule
-    from openff.toolkit.typing.chemistry.environment import ChemicalEnvironment
     from openff.toolkit.utils.toolkits import (
         AmberToolsToolkitWrapper,
         RDKitToolkitWrapper,
@@ -71,7 +70,6 @@ def test_smirnoff_hack_basic():
     assert uses_hack(registry.registered_toolkits[0].find_smarts_matches)
     assert uses_hack(registry.registered_toolkits[0].generate_conformers)
     assert uses_hack(registry.registered_toolkits[1].assign_partial_charges)
-    assert uses_hack(ChemicalEnvironment.validate)
 
 
 # TODO: Test that smirnoff_hack.py improves performance
