@@ -20,109 +20,6 @@ from openff.forcebalance.molecule.qc import (
 )
 from openff.forcebalance.molecule.xyz import read_xyz, write_xyz
 
-# ======================================================================#
-# |                                                                    |#
-# |              Chemical file format conversion module                |#
-# |                                                                    |#
-# |                Lee-Ping Wang (leeping@ucdavis.edu)                 |#
-# |                    Last updated March 31, 2019                     |#
-# |                                                                    |#
-# |   This code is part of ForceBalance and is covered under the       |#
-# |   ForceBalance copyright notice and 3-clause BSD license.          |#
-# |   Please see https://github.com/leeping/forcebalance for details.  |#
-# |                                                                    |#
-# |   Feedback and suggestions are encouraged.                         |#
-# |                                                                    |#
-# |   What this is for:                                                |#
-# |   Converting a molecule between file formats                       |#
-# |   Loading and processing of trajectories                           |#
-# |   (list of geometries for the same set of atoms)                   |#
-# |   Concatenating or slicing trajectories                            |#
-# |   Combining molecule metadata (charge, Q-Chem rem variables)       |#
-# |                                                                    |#
-# |   Supported file formats:                                          |#
-# |   See the __init__ method in the Molecule class.                   |#
-# |                                                                    |#
-# |   Note to self / developers:                                       |#
-# |   Please make this file as standalone as possible                  |#
-# |   (i.e. don't introduce dependencies).  If we load an external     |#
-# |   library to parse a file, do so with 'try / except' so that       |#
-# |   the module is still usable even if certain parts are missing.    |#
-# |   It's better to be like a Millennium Falcon. :P                   |#
-# |                                                                    |#
-# |   At present, when I perform operations like adding two objects,   |#
-# |   the sum is created from deep copies of data members in the       |#
-# |   originals. This is because copying by reference is confusing;    |#
-# |   suppose if I do B += A and modify something in B; it should not  |#
-# |   change in A.                                                     |#
-# |                                                                    |#
-# |   A consequence of this is that data members should not be too     |#
-# |   complicated; they should be things like lists or dicts, and NOT  |#
-# |   contain references to themselves.                                |#
-# |                                                                    |#
-# |   To-do list: Handling of comments is still not very good.         |#
-# |   Comments from previous files should be 'passed on' better.       |#
-# |                                                                    |#
-# |              Contents of this file:                                |#
-# |              0) Names of data variables                            |#
-# |              1) Imports                                            |#
-# |              2) Subroutines                                        |#
-# |              3) Molecule class                                     |#
-# |                a) Class customizations (add, getitem)              |#
-# |                b) Instantiation                                    |#
-# |                c) Core functionality (read, write)                 |#
-# |                d) Reading functions                                |#
-# |                e) Writing functions                                |#
-# |                f) Extra stuff                                      |#
-# |              4) "main" function (if executed)                      |#
-# |                                                                    |#
-# |                   Required: Python 2.7 or 3.6                      |#
-# |                             (2.6, 3.5 and earlier untested)        |#
-# |                             NumPy 1.6                              |#
-# |                   Optional: Mol2, PDB, DCD readers                 |#
-# |                    (can be found in ForceBalance)                  |#
-# |                    NetworkX package (for topologies)               |#
-# |                                                                    |#
-# |             Thanks: Todd Dolinsky, Yong Huang,                     |#
-# |                     Kyle Beauchamp (PDB)                           |#
-# |                     John Stone (DCD Plugin)                        |#
-# |                     Pierre Tuffery (Mol2 Plugin)                   |#
-# |                     #python IRC chat on FreeNode                   |#
-# |                                                                    |#
-# |             Contributors: Leah Isseroff Bendavid                   |#
-# |                           Yudong Qiu                               |#
-# |                                                                    |#
-# |             Instructions:                                          |#
-# |                                                                    |#
-# |               To import:                                           |#
-# |                 from molecule import Molecule                      |#
-# |               To create a Molecule object:                         |#
-# |                 MyMol = Molecule(fnm)                              |#
-# |               To convert to a new file format:                     |#
-# |                 MyMol.write('newfnm.format')                       |#
-# |               To concatenate geometries:                           |#
-# |                 MyMol += MyMolB                                    |#
-# |                                                                    |#
-# ======================================================================#
-
-# =========================================#
-# |     DECLARE VARIABLE NAMES HERE       |#
-# |                                       |#
-# |  Any member variable in the Molecule  |#
-# | class must be declared here otherwise |#
-# | the Molecule class won't recognize it |#
-# =========================================#
-# | Data attributes in FrameVariableNames |#
-# | must be a list along the frame axis,  |#
-# | and they must have the same length.   |#
-# =========================================#
-# xyzs       = List of arrays of atomic xyz coordinates
-# comms      = List of comment strings
-# boxes      = List of 3-element or 9-element arrays for periodic boxes
-# qm_grads   = List of arrays of gradients (i.e. negative of the atomistic forces) from QM calculations
-# qm_espxyzs = List of arrays of xyz coordinates for ESP evaluation
-# qm_espvals = List of arrays of ESP values
-
 FrameVariableNames = {
     "xyzs",
     "comms",
@@ -203,43 +100,9 @@ AllVariableNames = (
 )
 
 
-# ================================#
-#       Set up the logger        #
-# ================================#
-if "forcebalance" in __name__:
-    # If this module is part of ForceBalance, use the package level logger
-    from openff.forcebalance.output import *
+from openff.forcebalance.output import logger
 
-    package = "ForceBalance"
-elif "geometric" in __name__:
-    # This ensures logging behavior is consistent with the rest of geomeTRIC
-    from openff.forcebalance.nifty import logger
-
-    package = "geomeTRIC"
-else:
-    # Previous default behavior if FB package level loggers could not be imported
-    from logging import *
-
-    class RawStreamHandler(StreamHandler):
-        """Exactly like output.StreamHandler except it does no extra formatting
-        before sending logging messages to the stream. This is more compatible with
-        how output has been displayed in ForceBalance. Default stream has also been
-        changed from stderr to stdout"""
-
-        def __init__(self, stream=sys.stdout):
-            super().__init__(stream)
-
-        def emit(self, record):
-            message = record.getMessage()
-            self.stream.write(message)
-            self.flush()
-
-    logger = getLogger("MoleculeLogger")
-    logger.setLevel(INFO)
-    handler = RawStreamHandler()
-    logger.addHandler(handler)
-
-module_name = __name__.replace(".molecule", "")
+package = "ForceBalance"
 
 
 def unmangle(M1, M2):
@@ -2948,8 +2811,8 @@ class Molecule:
 
     def require_boxes(self):
         from openff.forcebalance.molecule.box import (
-            BuildLatticeFromLengthsAngles,
-            BuildLatticeFromVectors,
+            build_lattice_from_lengths_and_angles,
+            build_lattice_from_vectors,
         )
 
         def buildbox(line):
@@ -2961,7 +2824,9 @@ class Molecule:
                 alpha = 90.0
                 beta = 90.0
                 gamma = 90.0
-                return BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma)
+                return build_lattice_from_lengths_and_angles(
+                    a, b, c, alpha, beta, gamma
+                )
             elif len(s) == 3:
                 a = s[0]
                 b = s[1]
@@ -2969,7 +2834,9 @@ class Molecule:
                 alpha = 90.0
                 beta = 90.0
                 gamma = 90.0
-                return BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma)
+                return build_lattice_from_lengths_and_angles(
+                    a, b, c, alpha, beta, gamma
+                )
             elif len(s) == 6:
                 a = s[0]
                 b = s[1]
@@ -2977,12 +2844,14 @@ class Molecule:
                 alpha = s[3]
                 beta = s[4]
                 gamma = s[5]
-                return BuildLatticeFromLengthsAngles(a, b, c, alpha, beta, gamma)
+                return build_lattice_from_lengths_and_angles(
+                    a, b, c, alpha, beta, gamma
+                )
             elif len(s) == 9:
                 v1 = numpy.array([s[0], s[3], s[4]])
                 v2 = numpy.array([s[5], s[1], s[6]])
                 v3 = numpy.array([s[7], s[8], s[2]])
-                return BuildLatticeFromVectors(v1, v2, v3)
+                return build_lattice_from_vectors(v1, v2, v3)
             else:
                 logger.error(
                     "Not sure what to do since you gave me %i numbers\n" % len(s)

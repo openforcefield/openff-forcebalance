@@ -190,7 +190,7 @@ def write_pdb(molecule, selection, **kwargs):
 
 def read_pdb(fnm, **kwargs):
     """Loads a PDB and returns a dictionary containing its data."""
-    from openff.forcebalance.molecule.box import BuildLatticeFromLengthsAngles
+    from openff.forcebalance.molecule.box import build_lattice_from_lengths_and_angles
 
     F1 = open(fnm)
     ParsedPDB = readPDB(F1)
@@ -212,7 +212,9 @@ def read_pdb(fnm, **kwargs):
         if x.__class__ in [TER] and ReadTerms:
             PDBTerms[-1] = 1
         if x.__class__ == CRYST1:
-            Box = BuildLatticeFromLengthsAngles(x.a, x.b, x.c, x.alpha, x.beta, x.gamma)
+            Box = build_lattice_from_lengths_and_angles(
+                x.a, x.b, x.c, x.alpha, x.beta, x.gamma
+            )
 
     X = PDBLines[0]
 

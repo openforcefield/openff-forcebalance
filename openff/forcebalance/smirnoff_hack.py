@@ -2,7 +2,6 @@
 import copy
 import os
 
-from openff.toolkit.typing.chemistry.environment import ChemicalEnvironment
 from openff.toolkit.utils.toolkits import (
     AmberToolsToolkitWrapper,
     OpenEyeToolkitWrapper,
@@ -45,7 +44,6 @@ def use_caches():
 
         save_original(OpenEyeToolkitWrapper, "find_smarts_matches")
         save_original(RDKitToolkitWrapper, "find_smarts_matches")
-        save_original(ChemicalEnvironment, "validate")
         save_original(OpenEyeToolkitWrapper, "assign_partial_charges")
         save_original(AmberToolsToolkitWrapper, "assign_partial_charges")
         save_original(OpenEyeToolkitWrapper, "generate_conformers")
@@ -54,13 +52,11 @@ def use_caches():
         (
             OE_TOOLKIT_CACHE_find_smarts_matches,
             RDK_TOOLKIT_CACHE_find_smarts_matches,
-            TOOLKIT_CACHE_ChemicalEnvironment_validate,
             OE_TOOLKIT_CACHE_assign_partial_charges,
             AT_TOOLKIT_CACHE_assign_partial_charges,
             OE_TOOLKIT_CACHE_molecule_conformers,
             RDK_TOOLKIT_CACHE_molecule_conformers,
         ) = (
-            dict(),
             dict(),
             dict(),
             dict(),
@@ -88,20 +84,6 @@ def use_caches():
                     self, molecule, *args, **kwargs
                 )
             return RDK_TOOLKIT_CACHE_find_smarts_matches[cache_key]
-
-        def cached_validate(
-            smirks, validate_valence_type=True, toolkit_registry=OpenEyeToolkitWrapper
-        ):
-            cache_key = hash((smirks, validate_valence_type, toolkit_registry))
-            if cache_key not in TOOLKIT_CACHE_ChemicalEnvironment_validate:
-                TOOLKIT_CACHE_ChemicalEnvironment_validate[
-                    cache_key
-                ] = ChemicalEnvironment._original_validate(
-                    smirks,
-                    validate_valence_type=validate_valence_type,
-                    toolkit_registry=toolkit_registry,
-                )
-            return TOOLKIT_CACHE_ChemicalEnvironment_validate[cache_key]
 
         def oe_cached_assign_partial_charges(self, molecule, *args, **kwargs):
             cache_key = hash_molecule_args_and_kwargs(molecule, args, kwargs)
@@ -151,7 +133,6 @@ def use_caches():
 
         OpenEyeToolkitWrapper.find_smarts_matches = oe_cached_find_smarts_matches
         RDKitToolkitWrapper.find_smarts_matches = rdk_cached_find_smarts_matches
-        ChemicalEnvironment.validate = cached_validate
         OpenEyeToolkitWrapper.assign_partial_charges = oe_cached_assign_partial_charges
         AmberToolsToolkitWrapper.assign_partial_charges = (
             at_cached_assign_partial_charges

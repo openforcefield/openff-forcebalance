@@ -16,6 +16,7 @@ Named after the mighty Sniffy Handy Nifty (King Sniffy)
 
 import distutils.dir_util
 import filecmp
+import gzip
 import itertools
 import math
 import os
@@ -26,7 +27,7 @@ import sys
 import tarfile
 import threading
 import time
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from itertools import zip_longest
 from pickle import Pickler, Unpickler
 from select import select
@@ -35,87 +36,7 @@ from subprocess import PIPE
 import numpy as np
 from numpy.linalg import multi_dot
 
-# ================================#
-#       Set up the logger        #
-# ================================#
-if "forcebalance" in __name__:
-    # If this module is part of ForceBalance, use the package level logger
-    from .output import *
-
-    package = "ForceBalance"
-else:
-    from logging import *
-
-    # Define two handlers that don't print newline characters at the end of each line
-    class RawStreamHandler(StreamHandler):
-        """
-        Exactly like StreamHandler, except no newline character is printed at the end of each message.
-        This is done in order to ensure functions in molecule.py and nifty.py work consistently
-        across multiple packages.
-        """
-
-        def __init__(self, stream=sys.stdout):
-            super().__init__(stream)
-
-        def emit(self, record):
-            message = record.getMessage()
-            self.stream.write(message)
-            self.flush()
-
-    class RawFileHandler(FileHandler):
-        """
-        Exactly like FileHandler, except no newline character is printed at the end of each message.
-        This is done in order to ensure functions in molecule.py and nifty.py work consistently
-        across multiple packages.
-        """
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-
-        def emit(self, record):
-            if self.stream is None:
-                self.stream = self._open()
-            message = record.getMessage()
-            self.stream.write(message)
-            self.flush()
-
-    if "geometric" in __name__:
-        # This ensures logging behavior is consistent with the rest of geomeTRIC
-        logger = getLogger(__name__)
-        logger.setLevel(INFO)
-        package = "geomeTRIC"
-    else:
-        logger = getLogger("NiftyLogger")
-        logger.setLevel(INFO)
-        handler = RawStreamHandler()
-        logger.addHandler(handler)
-        if __name__ == "__main__":
-            package = "LPW-nifty.py"
-        else:
-            package = __name__.split(".")[0]
-
-try:
-    import bz2
-
-    HaveBZ2 = True
-except ImportError:
-    logger.warning(
-        "bz2 module import failed (used in compressing or decompressing pickle files)\n"
-    )
-    HaveBZ2 = False
-
-try:
-    import gzip
-
-    HaveGZ = True
-except ImportError:
-    logger.warning(
-        "gzip module import failed (used in compressing or decompressing pickle files)\n"
-    )
-    HaveGZ = False
-
-# The directory that this file lives in
-rootdir = os.path.dirname(os.path.abspath(__file__))
+from openff.forcebalance.output import INFO, logger
 
 # On 2020-05-07, these values were revised to CODATA 2018 values
 # hartree-joule relationship   4.359 744 722 2071(85) e-18
@@ -158,37 +79,6 @@ ambervel2au = 9.349961132249932e-04  # Multiply to go from AMBER velocity unit A
 eqcgmx = au2kj  # Previous value: 2625.5002
 ## Q-Chem to GMX unit conversion for force
 fqcgmx = -grad_au2gmx  # Previous value: -49621.9
-
-
-# =========================#
-#     I/O formatting      #
-# =========================#
-# These functions may be useful someday but I have not tested them
-# def bzip2(src):
-#     dest = src+'.bz2'
-#     if not os.path.exists(src):
-#         logger.error('File to be compressed does not exist')
-#         raise RuntimeError
-#     if os.path.exists(dest):
-#         logger.error('Archive to be created already exists')
-#         raise RuntimeError
-#     with open(src, 'rb') as input:
-#         with bz2.BZ2File(dest, 'wb', compresslevel=9) as output:
-#             copyfileobj(input, output)
-#     os.remove(input)
-
-# def bunzip2(src):
-#     dest = re.sub('\.bz2$', '', src)
-#     if not os.path.exists(src):
-#         logger.error('File to be decompressed does not exist')
-#         raise RuntimeError
-#     if os.path.exists(dest):
-#         logger.error('Target path for decompression already exists')
-#         raise RuntimeError
-#     with bz2.BZ2File(src, 'rb', compresslevel=9) as input:
-#         with open(dest, 'wb') as output:
-#             copyfileobj(input, output)
-#     os.remove(input)
 
 
 def pvec1d(vec1d, precision=1, format="e", loglevel=INFO):
@@ -771,22 +661,16 @@ def multiD_statisticalInefficiency(A_n, B_n=None, fast=False, mintime=3, warn=Tr
 
 def lp_dump(obj, fnm, protocol=0):
     """Write an object to a zipped pickle file specified by the path."""
-    # Safeguard against overwriting files?  Nah.
-    # if os.path.exists(fnm):
-    #     logger.error("lp_dump cannot write to an existing path")
-    #     raise IOError
     if os.path.islink(fnm):
         logger.warning(
             "Trying to write to a symbolic link %s, removing it first\n" % fnm
         )
         os.unlink(fnm)
-    if HaveGZ:
-        f = gzip.GzipFile(fnm, "wb")
-    elif HaveBZ2:
-        f = bz2.BZ2File(fnm, "wb")
-    else:
-        f = open(fnm, "wb")
+
+    f = gzip.GzipFile(fnm, "wb")
+
     Pickler(f, protocol).dump(obj)
+
     f.close()
 
 
@@ -826,35 +710,10 @@ def lp_load(fnm):
         f.close()
         return answer
 
-    if HaveGZ:
-        try:
-            answer = load_gz()
-        except:
-            if HaveBZ2:
-                try:
-                    answer = load_bz2()
-                except:
-                    answer = load_uncompress()
-            else:
-                answer = load_uncompress()
-    elif HaveBZ2:
-        try:
-            answer = load_bz2()
-        except:
-            answer = load_uncompress()
-    else:
-        answer = load_uncompress()
-    return answer
+    return load_gz
 
 
-# ==============================#
-# |      Work Queue stuff      |#
-# ==============================#
-try:
-    import work_queue
-except:
-    pass
-    # logger.warning("Work Queue library import fail (You can't queue up jobs using Work Queue)\n")
+from ndcctools import work_queue
 
 # Global variable corresponding to the Work Queue object
 WORK_QUEUE = None
@@ -873,7 +732,7 @@ def getWQIds():
     return WQIDS
 
 
-def createWorkQueue(wq_port, debug=True, name=package):
+def createWorkQueue(wq_port, debug=True, name="openff-forcebalance"):
     global WORK_QUEUE
     if debug:
         work_queue.set_debug_flag("all")
@@ -884,8 +743,6 @@ def createWorkQueue(wq_port, debug=True, name=package):
     WORK_QUEUE.specify_algorithm(work_queue.WORK_QUEUE_SCHEDULE_TIME)
     # QYD: We don't want to specify the following extremely long keepalive times
     # because they will prevent checking "dead" workers, causing the program to wait forever
-    # WORK_QUEUE.specify_keepalive_timeout(8640000)
-    # WORK_QUEUE.specify_keepalive_interval(8640000)
 
 
 def destroyWorkQueue():
